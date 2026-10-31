@@ -5,6 +5,7 @@
 
 $scriptDirectory = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
 define('APP_BASE_URL', $scriptDirectory === '.' ? '' : $scriptDirectory);
+define('APP_NAME', 'NỀN TẢNG TRÒ CHƠI KỸ THUẬT SỐ');
 define('APP_TIMEZONE', 'Asia/Ho_Chi_Minh');
 
 // import *.sql database before opening the app.
