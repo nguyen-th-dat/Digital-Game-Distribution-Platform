@@ -23,6 +23,17 @@ class Controller {
         return $_SESSION['user'] ?? null;
     }
 
+    protected function currentUserRoles(): array {
+        $user = $this->currentUser();
+        if (!$user) {
+            return [];
+        }
+
+        $roles = array_column(UserModel::getRoles((int)$user['ma']), 'ma_vai_tro');
+        $_SESSION['user_roles'] = $roles;
+        return $roles;
+    }
+
     protected function requireAuth() {
         if (!isset($_SESSION['user'])) {
             $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'] ?? '/';
@@ -34,7 +45,7 @@ class Controller {
 
     protected function requireRole(string $role): array {
         $user = $this->requireAuth();
-        $userRoles = $_SESSION['user_roles'] ?? [];
+        $userRoles = $this->currentUserRoles();
         if (!in_array($role, $userRoles, true)) {
             http_response_code(403);
             $this->render('errors/403', ['message' => 'Bạn không có quyền truy cập trang này.']);

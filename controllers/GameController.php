@@ -3,7 +3,6 @@
 // GAME CONTROLLER
 // =============================================================================
 
-
 class GameController extends Controller {
 
     public function index() {
@@ -43,9 +42,10 @@ class GameController extends Controller {
         $slug = $params['slug'] ?? '';
         $game = GameModel::findBySlug($slug);
         $user = $this->currentUser();
+        $userRoles = $user ? $this->currentUserRoles() : [];
         if ($game && $game['trang_thai'] !== 'published'
             && (!$user || ((int)$game['nguoi_tao_id'] !== (int)$user['ma']
-                && !in_array('admin', $_SESSION['user_roles'] ?? [], true)))) {
+                && !in_array('admin', $userRoles, true)))) {
             $game = null;
         }
         if (!$game) {
@@ -72,6 +72,7 @@ class GameController extends Controller {
                 }
             }
         }
+        $isWatching = $user ? WatchModel::exists((int)$user['ma'], (int)$game['ma']) : false;
 
         $this->render('game/detail', [
             'game' => $game,
@@ -84,7 +85,35 @@ class GameController extends Controller {
             'comments' => $comments,
             'devlogs' => $devlogs,
             'isAuthor' => $isAuthor,
+            'isWatching' => $isWatching,
+            'csrfToken' => $this->csrfToken(),
         ]);
+    }
+
+    public function watch(array $params) {
+        $user = $this->requireAuth();
+        $slug = (string)($params['slug'] ?? '');
+        $game = GameModel::findBySlug($slug);
+        if (!$game || $game['trang_thai'] !== 'published') {
+            http_response_code(404);
+            $this->render('errors/404', ['message' => 'Trò chơi không tìm thấy.']);
+            return;
+        }
+        if (!$this->validateCsrf((string)($_POST['csrf_token'] ?? ''))) {
+            $_SESSION['error'] = 'Phiên gửi biểu mẫu không hợp lệ. Vui lòng thử lại.';
+            $this->redirect('/games/' . rawurlencode($slug));
+        }
+
+        $userId = (int)$user['ma'];
+        $gameId = (int)$game['ma'];
+        if (WatchModel::exists($userId, $gameId)) {
+            WatchModel::unwatch($userId, $gameId);
+            $_SESSION['success'] = 'Đã tắt theo dõi trò chơi.';
+        } else {
+            WatchModel::watch($userId, $gameId);
+            $_SESSION['success'] = 'Đã theo dõi trò chơi. Bạn sẽ nhận thông báo khi có cập nhật mới.';
+        }
+        $this->redirect('/games/' . rawurlencode($slug));
     }
 
     public function showCreate() {
@@ -176,6 +205,14 @@ class GameController extends Controller {
                     $title
                 );
             }
+            NotificationModel::notifyGameFollowers(
+                (int)$gameId,
+                (int)$user['ma'],
+                'game_published',
+                'Game mới từ người bạn theo dõi',
+                $title . ' vừa được đăng tải.',
+                '/games/' . rawurlencode($slug)
+            );
             $db->commit();
         } catch (Throwable $exception) {
             if ($db->inTransaction()) {

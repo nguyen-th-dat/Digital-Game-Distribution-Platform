@@ -32,4 +32,63 @@ class NotificationModel extends Model {
     public static function unreadCount(int $userId): int {
         return self::count('nguoi_dung_id = :uid AND da_doc = FALSE', [':uid' => $userId]);
     }
+
+    public static function notifyUsers(array $userIds, int $actorId, string $type, string $title, string $content, string $url): void {
+        $userIds = array_values(array_unique(array_filter(
+            array_map('intval', $userIds),
+            static function (int $userId) use ($actorId): bool {
+                return $userId > 0 && $userId !== $actorId;
+            }
+        )));
+        if (!$userIds) {
+            return;
+        }
+
+        $stmt = self::db()->prepare(
+            'INSERT INTO ' . self::$table . '
+                (nguoi_dung_id, loai_thong_bao, tieu_de, noi_dung_thong_bao, url_dich)
+             VALUES (:user_id, :type, :title, :content, :url)'
+        );
+        foreach ($userIds as $userId) {
+            $stmt->execute([
+                ':user_id' => $userId,
+                ':type' => $type,
+                ':title' => $title,
+                ':content' => $content,
+                ':url' => $url,
+            ]);
+        }
+    }
+
+    public static function notifyGameFollowers(int $gameId, int $actorId, string $type, string $title, string $content, string $url): void {
+        $game = GameModel::find($gameId);
+        if (!$game || $game['trang_thai'] !== 'published') {
+            return;
+        }
+
+        $recipients = WatchModel::watcherIds($gameId);
+        $authorStmt = self::db()->prepare(
+            'SELECT nguoi_dung_id FROM tac_gia_tro_choi WHERE tro_choi_id = :game_author_id
+             UNION SELECT nguoi_tao_id FROM tro_choi WHERE ma = :game_owner_id'
+        );
+        $authorStmt->execute([':game_author_id' => $gameId, ':game_owner_id' => $gameId]);
+        foreach ($authorStmt->fetchAll(PDO::FETCH_COLUMN) as $authorId) {
+            $recipients = array_merge($recipients, FollowModel::followerIds((int)$authorId));
+        }
+
+        self::notifyUsers($recipients, $actorId, $type, $title, $content, $url);
+    }
+
+    public static function notifyUserFollowers(int $userId, string $type, string $title, string $content, string $url): void {
+        self::notifyUsers(FollowModel::followerIds($userId), $userId, $type, $title, $content, $url);
+    }
+
+    public static function markReadForUser(int $notificationId, int $userId): bool {
+        $stmt = self::db()->prepare(
+            'UPDATE ' . self::$table . '
+             SET da_doc = TRUE, ngay_doc = NOW()
+             WHERE ma = :notification_id AND nguoi_dung_id = :user_id'
+        );
+        return $stmt->execute([':notification_id' => $notificationId, ':user_id' => $userId]);
+    }
 }

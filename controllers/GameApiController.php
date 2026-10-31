@@ -80,7 +80,7 @@ class GameApiController extends Controller {
                 }
             }
         }
-        if (!$isAuthor && !in_array('admin', $_SESSION['user_roles'] ?? [], true)) {
+        if (!$isAuthor && !in_array('admin', $this->currentUserRoles(), true)) {
             $this->jsonError('You cannot edit this game', 403);
         }
 
@@ -110,8 +110,23 @@ class GameApiController extends Controller {
                 $this->jsonError('This slug is already in use', 409);
             }
         }
+        $data = array_filter(
+            $data,
+            static function (string $value, string $field) use ($game): bool {
+                return $value !== ($game[$field] ?? null);
+            },
+            ARRAY_FILTER_USE_BOTH
+        );
         if ($data) {
             GameModel::update($game['ma'], $data);
+            NotificationModel::notifyGameFollowers(
+                (int)$game['ma'],
+                (int)$user['ma'],
+                'game_updated',
+                'Trò chơi đã được cập nhật',
+                ($data['tieu_de'] ?? $game['tieu_de']) . ' vừa có thông tin mới.',
+                '/games/' . rawurlencode($data['duong_dan_rut_gon'] ?? $game['duong_dan_rut_gon'])
+            );
         }
 
         header('Content-Type: application/json');

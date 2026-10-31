@@ -13,6 +13,10 @@ class AuthorController extends Controller {
             $this->render('errors/404', ['message' => 'Tác giả không tìm thấy.']);
             return;
         }
+        $currentUser = $this->currentUser();
+        $isFollowing = $currentUser && (int)$currentUser['ma'] !== $id
+            ? FollowModel::isFollowing((int)$currentUser['ma'], $id)
+            : false;
 
         // Get games by this author
         $sql = "SELECT g.* FROM tro_choi g
@@ -26,10 +30,36 @@ class AuthorController extends Controller {
         $this->render('author/page', [
             'author' => $author,
             'games' => $games,
+            'isFollowing' => $isFollowing,
+            'currentUser' => $currentUser,
+            'csrfToken' => $this->csrfToken(),
         ]);
     }
 
     public function games(array $params) {
         $this->show($params);
+    }
+
+    public function follow(array $params) {
+        $currentUser = $this->requireAuth();
+        $targetId = (int)($params['id'] ?? 0);
+        if (!$this->validateCsrf((string)($_POST['csrf_token'] ?? ''))) {
+            $_SESSION['error'] = 'Phiên gửi biểu mẫu không hợp lệ. Vui lòng thử lại.';
+            $this->redirect('/author/' . $targetId);
+        }
+        if (!$targetId || $targetId === (int)$currentUser['ma'] || !UserModel::find($targetId)) {
+            http_response_code(404);
+            $this->render('errors/404', ['message' => 'Người chơi không tìm thấy.']);
+            return;
+        }
+
+        if (FollowModel::isFollowing((int)$currentUser['ma'], $targetId)) {
+            FollowModel::unfollow((int)$currentUser['ma'], $targetId);
+            $_SESSION['success'] = 'Đã bỏ theo dõi người chơi.';
+        } else {
+            FollowModel::follow((int)$currentUser['ma'], $targetId);
+            $_SESSION['success'] = 'Đã theo dõi người chơi. Bạn sẽ nhận thông báo khi họ có cập nhật mới.';
+        }
+        $this->redirect('/author/' . $targetId);
     }
 }

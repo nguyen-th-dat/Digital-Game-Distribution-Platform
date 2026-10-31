@@ -7,7 +7,7 @@ class ReleaseModel extends Model {
     protected static $table = 'phien_ban_phat_hanh';
 
     public static function create(int $gameId, string $version, string $channel, string $notes, int $creatorId): int {
-        return self::insert([
+        $releaseId = self::insert([
             'tro_choi_id' => $gameId,
             'ten_phien_ban' => $version,
             'kenh_phat_hanh' => $channel,
@@ -15,6 +15,18 @@ class ReleaseModel extends Model {
             'nguoi_tao_id' => $creatorId,
             'ngay_phat_hanh' => date('Y-m-d H:i:s'),
         ]);
+        $game = GameModel::find($gameId);
+        if ($game) {
+            NotificationModel::notifyGameFollowers(
+                $gameId,
+                $creatorId,
+                'game_release',
+                'Có phiên bản game mới',
+                $game['tieu_de'] . ' vừa phát hành phiên bản ' . $version . '.',
+                '/games/' . rawurlencode($game['duong_dan_rut_gon'])
+            );
+        }
+        return $releaseId;
     }
 
     public static function listForGame(int $gameId): array {

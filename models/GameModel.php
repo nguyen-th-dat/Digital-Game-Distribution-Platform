@@ -14,6 +14,54 @@ class GameModel extends Model {
         return self::findBy('duong_dan_rut_gon', $slug);
     }
 
+    public static function removeFromPlatform(int $gameId): bool {
+        return self::update($gameId, ['trang_thai' => 'hidden']);
+    }
+
+    public static function listForAdmin(string $query, int $limit, int $offset): array {
+        $where = '';
+        $params = [];
+        if ($query !== '') {
+            $where = ' WHERE tieu_de LIKE :title_query
+                       OR duong_dan_rut_gon LIKE :slug_query
+                       OR CAST(ma AS CHAR) = :game_id';
+            $params = [
+                ':title_query' => '%' . $query . '%',
+                ':slug_query' => '%' . $query . '%',
+                ':game_id' => $query,
+            ];
+        }
+
+        $sql = 'SELECT * FROM ' . self::$table . $where
+            . ' ORDER BY ngay_tao DESC LIMIT :limit OFFSET :offset';
+        $stmt = self::db()->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_STR);
+        }
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public static function countForAdmin(string $query): int {
+        $where = '';
+        $params = [];
+        if ($query !== '') {
+            $where = ' WHERE tieu_de LIKE :title_query
+                       OR duong_dan_rut_gon LIKE :slug_query
+                       OR CAST(ma AS CHAR) = :game_id';
+            $params = [
+                ':title_query' => '%' . $query . '%',
+                ':slug_query' => '%' . $query . '%',
+                ':game_id' => $query,
+            ];
+        }
+        $stmt = self::db()->prepare('SELECT COUNT(*) FROM ' . self::$table . $where);
+        $stmt->execute($params);
+        return (int)$stmt->fetchColumn();
+    }
+
     public static function listPublished(array $filters = [], int $limit = 20, int $offset = 0): array {
         $where = ['trang_thai = :status'];
         $params = [':status' => 'published'];

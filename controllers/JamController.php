@@ -5,7 +5,6 @@
 
 class JamController extends Controller {
 
-    
     public function index() {
         $jams = JamModel::getAll();
         $this->render('jam/list', [

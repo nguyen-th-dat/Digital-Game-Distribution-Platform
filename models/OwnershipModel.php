@@ -32,7 +32,13 @@ class OwnershipModel extends Model {
     }
 
     public static function listForUser(int $userId): array {
-        $sql = "SELECT g.*, o.loai_nhan_quyen, o.ngay_nhan_quyen
+        $sql = "SELECT g.*, o.loai_nhan_quyen, o.ngay_nhan_quyen,
+                       (SELECT m.url_media
+                        FROM media_tro_choi m
+                        WHERE m.tro_choi_id = g.ma
+                          AND m.loai_media IN ('cover', 'thumbnail')
+                        ORDER BY CASE m.loai_media WHEN 'cover' THEN 0 ELSE 1 END, m.thu_tu_sap_xep, m.ma
+                        LIMIT 1) AS anh_mo_rong
                 FROM " . self::$table . " o
                 INNER JOIN tro_choi g ON g.ma = o.tro_choi_id
                 WHERE o.nguoi_dung_id = :uid
