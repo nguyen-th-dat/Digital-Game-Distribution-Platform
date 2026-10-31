@@ -3,14 +3,13 @@
 // APP CONFIGURATION
 // =============================================================================
 
-define('APP_NAME', 'Nền Tảng Phân Phối Trò Chơi Kỹ Thuật Số');
 $scriptDirectory = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
 define('APP_BASE_URL', $scriptDirectory === '.' ? '' : $scriptDirectory);
 define('APP_TIMEZONE', 'Asia/Ho_Chi_Minh');
 
-// XAMPP defaults; import new.sql into the nen_tang_game_doc_lap_vi_v2 database.
+// import *.sql database before opening the app.
 define('DB_HOST', '127.0.0.1');
-define('DB_NAME', 'nen_tang_game_doc_lap_vi_v2');
+define('DB_NAME', 'game_distribution_platform_db');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_PORT', 3306);

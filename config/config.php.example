@@ -3,12 +3,11 @@
 // APP CONFIGURATION
 // =============================================================================
 
-define('APP_NAME', 'Nền Tảng Phân Phối Trò Chơi Kỹ Thuật Số');
 $scriptDirectory = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
 define('APP_BASE_URL', $scriptDirectory === '.' ? '' : $scriptDirectory);
 define('APP_TIMEZONE', 'Asia/Ho_Chi_Minh');
 
-// XAMPP defaults; import *.sql into this database before opening the app.
+// import *.sql database before opening the app.
 define('DB_HOST', '127.0.0.1');
 define('DB_NAME', 'game_distribution_platform_db');
 define('DB_USER', 'root');
@@ -35,4 +34,20 @@ function app_url(string $path = ''): string {
         return $path;
     }
     return $base . $path;
+}
+
+function app_media_url(string $url): string {
+    $parts = parse_url($url);
+    if ($parts === false || isset($parts['host'])) {
+        return $url;
+    }
+
+    $path = $parts['path'] ?? '';
+    $uploadPath = '/public/uploads/';
+    $position = strrpos($path, $uploadPath);
+    if ($position === false) {
+        return $url;
+    }
+
+    return app_url(substr($path, $position));
 }
