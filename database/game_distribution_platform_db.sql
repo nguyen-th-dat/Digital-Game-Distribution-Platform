@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `nen_tang_game_doc_lap_vi_v2`
+-- Database: `game_distribution_platform_db`
 --
 
 -- --------------------------------------------------------
