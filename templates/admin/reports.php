@@ -45,5 +45,5 @@ $openCount = (int)($counts['open'] ?? 0) + (int)($counts['investigating'] ?? 0);
 </section>
 <?php partial('pagination', ['page' => $page, 'pages' => $pages, 'total' => $total]); ?>
 <?php else: ?>
-    <div class="empty"><p><?= $filters['status'] === '' && $filters['target'] === '' ? 'Không còn báo cáo nào cần xử lý.' : 'Không có báo cáo nào khớp bộ lọc.' ?></p><?php if ($filters['status'] !== '' || $filters['target'] !== ''): ?><a class="btn" href="<?= e(app_url('/admin/reports')) ?>"><?= te('game.clear_filters') ?></a><?php endif; ?></div>
+    <div class="empty"><p><?= $filters['status'] === '' && $filters['target'] === '' ? te('admin.reports.khong.con.bao.cao.nao.can.xu.ly') : te('admin.reports.khong.co.bao.cao.nao.khop.bo.loc') ?></p><?php if ($filters['status'] !== '' || $filters['target'] !== ''): ?><a class="btn" href="<?= e(app_url('/admin/reports')) ?>"><?= te('game.clear_filters') ?></a><?php endif; ?></div>
 <?php endif; ?>

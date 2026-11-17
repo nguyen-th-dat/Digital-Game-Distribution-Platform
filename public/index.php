@@ -34,8 +34,8 @@ set_exception_handler(function (Throwable $error): void {
     while (ob_get_level() > 0) {
         ob_end_clean();
     }
-    $message = APP_DEBUG ? $error->getMessage() : 'Đã có lỗi xảy ra phía máy chủ. Vui lòng thử lại sau.';
-    render_error_page(500, 'Lỗi máy chủ', $message);
+    $message = APP_DEBUG ? $error->getMessage() : t('core.da.co.loi.xay.ra.phia.may.chu.vui.long.thu.lai.sau');
+    render_error_page(500, t('core.loi.may.chu'), $message);
 });
 
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
@@ -51,7 +51,7 @@ if (in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
             echo json_encode(['error' => 'csrf_invalid'], JSON_UNESCAPED_UNICODE);
             exit;
         }
-        flash('error', 'Phiên gửi biểu mẫu đã hết hạn hoặc không hợp lệ. Vui lòng thử lại.');
+        flash('error', t('core.phien.gui.bieu.mau.da.het.han.hoac.khong.hop.le.vui.long.thu.lai'));
         $referer = (string)($_SERVER['HTTP_REFERER'] ?? '');
         $refPath = parse_url($referer, PHP_URL_PATH);
         $refHost = parse_url($referer, PHP_URL_HOST);
@@ -257,14 +257,14 @@ $router->get('/admin/audit', 'AdminController@audit');
 // ------------------------------------------------------ dispatch ------------
 $result = $router->dispatch($_SERVER['REQUEST_URI'] ?? '/', $method);
 if (!$result) {
-    render_error_page(404, 'Không tìm thấy', 'Trang bạn tìm không tồn tại hoặc đã được di chuyển.');
+    render_error_page(404, t('core.not_found'), t('core.trang.ban.tim.khong.ton.tai.hoac.da.duoc.di.chuyen'));
     exit;
 }
 
 [$handler, $params] = $result;
 [$controllerName, $methodName] = explode('@', $handler, 2);
 if (!class_exists($controllerName) || !method_exists($controllerName, $methodName)) {
-    render_error_page(404, 'Không tìm thấy', 'Trang bạn tìm không tồn tại hoặc đã được di chuyển.');
+    render_error_page(404, t('core.not_found'), t('core.trang.ban.tim.khong.ton.tai.hoac.da.duoc.di.chuyen'));
     exit;
 }
 (new $controllerName())->$methodName($params);

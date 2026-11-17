@@ -149,7 +149,9 @@ class Translator {
     public static function get(string $key, array $params = []): string {
         $catalogue = self::catalogue(self::locale());
         $text = $catalogue[$key] ?? null;
-        if ($text === null) {
+        // An empty entry means "not translated yet", so the default language
+        // takes over and the page never shows a blank string.
+        if ($text === null || $text === '') {
             $text = self::fallbackCatalogue()[$key] ?? $key;
         }
         return self::interpolate((string)$text, $params);
@@ -243,6 +245,15 @@ class Translator {
         foreach ($catalogue as $key => $value) {
             if (str_starts_with((string)$key, $prefix . '.')) {
                 $out[substr((string)$key, strlen($prefix) + 1)] = $value;
+            }
+        }
+        // A group the current language does not have yet falls back to the
+        // default language, so a select is never empty.
+        if (!$out) {
+            foreach (self::fallbackCatalogue() as $key => $value) {
+                if (str_starts_with((string)$key, $prefix . '.')) {
+                    $out[substr((string)$key, strlen($prefix) + 1)] = $value;
+                }
             }
         }
         return $out;

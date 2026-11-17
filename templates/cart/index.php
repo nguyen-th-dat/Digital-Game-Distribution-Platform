@@ -75,7 +75,7 @@
             <?php if ($coupon): ?>
                 <form method="post" action="<?= e(app_url('/cart/coupon/remove')) ?>" class="split coupon-on">
                     <?= csrf_field() ?>
-                    <span class="small"><?= te('cart.index.dang_dung_ma') ?> <strong><?= e($coupon['ma_uu_dai']) ?></strong><?= $totals['coupon_applies'] ? '' : ' (không áp dụng cho sản phẩm hiện tại)' ?></span>
+                    <span class="small"><?= te('cart.index.dang_dung_ma') ?> <strong><?= e($coupon['ma_uu_dai']) ?></strong><?= $totals['coupon_applies'] ? '' : ' ' . e(t('cart.index.khong.ap.dung.cho.san.pham.hien.tai')) ?></span>
                     <button class="link-btn" type="submit"><?= te('cart.index.go_ma') ?></button>
                 </form>
             <?php else: ?>

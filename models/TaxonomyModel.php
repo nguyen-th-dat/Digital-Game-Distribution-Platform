@@ -41,6 +41,15 @@ class TaxonomyModel extends Model {
         return $spec;
     }
 
+    /** Every kind with its translated wording. */
+    public static function kinds(): array {
+        $out = [];
+        foreach (self::KINDS as $key => $spec) {
+            $out[$key] = self::kind($key);
+        }
+        return $out;
+    }
+
     /** Entries of one kind with the number of games linked to each. */
     public static function listKind(array $k): array {
         return self::query("SELECT t.*, t.{$k['name']} AS ten_muc, t.{$k['slug']} AS khoa_muc,

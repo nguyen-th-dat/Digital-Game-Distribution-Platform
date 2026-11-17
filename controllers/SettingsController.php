@@ -129,6 +129,9 @@ class SettingsController extends Controller {
             ':l' => $lang, ':cur' => $currency, ':g' => $theme,
         ]);
         theme_set($theme);
+        // The language of the account is applied right away, so the page the
+        // visitor lands on is already in the new language.
+        Translator::set($lang);
         audit('settings_update', 'cai_dat_nguoi_dung', $uid);
         flash('success',t('settings.da.luu.quyen.rieng.tu.va.tuy.chon'));
         $this->redirect('/settings#privacy');

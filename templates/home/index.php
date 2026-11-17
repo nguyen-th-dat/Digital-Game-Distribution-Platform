@@ -6,7 +6,7 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
     <section class="section">
         <div class="section-head">
             <h2><?= e($title) ?></h2>
-            <a class="meta link" href="<?= e(app_url($more)) ?>"><?= te('home.index.xem-tat-ca', [ $meta !== '' ? ' · ' . e($meta) : '' ]) ?></a>
+            <a class="meta link" href="<?= e(app_url($more)) ?>"><?= te('home.index.xem-tat-ca', [ $meta !== '' ? t('home.index.dot', [$meta]) : '' ]) ?></a>
         </div>
         <div class="shelf">
             <?php foreach ($games as $game) partial('game-card', ['game' => $game, 'owned' => in_array((int)$game['ma'], $owned, true)]); ?>

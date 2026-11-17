@@ -42,7 +42,7 @@ $statuses = [
             <div class="field">
                 <label for="bd-slug"><?= te('dev.game_slug') ?></label>
                 <input class="input" id="bd-slug" name="duong_dan_rut_gon" maxlength="220" autocomplete="off" spellcheck="false" value="<?= e($v('duong_dan_rut_gon')) ?>">
-                <span class="hint"><?= te('bundle.form.bo-trong-de-tao-tu-ten', [ $isNew ? '' : ' Đổi giá trị này làm hỏng liên kết cũ.' ]) ?></span>
+                <span class="hint"><?= te('bundle.form.bo-trong-de-tao-tu-ten', [ $isNew ? '' : t('bundle.form.doi.gia.tri.nay.lam.hong.lien.ket.cu') ]) ?></span>
             </div>
             <div class="field">
                 <label for="bd-price"><?= te('bundle.form.gia-goi', [ e(APP_CURRENCY) ]) ?></label>

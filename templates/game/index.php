@@ -12,7 +12,7 @@ $hasFilters = $filters['q'] !== '' || $filters['category'] !== '' || $filters['t
 <div class="title-row">
     <div>
         <h1><?= e($heading) ?></h1>
-        <p class="sub"><?= te('game.index.ket-qua', [ fmt_int($total) ,  $filters['q'] !== '' ? ' cho “' . e($filters['q']) . '”' : '' ]) ?></p>
+        <p class="sub"><?= te('game.index.ket-qua', [ fmt_int($total) ,  $filters['q'] !== '' ? t('game.index.cho', [$filters['q']]) : '' ]) ?></p>
     </div>
 </div>
 
