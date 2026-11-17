@@ -57,33 +57,33 @@ class BundleModel extends Model {
         $errors = [];
         $title = trim((string)($post['tieu_de'] ?? ''));
         if ($title === '' || mb_strlen($title) > 200) {
-            $errors[] = 'Tên gói từ 1 đến 200 ký tự.';
+            $errors[] = t('bundlemodel.ten.goi.tu.1.den.200.ky.tu');
         }
         $slugIn = trim((string)($post['duong_dan_rut_gon'] ?? ''));
         $slug = slugify($slugIn !== '' ? $slugIn : $title);
         if ($slugIn === '' && $title === '') {
             // The slug comes from the title; the title error already covers it.
         } elseif ($slug === '' || strlen($slug) > 220) {
-            $errors[] = 'Đường dẫn không hợp lệ.';
+            $errors[] = t('bundlemodel.duong.dan.khong.hop.le');
         } elseif (self::scalar('SELECT 1 FROM goi_game WHERE duong_dan_rut_gon = :s AND ma <> :id', [':s' => $slug, ':id' => (int)$exceptId])) {
-            $errors[] = 'Đường dẫn này đã được dùng cho gói khác.';
+            $errors[] = t('bundlemodel.duong.dan.nay.da.duoc.dung.cho.goi.khac');
         }
         $price = parse_money($post['gia'] ?? '');
         if ($price === null) {
-            $errors[] = 'Giá gói không hợp lệ (ví dụ 9.99).';
+            $errors[] = t('bundlemodel.gia.goi.khong.hop.le.vi.du.9.99');
         }
         $status = (string)($post['trang_thai'] ?? 'draft');
         if (!in_array($status, self::STATUSES, true)) {
-            $errors[] = 'Trạng thái không hợp lệ.';
+            $errors[] = t('admin.trang.thai.khong.hop.le');
         }
         $start = parse_datetime($post['ngay_bat_dau'] ?? '');
         $end = parse_datetime($post['ngay_ket_thuc'] ?? '');
         if ($start && $end && strtotime($end) <= strtotime($start)) {
-            $errors[] = 'Ngày kết thúc phải sau ngày bắt đầu.';
+            $errors[] = t('bundlemodel.ngay.ket.thuc.phai.sau.ngay.bat.dau');
         }
         $description = trim((string)($post['mo_ta'] ?? ''));
         if (mb_strlen($description) > 20000) {
-            $errors[] = 'Mô tả quá dài.';
+            $errors[] = t('bundlemodel.mo.ta.qua.dai');
         }
         $gameIds = array_values(array_unique(array_filter(array_map('intval', (array)($post['games'] ?? [])))));
         if ($allowedGameIds !== null) {
@@ -93,10 +93,10 @@ class BundleModel extends Model {
             $gameIds = array_map('intval', self::column("SELECT ma FROM tro_choi WHERE ma IN ($in) AND trang_thai = 'published'"));
         }
         if (count($gameIds) < 2) {
-            $errors[] = 'Một gói cần ít nhất 2 trò chơi.';
+            $errors[] = t('bundlemodel.mot.goi.can.it.nhat.2.tro.choi');
         } elseif ($price !== null && $price <= 0 && self::listTotal($gameIds) > 0) {
             // A free bundle would hand out paid games for nothing (and pay their authors nothing).
-            $errors[] = 'Gói có trò chơi trả phí cần giá lớn hơn 0.';
+            $errors[] = t('bundlemodel.goi.co.tro.choi.tra.phi.can.gia.lon.hon');
         }
         return [[
             'tieu_de' => $title, 'duong_dan_rut_gon' => $slug, 'mo_ta' => $description !== '' ? $description : null,

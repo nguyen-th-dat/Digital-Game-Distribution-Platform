@@ -12,25 +12,24 @@ class JamModel extends Model {
 
     public const STATUSES = ['draft', 'published', 'active', 'judging', 'completed', 'cancelled'];
 
-    /** Scoring criteria stored in binh_chon_bai_du_thi.tieu_chi. "overall" decides the ranking. */
-    public const CRITERIA = [
-        'overall' => 'Tổng thể',
-        'gameplay' => 'Lối chơi',
-        'visuals' => 'Hình ảnh',
-        'audio' => 'Âm thanh',
-        'theme' => 'Bám chủ đề',
-    ];
+    /** The scoring criteria stored in binh_chon_bai_du_thi.tieu_chi. "overall" decides the ranking. */
+    public const CRITERIA = ['overall', 'gameplay', 'visuals', 'audio', 'theme'];
 
-    public const PHASES = [
-        'draft' => 'Bản nháp',
-        'upcoming' => 'Sắp mở',
-        'submissions' => 'Đang nhận bài',
-        'waiting' => 'Chờ bình chọn',
-        'voting' => 'Đang bình chọn',
-        'closed' => 'Đang tổng hợp kết quả',
-        'results' => 'Đã có kết quả',
-        'cancelled' => 'Đã hủy',
-    ];
+    /** The scoring criteria with their translated wording. */
+    public static function criteria(): array {
+        $out = [];
+        foreach (self::CRITERIA as $criterion) {
+            $out[$criterion] = t('label.jam_criterion.' . $criterion);
+        }
+        return $out;
+    }
+
+    public const PHASES = ['draft', 'upcoming', 'submissions', 'waiting', 'voting', 'closed', 'results', 'cancelled'];
+
+    /** The phase of a jam with its translated wording. */
+    public static function phaseName(string $phase): string {
+        return t('label.jam_phase.' . $phase);
+    }
 
     public static function phase(array $jam, ?int $now = null): string {
         $now = $now ?? time();

@@ -15,13 +15,9 @@ class RoleModel extends Model {
     }
 
     public static function ensureDefaults(): void {
-        $defaults = [
-            'player'   => 'Người chơi',
-            'developer'=> 'Nhà phát triển',
-            'moderator'=> 'Điều hành viên',
-            'admin'    => 'Quản trị viên',
-        ];
-        foreach ($defaults as $code => $name) {
+        $defaults = ['player', 'developer', 'moderator', 'admin'];
+        foreach ($defaults as $code) {
+            $name = label('role', $code);
             $exists = self::findBy('ma_vai_tro', $code);
             if (!$exists) {
                 self::insert(['ma_vai_tro' => $code, 'ten_vai_tro' => $name]);

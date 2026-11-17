@@ -34,7 +34,7 @@ $emptyText = [
                     <?php if ($j['mo_ta']): ?><p class="blurb"><?= e(excerpt($j['mo_ta'], 180)) ?></p><?php endif; ?>
                 </div>
                 <dl class="jam-dates">
-                    <dt><?= te('common.status') ?></dt><dd><span class="pill<?= $phase === 'submissions' || $phase === 'voting' ? ' pos' : ($phase === 'cancelled' ? ' neg' : '') ?>"><?= e(JamModel::PHASES[$phase]) ?></span></dd>
+                    <dt><?= te('common.status') ?></dt><dd><span class="pill<?= $phase === 'submissions' || $phase === 'voting' ? ' pos' : ($phase === 'cancelled' ? ' neg' : '') ?>"><?= e(JamModel::phaseName($phase)) ?></span></dd>
                     <?php if ($phase === 'upcoming'): ?><dt><?= te('admin.campaign-form.bat_dau') ?></dt><dd><?= e(fmt_datetime($j['ngay_bat_dau'])) ?></dd>
                     <?php elseif ($phase === 'submissions'): ?><dt><?= te('admin.jams.han_nop') ?></dt><dd><?= e(fmt_datetime($j['han_nop_bai'])) ?></dd>
                     <?php elseif ($phase === 'voting' && $j['ngay_ket_thuc_binh_chon']): ?><dt><?= te('jam.index.het_binh_chon') ?></dt><dd><?= e(fmt_datetime($j['ngay_ket_thuc_binh_chon'])) ?></dd>

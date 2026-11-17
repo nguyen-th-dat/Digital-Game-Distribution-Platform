@@ -20,7 +20,7 @@ class NotificationController extends Controller {
             ':u' => $uid, ':l' => self::PER_PAGE, ':o' => ($page - 1) * self::PER_PAGE,
         ]);
         $this->render('notification/index', [
-            'pageTitle' => 'Thông báo',
+            'pageTitle' => t('notification.title'),
             'notifications' => $rows,
             'filter' => $filter,
             'unread' => NotificationModel::unreadCount($uid),
@@ -34,7 +34,7 @@ class NotificationController extends Controller {
         $user = $this->requireAuth();
         $row = Model::one('SELECT ma, url_dich FROM thong_bao WHERE ma = :id AND nguoi_dung_id = :u', [':id' => (int)($params['id'] ?? 0), ':u' => (int)$user['ma']]);
         if (!$row) {
-            $this->notFound('Không tìm thấy thông báo này.');
+            $this->notFound(t('notification.khong.tim.thay.thong.bao.nay'));
         }
         NotificationModel::markReadForUser((int)$row['ma'], (int)$user['ma']);
         if (!empty($_POST['open'])) {
@@ -46,7 +46,7 @@ class NotificationController extends Controller {
     public function readAll(array $params = []) {
         $user = $this->requireAuth();
         $n = Model::run('UPDATE thong_bao SET da_doc = 1, ngay_doc = NOW() WHERE nguoi_dung_id = :u AND da_doc = 0', [':u' => (int)$user['ma']]);
-        flash('success', $n ? 'Đã đánh dấu ' . fmt_int($n) . ' thông báo là đã đọc.' : 'Không có thông báo chưa đọc.');
+        flash('success',($n ? t('notification.da.danh.dau.thong.bao.la.da.doc', [fmt_int($n)]) : t('notification.index.khong_co_thong_bao_chua')));
         $this->redirect('/notifications');
     }
 }

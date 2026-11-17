@@ -10,7 +10,7 @@ class ProfileController extends Controller {
     public function show(array $params = []) {
         $profile = UserModel::findByUsername((string)($params['username'] ?? ''));
         if (!$profile || $profile['trang_thai'] === 'deleted') {
-            $this->notFound('Không tìm thấy người dùng này.');
+            $this->notFound(t('profile.not_found'));
         }
         $pid = (int)$profile['ma'];
         $viewer = current_user_id();
@@ -61,20 +61,20 @@ class ProfileController extends Controller {
         $user = $this->requireAuth();
         $profile = UserModel::findByUsername((string)($params['username'] ?? ''));
         if (!$profile || $profile['trang_thai'] !== 'active') {
-            $this->notFound('Không tìm thấy người dùng này.');
+            $this->notFound(t('profile.not_found'));
         }
         $uid = (int)$user['ma'];
         $pid = (int)$profile['ma'];
         if ($uid === $pid) {
-            $this->fail('Bạn không thể tự theo dõi chính mình.', '/u/' . rawurlencode($profile['ten_dang_nhap']));
+            $this->fail(t('profile.ban.khong.the.tu.theo.doi.chinh.minh'), '/u/' . rawurlencode($profile['ten_dang_nhap']));
         }
         if (FollowModel::isFollowing($uid, $pid)) {
             FollowModel::unfollow($uid, $pid);
-            flash('success', 'Đã bỏ theo dõi ' . $profile['ten_hien_thi'] . '.');
+            flash('success',t('profile.da.bo.theo.doi', [$profile['ten_hien_thi']]));
         } else {
             FollowModel::follow($uid, $pid);
-            NotificationModel::create($pid, 'follow', $user['ten_hien_thi'] . ' đã theo dõi bạn', '', '/u/' . rawurlencode($user['ten_dang_nhap']));
-            flash('success', 'Đang theo dõi ' . $profile['ten_hien_thi'] . '. Bạn sẽ được báo khi họ phát hành trò chơi hoặc nhật ký mới.');
+            NotificationModel::create($pid, 'follow',t('profile.da.theo.doi.ban', [$user['ten_hien_thi']]), '', '/u/' . rawurlencode($user['ten_dang_nhap']));
+            flash('success',t('profile.dang.theo.doi.ban.se.duoc.bao.khi.ho.phat.hanh.tro.choi.hoac.nhat.ky.moi', [$profile['ten_hien_thi']]));
         }
         $this->back('/u/' . rawurlencode($profile['ten_dang_nhap']));
     }
@@ -83,7 +83,7 @@ class ProfileController extends Controller {
     public function legacy(array $params = []) {
         $username = Model::scalar("SELECT ten_dang_nhap FROM nguoi_dung WHERE ma = :id AND trang_thai <> 'deleted'", [':id' => (int)($params['id'] ?? 0)]);
         if (!$username) {
-            $this->notFound('Không tìm thấy người dùng này.');
+            $this->notFound(t('profile.not_found'));
         }
         $this->redirect('/u/' . rawurlencode((string)$username));
     }

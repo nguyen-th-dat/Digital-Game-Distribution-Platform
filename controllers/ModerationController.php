@@ -64,7 +64,7 @@ class ModerationController extends Controller {
         $pages = max(1, (int)ceil($total / $per));
         $page = min($this->page(), $pages);
         $this->render('admin/reports', [
-            'pageTitle' => 'Báo cáo vi phạm',
+            'pageTitle' => t('nav.reports'),
             'filters' => ['status' => $status, 'target' => $target],
             'counts' => array_column(Model::query('SELECT trang_thai, COUNT(*) AS n FROM bao_cao_noi_dung GROUP BY trang_thai'), 'n', 'trang_thai'),
             'reports' => Model::query("SELECT b.*, r.ten_hien_thi AS nguoi_bao_cao, a.ten_hien_thi AS nguoi_xu_ly,
@@ -83,7 +83,7 @@ class ModerationController extends Controller {
         $targetId = (int)$report['doi_tuong_id'];
         $target = $this->target($type, $targetId);
         $this->render('admin/report', [
-            'pageTitle' => 'Báo cáo #' . (int)$report['ma'],
+            'pageTitle' => t('moderation.bao.cao', [(int)$report['ma']]),
             'report' => $report,
             'target' => $target,
             'options' => $this->options($type, $target),
@@ -104,35 +104,35 @@ class ModerationController extends Controller {
 
         if (($_POST['do'] ?? '') === 'investigate') {
             if ($report['trang_thai'] !== 'open') {
-                $this->fail('Chỉ nhận xử lý báo cáo đang ở trạng thái "Mới".', $back);
+                $this->fail(t('moderation.chi.nhan.xu.ly.bao.cao.dang.o.trang.thai.moi'), $back);
             }
             Model::run("UPDATE bao_cao_noi_dung SET trang_thai = 'investigating', nguoi_duoc_phan_cong_id = :u WHERE ma = :b AND trang_thai = 'open'", [':u' => $modId, ':b' => $id]);
             audit('report_investigate', 'bao_cao_noi_dung', $id);
-            flash('success', 'Bạn đang xử lý báo cáo này.');
+            flash('success',t('moderation.ban.dang.xu.ly.bao.cao.nay'));
             $this->redirect($back);
         }
 
         if (!$isOpen) {
-            $this->fail('Báo cáo này đã được đóng.', $back);
+            $this->fail(t('moderation.bao.cao.nay.da.duoc.dong'), $back);
         }
         $outcome = (string)($_POST['ket_qua'] ?? '');
         $apply = (string)($_POST['xu_ly'] ?? '');
         $note = post_str('ghi_chu', 1000);
         if (!in_array($outcome, ['resolved', 'rejected'], true)) {
-            $this->fail('Chọn kết quả xử lý.', $back);
+            $this->fail(t('moderation.chon.ket.qua.xu.ly'), $back);
         }
         if ($note === null) {
-            $this->fail('Ghi chú tối đa 1.000 ký tự.', $back);
+            $this->fail(t('admin.finance.ghi.chu.toi.da.1.000.ky.tu'), $back);
         }
         $type = $report['loai_doi_tuong'];
         $targetId = (int)$report['doi_tuong_id'];
         $target = $this->target($type, $targetId);
         if ($apply !== '') {
             if ($outcome !== 'resolved') {
-                $this->fail('Bác bỏ báo cáo thì không áp dụng biện pháp xử lý.', $back);
+                $this->fail(t('moderation.bac.bo.bao.cao.thi.khong.ap.dung.bien.phap.xu.ly'), $back);
             }
             if (!$target || !isset($this->options($type, $target)[$apply])) {
-                $this->fail('Biện pháp xử lý không hợp lệ cho nội dung này.', $back);
+                $this->fail(t('moderation.bien.phap.xu.ly.khong.hop.le.cho.noi.dung.nay'), $back);
             }
         }
         $closeRelated = !empty($_POST['dong_cung_noi_dung']);
@@ -160,15 +160,13 @@ class ModerationController extends Controller {
                 $reporters[] = (int)Model::scalar('SELECT nguoi_bao_cao_id FROM bao_cao_noi_dung WHERE ma = :b', [':b' => $rid]);
                 audit('report_' . $outcome, 'bao_cao_noi_dung', $rid, ['xu_ly' => $apply ?: null]);
             }
-            NotificationModel::notifyUsers($reporters, $modId, 'report_result',
-                $outcome === 'resolved' ? 'Báo cáo của bạn đã được xử lý' : 'Báo cáo của bạn đã được xem xét',
-                $outcome === 'resolved' ? 'Cảm ơn bạn. Điều hành viên đã xử lý nội dung bạn báo cáo.' : 'Điều hành viên không thấy nội dung vi phạm quy định nên không xử lý thêm.', '/notifications');
+            NotificationModel::notifyUsers($reporters, $modId, 'report_result',($outcome === 'resolved' ? t('moderation.bao.cao.cua.ban.da.duoc.xu.ly') : t('moderation.bao.cao.cua.ban.da.duoc.xem.xet')),($outcome === 'resolved' ? t('moderation.cam.on.ban.dieu.hanh.vien.da.xu.ly.noi.dung.ban.bao.cao') : t('moderation.dieu.hanh.vien.khong.thay.noi.dung.vi.pham.quy.dinh.nen.khong.xu.ly.them')), '/notifications');
             return null;
         });
         if ($error !== null) {
             $this->fail($error, $back);
         }
-        flash('success', $outcome === 'resolved' ? 'Đã đóng báo cáo: đã xử lý.' : 'Đã bác bỏ báo cáo.');
+        flash('success',($outcome === 'resolved' ? t('moderation.da.dong.bao.cao.da.xu.ly') : t('moderation.da.bac.bo.bao.cao')));
         $this->redirect($back);
     }
 
@@ -188,7 +186,7 @@ class ModerationController extends Controller {
         $pages = max(1, (int)ceil($total / $per));
         $page = min($this->page(), $pages);
         $this->render('admin/content', [
-            'pageTitle' => 'Nội dung người dùng',
+            'pageTitle' => t('admin.content.noi_dung_nguoi_dung'),
             'filters' => $filters,
             'types' => array_keys(self::CONTENT),
             'statusesFor' => array_map(static fn($c) => $c['statuses'], self::CONTENT),
@@ -207,15 +205,15 @@ class ModerationController extends Controller {
         $back = safe_return((string)($_POST['return_to'] ?? ''), '/admin/comments');
         $row = $this->contentRow($type, (int)($params['id'] ?? 0));
         if (!$row) {
-            $this->notFound('Không tìm thấy nội dung.');
+            $this->notFound(t('moderation.khong.tim.thay.noi.dung'));
         }
         $status = (string)($_POST['trang_thai'] ?? '');
         $reason = post_str('ly_do', 1000);
-        $error = $reason === null ? 'Lý do tối đa 1.000 ký tự.' : Model::transaction(fn() => $this->applyContent($type, $row, $status, (int)$moderator['ma'], $reason));
+        $error = $reason === null ? t('moderation.ly.do.toi.da.1.000.ky.tu') : Model::transaction(fn() => $this->applyContent($type, $row, $status, (int)$moderator['ma'], $reason));
         if ($error !== null) {
             $this->fail($error, $back);
         }
-        flash('success', 'Đã chuyển nội dung sang "' . label('content_status', $status) . '".');
+        flash('success',t('moderation.da.chuyen.noi.dung.sang', [label('content_status', $status)]));
         $this->redirect($back);
     }
 
@@ -243,7 +241,7 @@ class ModerationController extends Controller {
         $pages = max(1, (int)ceil($total / $per));
         $page = min($this->page(), $pages);
         $this->render('admin/moderation', [
-            'pageTitle' => 'Nhật ký kiểm duyệt',
+            'pageTitle' => t('admin.moderation.nhat_ky_kiem_duyet'),
             'filters' => $filters,
             'rows' => Model::query("SELECT h.*, u.ten_hien_thi FROM hanh_dong_kiem_duyet h JOIN nguoi_dung u ON u.ma = h.nguoi_kiem_duyet_id
                 WHERE $sqlWhere ORDER BY h.ngay_tao DESC, h.ma DESC LIMIT :lim OFFSET :off", $args + [':lim' => $per, ':off' => ($page - 1) * $per]),
@@ -258,7 +256,7 @@ class ModerationController extends Controller {
             FROM bao_cao_noi_dung b LEFT JOIN nguoi_dung r ON r.ma = b.nguoi_bao_cao_id LEFT JOIN nguoi_dung a ON a.ma = b.nguoi_duoc_phan_cong_id
             WHERE b.ma = :b', [':b' => (int)($params['id'] ?? 0)]);
         if (!$report) {
-            $this->notFound('Không tìm thấy báo cáo.');
+            $this->notFound(t('moderation.khong.tim.thay.bao.cao'));
         }
         return $report;
     }
@@ -279,14 +277,14 @@ class ModerationController extends Controller {
             return [];
         }
         if ($type === 'user') {
-            return $target['trang_thai'] === 'active' ? ['warning' => 'Gửi cảnh cáo cho người dùng'] : [];
+            return $target['trang_thai'] === 'active' ? ['warning' => t('moderation.gui.canh.cao.cho.nguoi.dung')] : [];
         }
         $statuses = $type === 'game' ? ($target['trang_thai'] === 'draft' ? [] : GameModel::STAFF_STATUSES) : self::CONTENT[$type]['statuses'];
         $group = $type === 'game' ? 'game_status' : 'content_status';
         $out = [];
         foreach ($statuses as $s) {
             if ($s !== $target['trang_thai']) {
-                $out[$s] = 'Chuyển sang "' . label($group, $s) . '"';
+                $out[$s] = t('moderation.chuyen.sang', [label($group, $s)]);
             }
         }
         return $out;
@@ -332,16 +330,16 @@ class ModerationController extends Controller {
     private function applyContent(string $type, array $row, string $status, int $modId, string $reason): ?string {
         $spec = self::CONTENT[$type];
         if (!in_array($status, $spec['statuses'], true)) {
-            return 'Trạng thái không hợp lệ cho loại nội dung này.';
+            return t('moderation.trang.thai.khong.hop.le.cho.loai.noi.dung.nay');
         }
         if ($row['trang_thai'] === 'draft') {
-            return 'Bản nháp chưa công khai, không cần kiểm duyệt.';
+            return t('moderation.ban.nhap.chua.cong.khai.khong.can.kiem.duyet');
         }
         if ($status === $row['trang_thai']) {
-            return 'Nội dung đã ở trạng thái này.';
+            return t('moderation.noi.dung.da.o.trang.thai.nay');
         }
         if ($status !== 'published' && $reason === '') {
-            return 'Hãy ghi lý do khi ẩn hoặc gỡ nội dung.';
+            return t('moderation.hay.ghi.ly.do.khi.an.hoac.go.noi.dung');
         }
         $id = (int)$row['ma'];
         Model::run("UPDATE `{$spec['table']}` SET trang_thai = :s WHERE ma = :i", [':s' => $status, ':i' => $id]);
@@ -351,22 +349,21 @@ class ModerationController extends Controller {
         audit('content_status', $spec['table'], $id, ['truoc' => $row['trang_thai'], 'sau' => $status, 'ly_do' => $reason]);
         $what = mb_strtolower(label('report_target', $type));
         $title = match ($status) {
-            'hidden' => 'Một ' . $what . ' của bạn đã bị ẩn',
-            'removed' => 'Một ' . $what . ' của bạn đã bị gỡ',
-            default => 'Một ' . $what . ' của bạn đã được hiển thị lại',
+            'hidden' => t('moderation.mot.cua.ban.da.bi.an', [$what]),
+            'removed' => t('moderation.mot.cua.ban.da.bi.gos', [$what]),
+            default => t('moderation.mot.cua.ban.da.duoc.hien.thi.lai', [$what]),
         };
-        NotificationModel::notifyUsers([(int)$row['tac_gia_id']], $modId, 'moderation', $title,
-            $reason !== '' ? 'Lý do: ' . $reason : 'Điều hành viên đã xem xét lại nội dung.', $status === 'published' ? $row['url'] : '/notifications');
+        NotificationModel::notifyUsers([(int)$row['tac_gia_id']], $modId, 'moderation', $title,($reason !== '' ? t('download.ly.do', [$reason]) : t('moderation.dieu.hanh.vien.da.xem.xet.lai.noi.dung')), $status === 'published' ? $row['url'] : '/notifications');
         return null;
     }
 
     private function warnUser(array $user, int $modId, string $note): ?string {
         if ($note === '') {
-            return 'Hãy ghi nội dung cảnh cáo; người dùng sẽ nhận được ghi chú này.';
+            return t('moderation.hay.ghi.noi.dung.canh.cao.nguoi.dung.se.nhan.duoc.ghi.chu.nay');
         }
         ModerationActionModel::log($modId, 'user', (int)$user['ma'], 'warning', $note);
         audit('user_warning', 'nguoi_dung', (int)$user['ma']);
-        NotificationModel::notifyUsers([(int)$user['ma']], $modId, 'moderation', 'Cảnh cáo từ điều hành viên', $note, '/notifications');
+        NotificationModel::notifyUsers([(int)$user['ma']], $modId, 'moderation',t('moderation.canh.cao.tu.dieu.hanh.vien'), $note, '/notifications');
         return null;
     }
 }

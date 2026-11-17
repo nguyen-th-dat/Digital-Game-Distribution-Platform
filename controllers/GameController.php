@@ -23,14 +23,14 @@ class GameController extends Controller {
         $page = min($this->page(), $pages);
         $games = GameModel::catalogue($filters, self::PER_PAGE, ($page - 1) * self::PER_PAGE);
 
-        $title = 'Khám phá';
-        if ($filters['sale']) $title = 'Đang giảm giá';
+        $title = t('game.index.kham.pha');
+        if ($filters['sale']) $title = t('game.index.dang.giam.gia');
         $categoryName = $filters['category'] !== '' ? Model::scalar('SELECT ten FROM the_loai WHERE duong_dan_rut_gon = :s', [':s' => $filters['category']]) : null;
         $tagName = $filters['tag'] !== '' ? Model::scalar('SELECT ten FROM nhan WHERE duong_dan_rut_gon = :s', [':s' => $filters['tag']]) : null;
 
         $this->render('game/index', [
             'pageTitle' => $categoryName ? $categoryName : $title,
-            'heading' => $categoryName ?: ($tagName ? 'Thẻ: ' . $tagName : $title),
+            'heading' => $categoryName ?: ($tagName ? t('game.index.the', [$tagName]) : $title),
             'filters' => $filters,
             'games' => $games,
             'total' => $total,
@@ -45,14 +45,14 @@ class GameController extends Controller {
     public function show(array $params = []) {
         $game = GameModel::findBySlug((string)($params['slug'] ?? ''));
         if (!$game) {
-            $this->notFound('Không tìm thấy trò chơi này.');
+            $this->notFound(t('game.not_found'));
         }
         $uid = current_user_id();
         $gid = (int)$game['ma'];
         $isAuthor = GameModel::isAuthor($gid, $uid);
         $public = in_array($game['trang_thai'], ['published', 'unlisted'], true);
         if (!$public && !$isAuthor && !is_staff()) {
-            $this->notFound('Không tìm thấy trò chơi này.');
+            $this->notFound(t('game.not_found'));
         }
         if ($public) {
             DailyStatsModel::countView($gid);
@@ -160,14 +160,14 @@ class GameController extends Controller {
         $user = $this->requireAuth();
         $game = $this->publishedGame($params);
         if (!game_is_free($game)) {
-            $this->fail('Trò chơi này cần thanh toán — hãy thêm vào giỏ hàng.', '/games/' . rawurlencode($game['duong_dan_rut_gon']));
+            $this->fail(t('game.tro.choi.nay.can.thanh.toan.hay.them.vao.gio.hang'), '/games/' . rawurlencode($game['duong_dan_rut_gon']));
         }
         if (OwnershipModel::grant((int)$user['ma'], (int)$game['ma'], 'free_claim')) {
             DailyStatsModel::bump((int)$game['ma'], 'luot_nhan_tai_xuong');
             audit('game_claim', 'tro_choi', (int)$game['ma']);
-            flash('success', '"' . $game['tieu_de'] . '" đã có trong thư viện của bạn.');
+            flash('success',t('game.da.co.trong.thu.vien.cua.ban', [$game['tieu_de']]));
         } else {
-            flash('info', 'Bạn đã sở hữu trò chơi này.');
+            flash('info',t('cart.item_owned'));
         }
         $this->back('/games/' . rawurlencode($game['duong_dan_rut_gon']));
     }
@@ -179,11 +179,11 @@ class GameController extends Controller {
         $gid = (int)$game['ma'];
         if (Model::scalar('SELECT 1 FROM tro_choi_yeu_thich WHERE nguoi_dung_id = :u AND tro_choi_id = :g', [':u' => $uid, ':g' => $gid])) {
             Model::run('DELETE FROM tro_choi_yeu_thich WHERE nguoi_dung_id = :u AND tro_choi_id = :g', [':u' => $uid, ':g' => $gid]);
-            flash('info', 'Đã bỏ "' . $game['tieu_de'] . '" khỏi danh sách mong muốn.');
+            flash('info',t('game.da.bo.khoi.danh.sach.mong.muon', [$game['tieu_de']]));
         } else {
             Model::run('INSERT IGNORE INTO tro_choi_yeu_thich (nguoi_dung_id, tro_choi_id) VALUES (:u, :g)', [':u' => $uid, ':g' => $gid]);
             DailyStatsModel::bump($gid, 'luot_them_yeu_thich');
-            flash('success', 'Đã thêm "' . $game['tieu_de'] . '" vào danh sách mong muốn.');
+            flash('success',t('game.da.them.vao.danh.sach.mong.muon', [$game['tieu_de']]));
         }
         $this->back('/games/' . rawurlencode($game['duong_dan_rut_gon']));
     }
@@ -194,10 +194,10 @@ class GameController extends Controller {
         $uid = (int)$user['ma'];
         if (WatchModel::exists($uid, (int)$game['ma'])) {
             WatchModel::unwatch($uid, (int)$game['ma']);
-            flash('info', 'Đã ngừng theo dõi cập nhật của "' . $game['tieu_de'] . '".');
+            flash('info',t('game.da.ngung.theo.doi.cap.nhat.cua', [$game['tieu_de']]));
         } else {
             WatchModel::watch($uid, (int)$game['ma']);
-            flash('success', 'Bạn sẽ nhận thông báo khi "' . $game['tieu_de'] . '" có phiên bản hoặc nhật ký mới.');
+            flash('success',t('game.ban.se.nhan.thong.bao.khi.co.phien.ban.hoac.nhat.ky.moi', [$game['tieu_de']]));
         }
         $this->back('/games/' . rawurlencode($game['duong_dan_rut_gon']));
     }

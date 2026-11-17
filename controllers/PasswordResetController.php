@@ -24,27 +24,27 @@ class PasswordResetController extends Controller {
         if ($this->currentUser()) {
             $this->redirect('/library');
         }
-        $this->render('auth/forgot-password', ['pageTitle' => 'Quên mật khẩu']);
+        $this->render('auth/forgot-password', ['pageTitle' => t('auth.forgot_title')]);
     }
 
     /** Kiểm tra email có tồn tại và hiện thông tin tài khoản để người dùng đồng ý. */
     public function checkEmail(array $params = []) {
         $email = mb_strtolower(trim((string)($_POST['email'] ?? '')));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 254) {
-            $this->fail('Email không hợp lệ.', '/auth/forgot-password');
+            $this->fail(t('auth.email.khong.hop.le'), '/auth/forgot-password');
         }
 
         $user = UserModel::findBy('email', $email);
         if (!$user) {
-            $this->fail('Email này không có trong hệ thống.', '/auth/forgot-password');
+            $this->fail(t('auth.email.nay.khong.co.trong.he.thong'), '/auth/forgot-password');
         }
         if ($user['trang_thai'] !== 'active') {
-            $this->fail('Tài khoản này không còn hoạt động. Vui lòng liên hệ quản trị viên.', '/auth/forgot-password');
+            $this->fail(t('auth.tai.khoan.nay.khong.con.hoat.dong.vui.long.lien.he.quan.tri.vien'), '/auth/forgot-password');
         }
 
         audit('password_reset_email_checked', 'nguoi_dung', (int)$user['ma'], ['email' => $email]);
         $this->render('auth/forgot-password-account', [
-            'pageTitle' => 'Kiểm tra tài khoản',
+            'pageTitle' => t('auth.forgot-password-account.kiem_tra_tai_khoan'),
             'user' => $user,
             'email' => $email,
         ]);
@@ -54,7 +54,7 @@ class PasswordResetController extends Controller {
     public function sendResetCode(array $params = []) {
         $email = mb_strtolower(trim((string)($_POST['email'] ?? '')));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 254) {
-            $this->fail('Email không hợp lệ.', '/auth/forgot-password');
+            $this->fail(t('auth.email.khong.hop.le'), '/auth/forgot-password');
         }
 
         // Chặn ngay khi kiểm tra email: lần bấm lại trong thời gian chờ chỉ trả
@@ -67,10 +67,10 @@ class PasswordResetController extends Controller {
 
         $user = UserModel::findBy('email', $email);
         if (!$user) {
-            $this->fail('Email này không có trong hệ thống.', '/auth/forgot-password');
+            $this->fail(t('auth.email.nay.khong.co.trong.he.thong'), '/auth/forgot-password');
         }
         if ($user['trang_thai'] !== 'active') {
-            $this->fail('Tài khoản này không còn hoạt động. Vui lòng liên hệ quản trị viên.', '/auth/forgot-password');
+            $this->fail(t('auth.tai.khoan.nay.khong.con.hoat.dong.vui.long.lien.he.quan.tri.vien'), '/auth/forgot-password');
         }
 
         $userId = (int)$user['ma'];
@@ -79,18 +79,18 @@ class PasswordResetController extends Controller {
         $wait = $this->cooldownRemaining($userId);
         if ($wait > 0) {
             audit('password_reset_resend_blocked', 'nguoi_dung', $userId, ['email' => $email, 'wait' => $wait]);
-            $message = 'Mã xác nhận đã được gửi tới ' . $email . '. Vui lòng đợi ' . $wait . ' giây nữa rồi gửi lại.';
+            $message = t('auth.ma.xac.nhan.da.duoc.gui.toi.vui.long.doi.giay.nua.roi.gui.lai', [$email, $wait]);
             $this->rememberSentResult($email, $message);
             flash('success', $message);
             $this->redirect('/auth/reset-password?email=' . rawurlencode($email));
         }
 
         if (!Mailer::configured()) {
-            $this->fail('Hệ thống chưa cấu hình gửi email. Vui lòng liên hệ quản trị viên.', '/auth/forgot-password');
+            $this->fail(t('auth.he.thong.chua.cau.hinh.gui.email.vui.long.lien.he.quan.tri.vien'), '/auth/forgot-password');
         }
 
         if ($this->tooManyRequests($email)) {
-            $this->fail('Bạn đã yêu cầu mã xác nhận quá nhiều lần. Hãy thử lại sau ' . self::WINDOW_MINUTES . ' phút.', '/auth/forgot-password');
+            $this->fail(t('auth.ban.da.yeu.cau.ma.xac.nhan.qua.nhieu.lan.hay.thu.lai.sau.phut', [self::WINDOW_MINUTES]), '/auth/forgot-password');
         }
 
         $code = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -101,17 +101,17 @@ class PasswordResetController extends Controller {
 
         $delivered = Mailer::send(
             $email,
-            'Mã xác nhận đặt lại mật khẩu',
+            t('password-reset.ma.xac.nhan.dat.lai.mat.khau'),
             $this->mailBody($user, $code, $expiresAt)
         );
         audit('password_reset_requested', 'nguoi_dung', $userId, ['email' => $email, 'sent' => $delivered]);
 
         if (!$delivered) {
             PasswordResetModel::invalidateAll($userId);
-            $this->fail('Không gửi được email. Vui lòng kiểm tra cấu hình SMTP hoặc thử lại sau.', '/auth/forgot-password');
+            $this->fail(t('auth.khong.gui.duoc.email.vui.long.kiem.tra.cau.hinh.smtp.hoac.thu.lai.sau'), '/auth/forgot-password');
         }
 
-        $message = 'Mã xác nhận đã được gửi tới ' . $email . '. Vui lòng kiểm tra hộp thư của bạn.';
+        $message = t('auth.ma.xac.nhan.da.duoc.gui.toi.vui.long.kiem.tra.hop.thu.cua.ban', [$email]);
         $this->rememberSentResult($email, $message);
         flash('success', $message);
         $this->redirect('/auth/reset-password?email=' . rawurlencode($email));
@@ -124,7 +124,7 @@ class PasswordResetController extends Controller {
         $email = mb_strtolower(trim((string)($_GET['email'] ?? '')));
         $user = $email !== '' ? UserModel::findBy('email', $email) : null;
         $this->render('auth/reset-password', [
-            'pageTitle' => 'Đặt lại mật khẩu',
+            'pageTitle' => t('auth.reset_title'),
             'email' => $email,
             'resendWait' => $user ? $this->cooldownRemaining((int)$user['ma']) : 0,
         ]);
@@ -138,16 +138,16 @@ class PasswordResetController extends Controller {
         $confirm = (string)($_POST['confirm_password'] ?? '');
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 254) {
-            $this->fail('Email không hợp lệ.', '/auth/reset-password');
+            $this->fail(t('auth.email.khong.hop.le'), '/auth/reset-password');
         }
         if (!preg_match('/^\d{6}$/', $code)) {
-            $this->fail('Mã xác nhận gồm 6 chữ số.', '/auth/reset-password');
+            $this->fail(t('auth.ma.xac.nhan.gom.6.chu.so'), '/auth/reset-password');
         }
         if (strlen($password) < 8 || strlen($password) > 72) {
-            $this->fail('Mật khẩu mới cần 8–72 ký tự.', '/auth/reset-password');
+            $this->fail(t('auth.mat.khau.moi.can.8.72.ky.tu'), '/auth/reset-password');
         }
         if (!hash_equals($password, $confirm)) {
-            $this->fail('Hai lần nhập mật khẩu mới không khớp.', '/auth/reset-password');
+            $this->fail(t('auth.hai.lan.nhap.mat.khau.moi.khong.khop'), '/auth/reset-password');
         }
 
         $user = UserModel::findBy('email', $email);
@@ -164,7 +164,7 @@ class PasswordResetController extends Controller {
                 PasswordResetModel::registerFailure((int)$row['ma']);
             }
             audit('password_reset_failed', 'nguoi_dung', $user ? (int)$user['ma'] : null, ['email' => $email]);
-            $this->fail('Mã xác nhận không đúng hoặc đã hết hạn.', '/auth/reset-password');
+            $this->fail(t('auth.ma.xac.nhan.khong.dung.hoac.da.het.han'), '/auth/reset-password');
         }
 
         $userId = (int)$user['ma'];
@@ -173,9 +173,9 @@ class PasswordResetController extends Controller {
         // Các mã khác của tài khoản cũng không dùng lại được.
         PasswordResetModel::invalidateAll($userId);
         audit('password_reset', 'nguoi_dung', $userId, ['email' => $email]);
-        NotificationModel::create($userId, 'account', 'Mật khẩu đã được đặt lại', 'Mật khẩu của bạn vừa được đặt lại bằng mã xác nhận. Nếu không phải bạn, hãy liên hệ quản trị viên ngay.', '/settings#password');
+        NotificationModel::create($userId, 'account',t('auth.mat.khau.da.duoc.dat.lai'),t('auth.mat.khau.cua.ban.vua.duoc.dat.lai.bang.ma.xac.nhan.neu.khong.phai.ban.hay.lien.he.quan.tri.vien.ngay'), '/settings#password');
 
-        flash('success', 'Đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới.');
+        flash('success',t('auth.dat.lai.mat.khau.thanh.cong.vui.long.dang.nhap.voi.mat.khau.moi'));
         $this->redirect('/auth/login');
     }
 

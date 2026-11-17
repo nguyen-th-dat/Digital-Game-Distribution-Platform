@@ -37,7 +37,7 @@ $hasFilters = $filters['q'] !== '' || $filters['category'] !== '' || $filters['t
     <span class="spacer"></span>
     <label class="sr-only" for="f-sort"><?= te('common.sort') ?></label>
     <select class="input" id="f-sort" name="sort" data-autosubmit>
-        <?php foreach (GameModel::SORTS as $value => $text): ?><option value="<?= e($value) ?>"<?= $filters['sort'] === $value ? ' selected' : '' ?>><?= e($text) ?></option><?php endforeach; ?>
+        <?php foreach (GameModel::sortOptions() as $value => $text): ?><option value="<?= e($value) ?>"<?= $filters['sort'] === $value ? ' selected' : '' ?>><?= e($text) ?></option><?php endforeach; ?>
     </select>
     <?php if ($filters['sale']): ?><input type="hidden" name="sale" value="1"><?php endif; ?>
     <?php if ($filters['tag'] !== ''): ?><input type="hidden" name="tag" value="<?= e($filters['tag']) ?>"><?php endif; ?>

@@ -12,7 +12,7 @@ $hosts = count(array_filter($members, static fn($m) => $m['vai_tro_thanh_vien'] 
 <div class="title-row">
     <div>
         <h1><?= $isNew ? te('admin.jams.tao_cuoc_thi') : e($jam['tieu_de']) ?></h1>
-        <?php if (!$isNew): ?><p class="sub">Giai đoạn hiện tại: <?= e(JamModel::PHASES[JamModel::phase($jam)]) ?>. Giai đoạn tự đổi theo lịch; trạng thái chỉ cần đổi khi công bố, hủy hoặc chốt kết quả.</p><?php endif; ?>
+        <?php if (!$isNew): ?><p class="sub"><?= te('admin.jam-form.giai_doan_hien_tai', [e(JamModel::phaseName(JamModel::phase($jam)))]) ?></p><?php endif; ?>
     </div>
     <?php if (!$isNew): ?><a class="btn" href="<?= e(app_url('/jams/' . rawurlencode($jam['duong_dan_rut_gon']))) ?>"><?= te('admin.jam-form.xem_trang_cong_khai') ?></a><?php endif; ?>
 </div>
@@ -43,7 +43,7 @@ $hosts = count(array_filter($members, static fn($m) => $m['vai_tro_thanh_vien'] 
             <label for="j-deadline"><?= te('admin.jam-form.han_nop_bai') ?></label>
             <input class="input" id="j-deadline" type="datetime-local" name="han_nop_bai" required value="<?= e($dt('han_nop_bai')) ?>">
         </div>
-        <label class="check full"><input type="checkbox" name="bat_binh_chon" value="1"<?= (int)$v('bat_binh_chon', 1) ? ' checked' : '' ?>> <span><?= te('admin.jam-form.mo_binh_chon_cong_khai') ?><span class="sub">Người dùng đăng nhập chấm 1–5 cho từng tiêu chí: <?= e(implode(', ', JamModel::CRITERIA)) ?>.</span></span></label>
+        <label class="check full"><input type="checkbox" name="bat_binh_chon" value="1"<?= (int)$v('bat_binh_chon', 1) ? ' checked' : '' ?>> <span><?= te('admin.jam-form.mo_binh_chon_cong_khai') ?><span class="sub"><?= te('admin.jam-form.nguoi_dung_dang_nhap_cham_1_den_5_cho_tung_tieu_chi', [e(implode(', ', JamModel::criteria()))]) ?>.</span></span></label>
         <div class="field">
             <label for="j-vstart"><?= te('admin.jam-form.mo_binh_chon_khong_bat') ?></label>
             <input class="input" id="j-vstart" type="datetime-local" name="ngay_bat_dau_binh_chon" value="<?= e($dt('ngay_bat_dau_binh_chon')) ?>">

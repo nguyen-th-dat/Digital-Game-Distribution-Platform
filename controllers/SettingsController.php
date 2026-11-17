@@ -13,7 +13,7 @@ class SettingsController extends Controller {
         $user = $this->requireAuth();
         $uid = (int)$user['ma'];
         $this->render('settings/index', [
-            'pageTitle' => 'Cài đặt',
+            'pageTitle' => t('settings.title'),
             'me' => UserModel::find($uid),
             'settings' => UserModel::settings($uid),
             'isDeveloper' => has_role('developer'),
@@ -35,16 +35,16 @@ class SettingsController extends Controller {
         $country = strtoupper((string)post_str('ma_quoc_gia', 2));
         $errors = [];
         if ($name === null || $name === '') {
-            $errors[] = 'Tên hiển thị cần 1–100 ký tự.';
+            $errors[] = t('settings.ten.hien.thi.can.1.100.ky.tu');
         }
         if ($bio === null) {
-            $errors[] = 'Giới thiệu tối đa 2000 ký tự.';
+            $errors[] = t('settings.gioi.thieu.toi.da.2000.ky.tu');
         }
         if ($site === null || ($site !== '' && (!filter_var($site, FILTER_VALIDATE_URL) || !preg_match('#^https?://#i', $site)))) {
-            $errors[] = 'Website phải là địa chỉ http:// hoặc https:// hợp lệ (tối đa 500 ký tự).';
+            $errors[] = t('settings.website.phai.la.dia.chi.http.hoac.https.hop.le.toi.da.500.ky.tu');
         }
         if ($country !== '' && !preg_match('/^[A-Z]{2}$/', $country)) {
-            $errors[] = 'Mã quốc gia gồm 2 chữ cái, ví dụ VN.';
+            $errors[] = t('settings.ma.quoc.gia.gom.2.chu.cai.vi.du.vn');
         }
         if ($errors) {
             $this->fail(implode(' ', $errors), '/settings#profile');
@@ -60,7 +60,7 @@ class SettingsController extends Controller {
         foreach (['avatar' => ['url_anh_dai_dien', 'avatars', self::AVATAR_MAX], 'cover' => ['url_anh_bia', 'profile-covers', self::COVER_MAX]] as $input => [$column, $folder, $max]) {
             $upload = store_image_upload($_FILES[$input] ?? null, $folder, $max);
             if (isset($upload['error'])) {
-                $this->fail(($input === 'avatar' ? 'Ảnh đại diện: ' : 'Ảnh bìa: ') . $upload['error'], '/settings#profile');
+                $this->fail(($input === 'avatar' ? t('settings.anh.dai.dien', [$upload['error']]) : t('settings.anh.bia', [$upload['error']])), '/settings#profile');
             }
             if ($upload) {
                 $fields[$column] = $upload['path'];
@@ -77,7 +77,7 @@ class SettingsController extends Controller {
         }
         $_SESSION['user'] = UserModel::publicFields(UserModel::find($uid));
         audit('profile_update', 'nguoi_dung', $uid);
-        flash('success', 'Đã lưu hồ sơ.');
+        flash('success',t('settings.da.luu.ho.so'));
         $this->redirect('/settings#profile');
     }
 
@@ -90,22 +90,22 @@ class SettingsController extends Controller {
         $hash = (string)Model::scalar('SELECT mat_khau_da_bam FROM nguoi_dung WHERE ma = :id', [':id' => $uid]);
         if (!password_verify($current, $hash)) {
             audit('password_change_fail', 'nguoi_dung', $uid);
-            $this->fail('Mật khẩu hiện tại không đúng.', '/settings#password');
+            $this->fail(t('settings.password_wrong'), '/settings#password');
         }
         if (strlen($new) < 8 || strlen($new) > 72) {
-            $this->fail('Mật khẩu mới cần 8–72 ký tự.', '/settings#password');
+            $this->fail(t('auth.mat.khau.moi.can.8.72.ky.tu'), '/settings#password');
         }
         if (!hash_equals($new, $confirm)) {
-            $this->fail('Hai lần nhập mật khẩu mới không khớp.', '/settings#password');
+            $this->fail(t('auth.hai.lan.nhap.mat.khau.moi.khong.khop'), '/settings#password');
         }
         if (password_verify($new, $hash)) {
-            $this->fail('Mật khẩu mới phải khác mật khẩu hiện tại.', '/settings#password');
+            $this->fail(t('settings.mat.khau.moi.phai.khac.mat.khau.hien.tai'), '/settings#password');
         }
         UserModel::update($uid, ['mat_khau_da_bam' => password_hash($new, PASSWORD_DEFAULT)]);
         session_regenerate_id(true);
         audit('password_change', 'nguoi_dung', $uid);
-        NotificationModel::create($uid, 'account', 'Mật khẩu đã được đổi', 'Nếu không phải bạn đổi, hãy liên hệ quản trị viên ngay.', '/settings#password');
-        flash('success', 'Đã đổi mật khẩu.');
+        NotificationModel::create($uid, 'account',t('settings.mat.khau.da.duoc.doi'),t('settings.neu.khong.phai.ban.doi.hay.lien.he.quan.tri.vien.ngay'), '/settings#password');
+        flash('success',t('settings.password_updated'));
         $this->redirect('/settings#password');
     }
 
@@ -130,7 +130,7 @@ class SettingsController extends Controller {
         ]);
         theme_set($theme);
         audit('settings_update', 'cai_dat_nguoi_dung', $uid);
-        flash('success', 'Đã lưu quyền riêng tư và tuỳ chọn.');
+        flash('success',t('settings.da.luu.quyen.rieng.tu.va.tuy.chon'));
         $this->redirect('/settings#privacy');
     }
 
@@ -142,16 +142,16 @@ class SettingsController extends Controller {
             $this->redirect('/dev');
         }
         if (!post_bool('agree')) {
-            $this->fail('Hãy đồng ý với quy định dành cho nhà phát triển.', '/settings#developer');
+            $this->fail(t('settings.hay.dong.y.voi.quy.dinh.danh.cho.nha.phat.trien'), '/settings#developer');
         }
         $role = RoleModel::findByCode('developer');
         if (!$role) {
-            $this->fail('Hệ thống chưa có vai trò nhà phát triển.', '/settings#developer');
+            $this->fail(t('settings.he.thong.chua.co.vai.tro.nha.phat.trien'), '/settings#developer');
         }
         UserModel::addRole($uid, (int)$role['ma']);
         $_SESSION['user_roles'] = array_column(UserModel::getRoles($uid), 'ma_vai_tro');
         audit('developer_optin', 'nguoi_dung', $uid);
-        flash('success', 'Bạn đã có quyền nhà phát triển. Hãy tạo trò chơi đầu tiên.');
+        flash('success',t('settings.ban.da.co.quyen.nha.phat.trien.hay.tao.tro.choi.dau.tien'));
         $this->redirect('/dev');
     }
 }

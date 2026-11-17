@@ -130,7 +130,7 @@ class DownloadLinkModel extends Model {
 
     /** Public label of a provider. */
     public static function providerName(string $provider): string {
-        return [
+        $names = [
             'google_drive' => 'Google Drive',
             'onedrive' => 'OneDrive',
             'dropbox' => 'Dropbox',
@@ -140,18 +140,26 @@ class DownloadLinkModel extends Model {
             'github' => 'GitHub',
             'sourceforge' => 'SourceForge',
             'itch_io' => 'itch.io',
-            'custom' => 'Liên kết khác',
-        ][$provider] ?? 'Liên kết khác';
+        ];
+        $known = $names[$provider] ?? null;
+        if ($known !== null) {
+            return $known;
+        }
+        return label('download_provider', $provider);
     }
 
     /** Short name of a platform. */
     public static function platformName(string $platform): string {
-        return [
-            'any' => 'Mọi nền tảng',
+        $names = [
             'windows' => 'Windows',
             'macos' => 'macOS',
             'linux' => 'Linux',
             'android' => 'Android',
-        ][$platform] ?? 'Mọi nền tảng';
+        ];
+        $known = $names[$platform] ?? null;
+        if ($known !== null) {
+            return $known;
+        }
+        return label('download_platform', $platform);
     }
 }

@@ -292,7 +292,7 @@ function media_credit(?string $credit): array {
 /** Escaped credit HTML: the text, then a "Nguồn ảnh" link when the credit ends in a URL. */
 function media_credit_html(?string $credit): string {
     [$text, $url] = media_credit($credit);
-    return e($text) . ($url !== '' ? ' · <a href="' . e($url) . '" target="_blank" rel="noopener noreferrer">Nguồn ảnh</a>' : '');
+    return e($text) . ($url !== '' ? ' · <a href="' . e($url) . '" target="_blank" rel="noopener noreferrer">' . e(t('common.image_source')) . '</a>' : '');
 }
 
 function excerpt(?string $text, int $length = 160): string {
@@ -479,6 +479,17 @@ function te(string $key, array $params = []): string {
     return e(Translator::get($key, $params));
 }
 
+/**
+ * The text of a translation key, or the given default when the key is unknown.
+ *
+ * The default is the language the interface falls back to, so a value that is
+ * not translated yet still shows the Vietnamese wording instead of a raw key.
+ */
+function t_or(string $key, string $default, array $params = []): string {
+    $text = Translator::get($key, $params);
+    return $text === $key ? $default : $text;
+}
+
 /** The language of this request ("vi" or "en"). */
 function current_locale(): string {
     return Translator::locale();
@@ -544,13 +555,13 @@ function stars(float $value): string {
     for ($i = 1; $i <= 5; $i++) {
         $out .= $i <= $full ? '★' : '<span class="off">★</span>';
     }
-    return $out . '</span><span class="sr-only">' . e(number_format($value, 1)) . ' trên 5</span>';
+    return $out . '</span><span class="sr-only">' . e(number_format($value, 1)) . ' ' . e(t('common.out_of_5')) . '</span>';
 }
 
 /** Price block for a game card or page; $discount is the active sale percent. */
 function price_html(array $game, bool $owned = false): string {
     if ($owned) {
-        return '<span class="owned">Đã sở hữu</span>';
+        return '<span class="owned">' . e(t('common.owned')) . '</span>';
     }
     $model = $game['mo_hinh_gia'] ?? 'free';
     $discount = (float)($game['giam_gia'] ?? 0);
@@ -561,7 +572,8 @@ function price_html(array $game, bool $owned = false): string {
             . e(money($base)) . '</span><span>' . e(money($now)) . '</span></span>';
     }
     $text = price_label($game);
-    return '<span class="price' . ($model === 'free' || $text === 'Miễn phí' ? ' free' : '') . '">' . e($text) . '</span>';
+    $free = label('pricing', 'free');
+    return '<span class="price' . ($model === 'free' || $text === $free ? ' free' : '') . '">' . e($text) . '</span>';
 }
 
 /** Is the game free to add to the library without checkout? */
@@ -591,24 +603,24 @@ function store_image_upload(?array $file, string $folder, int $maxBytes = 524288
         return null;
     }
     if ($file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
-        return ['error' => in_array($file['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 'Ảnh vượt quá dung lượng cho phép.' : 'Tải ảnh lên không thành công.'];
+        return ['error' => in_array($file['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? t('upload.image_exceeds_the_allowed_size') : t('upload.image_upload_failed')];
     }
     if ($file['size'] > $maxBytes) {
-        return ['error' => 'Ảnh tối đa ' . round($maxBytes / 1048576, 1) . ' MB.'];
+        return ['error' => t('upload.image_max_size', ['size' => round($maxBytes / 1048576, 1)])];
     }
     $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
     if (!isset($types[$mime]) || @getimagesize($file['tmp_name']) === false) {
-        return ['error' => 'Chỉ nhận ảnh JPG, PNG, WebP hoặc GIF.'];
+        return ['error' => t('upload.only_jpg_png_webp_or_gif')];
     }
     $folder = preg_replace('/[^a-z0-9-]/', '', $folder);
     $dir = APP_DIR . '/public/uploads/' . $folder;
     if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
-        return ['error' => 'Không tạo được thư mục lưu ảnh.'];
+        return ['error' => t('upload.could_not_create_the_image_folder')];
     }
     $name = bin2hex(random_bytes(16)) . '.' . $types[$mime];
     if (!move_uploaded_file($file['tmp_name'], $dir . '/' . $name)) {
-        return ['error' => 'Không lưu được ảnh.'];
+        return ['error' => t('upload.could_not_save_the_image')];
     }
     return ['path' => '/public/uploads/' . $folder . '/' . $name];
 }

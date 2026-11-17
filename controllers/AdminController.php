@@ -23,7 +23,7 @@ class AdminController extends Controller {
             $kpis['payouts'] = (int)Model::scalar("SELECT COUNT(*) FROM dot_chi_tra WHERE trang_thai IN ('requested','processing')");
         }
         $this->render('admin/dashboard', [
-            'pageTitle' => 'Quản trị',
+            'pageTitle' => t('nav.admin_panel'),
             'isAdmin' => $isAdmin,
             'kpis' => $kpis,
             'reviewQueue' => Model::query("SELECT g.ma, g.tieu_de, g.duong_dan_rut_gon, g.ngay_cap_nhat, u.ten_hien_thi
@@ -50,7 +50,7 @@ class AdminController extends Controller {
         $pages = max(1, (int)ceil($total / self::PER_PAGE));
         $page = min($this->page(), $pages);
         $this->render('admin/users', [
-            'pageTitle' => 'Người dùng',
+            'pageTitle' => t('nav.users'),
             'filters' => $filters,
             'users' => UserModel::listForAdmin($filters['q'], $filters['status'], $filters['role'], self::PER_PAGE, ($page - 1) * self::PER_PAGE),
             'total' => $total, 'page' => $page, 'pages' => $pages,
@@ -91,17 +91,17 @@ class AdminController extends Controller {
         $byCode = array_column(RoleModel::getAll(), 'ma', 'ma_vai_tro');
         $codes = array_values(array_intersect(array_keys($byCode), array_map('strval', (array)($_POST['vai_tro'] ?? []))));
         if (!$codes) {
-            $this->fail('Tài khoản cần ít nhất một vai trò.', $back);
+            $this->fail(t('admin.tai.khoan.can.it.nhat.mot.vai.tro'), $back);
         }
         if ($id === current_user_id() && !in_array('admin', $codes, true)) {
-            $this->fail('Bạn không thể tự gỡ quyền quản trị của chính mình.', $back);
+            $this->fail(t('admin.ban.khong.the.tu.go.quyen.quan.tri.cua.chinh.minh'), $back);
         }
         $before = array_column(UserModel::getRoles($id), 'ma_vai_tro');
         if (!UserModel::syncRoles($id, array_map(static fn($c) => (int)$byCode[$c], $codes))) {
-            $this->fail('Không thể gỡ quản trị viên đang hoạt động cuối cùng.', $back);
+            $this->fail(t('admin.khong.the.go.quan.tri.vien.dang.hoat.dong.cuoi.cung'), $back);
         }
         audit('user_roles', 'nguoi_dung', $id, ['truoc' => $before, 'sau' => $codes]);
-        flash('success', 'Đã cập nhật vai trò của ' . $account['ten_hien_thi'] . '.');
+        flash('success',t('admin.da.cap.nhat.vai.tro.cua', [$account['ten_hien_thi']]));
         $this->redirect($back);
     }
 
@@ -113,23 +113,23 @@ class AdminController extends Controller {
         $status = (string)($_POST['trang_thai'] ?? '');
         $reason = post_str('ly_do', 1000);
         if ($reason === null) {
-            $this->fail('Lý do tối đa 1.000 ký tự.', $back);
+            $this->fail(t('admin.ly.do.toi.da.1.000.ky.tu'), $back);
         }
         if (!in_array($status, ['active', 'suspended'], true)) {
-            $this->fail('Trạng thái không hợp lệ.', $back);
+            $this->fail(t('admin.trang.thai.khong.hop.le'), $back);
         }
         if ($status === $account['trang_thai']) {
-            $this->fail('Tài khoản đã ở trạng thái này.', $back);
+            $this->fail(t('admin.tai.khoan.da.o.trang.thai.nay'), $back);
         }
         if ($account['trang_thai'] === 'deleted') {
-            $this->fail('Tài khoản đã xóa không thể đổi trạng thái tại đây.', $back);
+            $this->fail(t('admin.tai.khoan.da.xoa.khong.the.doi.trang.thai.tai.day'), $back);
         }
         if ($status === 'suspended') {
             if ($id === current_user_id()) {
-                $this->fail('Bạn không thể tự đình chỉ tài khoản của mình.', $back);
+                $this->fail(t('admin.user.ban_khong_the_tu_dinh'), $back);
             }
             if ($reason === '') {
-                $this->fail('Hãy ghi lý do đình chỉ.', $back);
+                $this->fail(t('admin.hay.ghi.ly.do.dinh.chi'), $back);
             }
         }
         $done = Model::transaction(function () use ($id, $status, $reason, $moderator) {
@@ -147,10 +147,10 @@ class AdminController extends Controller {
             return true;
         });
         if (!$done) {
-            $this->fail('Không thể đình chỉ quản trị viên đang hoạt động cuối cùng.', $back);
+            $this->fail(t('admin.khong.the.dinh.chi.quan.tri.vien.dang.hoat.dong.cuoi.cung'), $back);
         }
         audit('user_status', 'nguoi_dung', $id, ['trang_thai' => $status]);
-        flash('success', $status === 'suspended' ? 'Đã đình chỉ tài khoản.' : 'Đã khôi phục tài khoản.');
+        flash('success',($status === 'suspended' ? t('admin.da.dinh.chi.tai.khoan') : t('admin.da.khoi.phuc.tai.khoan')));
         $this->redirect($back);
     }
 
@@ -161,19 +161,18 @@ class AdminController extends Controller {
         $back = '/admin/users/' . $id . '#library';
         $game = Model::one("SELECT ma, tieu_de, duong_dan_rut_gon FROM tro_choi WHERE ma = :g AND trang_thai <> 'draft'", [':g' => post_int('tro_choi_id')]);
         if (!$game) {
-            $this->fail('Chọn một trò chơi hợp lệ.', $back);
+            $this->fail(t('admin.chon.mot.tro.choi.hop.le'), $back);
         }
         if ($account['trang_thai'] !== 'active') {
-            $this->fail('Chỉ cấp quyền cho tài khoản đang hoạt động.', $back);
+            $this->fail(t('admin.chi.cap.quyen.cho.tai.khoan.dang.hoat.dong'), $back);
         }
         $granted = Model::transaction(fn() => OwnershipModel::grant($id, (int)$game['ma'], 'admin_grant'));
         if (!$granted) {
-            $this->fail('Người dùng đã sở hữu trò chơi này.', $back);
+            $this->fail(t('admin.nguoi.dung.da.so.huu.tro.choi.nay'), $back);
         }
         audit('ownership_grant', 'tro_choi', (int)$game['ma'], ['nguoi_dung_id' => $id]);
-        NotificationModel::notifyUsers([$id], (int)$admin['ma'], 'ownership_grant', 'Bạn được cấp quyền sở hữu ' . $game['tieu_de'],
-            'Trò chơi đã có trong thư viện của bạn.', '/library');
-        flash('success', 'Đã cấp ' . $game['tieu_de'] . ' cho ' . $account['ten_hien_thi'] . '.');
+        NotificationModel::notifyUsers([$id], (int)$admin['ma'], 'ownership_grant',t('admin.ban.duoc.cap.quyen.so.huu', [$game['tieu_de']]),t('admin.tro.choi.da.co.trong.thu.vien.cua.ban'), '/library');
+        flash('success',t('admin.da.cap.cho', [$game['tieu_de'], $account['ten_hien_thi']]));
         $this->redirect($back);
     }
 
@@ -189,7 +188,7 @@ class AdminController extends Controller {
         $pages = max(1, (int)ceil($total / self::PER_PAGE));
         $page = min($this->page(), $pages);
         $this->render('admin/games', [
-            'pageTitle' => 'Trò chơi',
+            'pageTitle' => t('profile.games'),
             'filters' => $filters,
             'games' => GameModel::listForAdmin($filters['q'], $filters['status'], self::PER_PAGE, ($page - 1) * self::PER_PAGE),
             'counts' => array_column(Model::query('SELECT trang_thai, COUNT(*) AS n FROM tro_choi GROUP BY trang_thai'), 'n', 'trang_thai'),
@@ -203,15 +202,15 @@ class AdminController extends Controller {
         $back = safe_return((string)($_POST['return_to'] ?? ''), '/admin/games');
         $game = Model::one('SELECT ma, tieu_de, duong_dan_rut_gon, trang_thai, nguoi_tao_id FROM tro_choi WHERE ma = :g', [':g' => (int)($params['id'] ?? 0)]);
         if (!$game) {
-            $this->notFound('Không tìm thấy trò chơi.');
+            $this->notFound(t('admin.khong.tim.thay.tro.choi'));
         }
         $status = (string)($_POST['trang_thai'] ?? '');
         $reason = post_str('ly_do', 1000);
-        $error = $reason === null ? 'Lý do tối đa 1.000 ký tự.' : GameModel::staffSetStatus($game, $status, (int)$moderator['ma'], $reason);
+        $error = $reason === null ? t('admin.ly.do.toi.da.1.000.ky.tu') : GameModel::staffSetStatus($game, $status, (int)$moderator['ma'], $reason);
         if ($error !== null) {
             $this->fail($error, $back);
         }
-        flash('success', 'Đã chuyển ' . $game['tieu_de'] . ' sang "' . label('game_status', $status) . '".');
+        flash('success',t('admin.da.chuyen.sang', [$game['tieu_de'], label('game_status', $status)]));
         $this->redirect($back);
     }
 
@@ -239,7 +238,7 @@ class AdminController extends Controller {
         $pages = max(1, (int)ceil($total / $per));
         $page = min($this->page(), $pages);
         $this->render('admin/audit', [
-            'pageTitle' => 'Nhật ký hệ thống',
+            'pageTitle' => t('nav.audit'),
             'filters' => $filters,
             'actions' => Model::column('SELECT DISTINCT ma_hanh_dong FROM nhat_ky_he_thong ORDER BY ma_hanh_dong'),
             'rows' => Model::query("SELECT l.*, u.ten_dang_nhap, u.ten_hien_thi FROM nhat_ky_he_thong l LEFT JOIN nguoi_dung u ON u.ma = l.nguoi_dung_id
@@ -252,7 +251,7 @@ class AdminController extends Controller {
         $account = Model::one('SELECT ma, ten_dang_nhap, email, ten_hien_thi, gioi_thieu, url_anh_dai_dien, url_website, ngay_xac_minh_email, trang_thai, ngay_tao, ngay_cap_nhat
             FROM nguoi_dung WHERE ma = :u', [':u' => (int)($params['id'] ?? 0)]);
         if (!$account) {
-            $this->notFound('Không tìm thấy người dùng.');
+            $this->notFound(t('admin.khong.tim.thay.nguoi.dung'));
         }
         return $account;
     }

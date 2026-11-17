@@ -14,7 +14,7 @@ class CollectionController extends Controller {
         $page = $this->page();
         $total = CollectionModel::countCommunity();
         $this->render('collection/index', [
-            'pageTitle' => 'Bộ sưu tập',
+            'pageTitle' => t('profile.collections'),
             'mine' => $uid ? CollectionModel::forOwner($uid) : [],
             'community' => CollectionModel::community(self::PER_PAGE, ($page - 1) * self::PER_PAGE),
             'page' => $page,
@@ -29,12 +29,12 @@ class CollectionController extends Controller {
         $back = safe_return((string)($_POST['return_to'] ?? ''), '/collections');
         $data = $this->validated($back);
         if ((int)Model::scalar('SELECT COUNT(*) FROM bo_suu_tap WHERE nguoi_dung_so_huu_id = :u', [':u' => $uid]) >= self::MAX_PER_USER) {
-            $this->fail('Mỗi tài khoản có tối đa ' . self::MAX_PER_USER . ' bộ sưu tập.', $back);
+            $this->fail(t('collection.moi.tai.khoan.co.toi.da.bo.suu.tap', [self::MAX_PER_USER]), $back);
         }
         $gameId = (int)($_POST['game_id'] ?? 0);
         $game = $gameId ? $this->visibleGame($gameId) : null;
         if ($gameId && !$game) {
-            $this->fail('Trò chơi này không còn khả dụng.', $back);
+            $this->fail(t('collection.tro.choi.nay.khong.con.kha.dung'), $back);
         }
         $id = Model::transaction(function () use ($uid, $data, $game) {
             $id = CollectionModel::insert($data + [
@@ -48,10 +48,10 @@ class CollectionController extends Controller {
         });
         audit('collection_create', 'bo_suu_tap', $id);
         if ($game) {
-            flash('success', 'Đã tạo "' . $data['tieu_de'] . '" và thêm ' . $game['tieu_de'] . '.');
+            flash('success',t('collection.da.tao.va.them', [$data['tieu_de'], $game['tieu_de']]));
             $this->redirect($back);
         }
-        flash('success', 'Đã tạo bộ sưu tập. Thêm trò chơi từ trang của từng trò chơi.');
+        flash('success',t('collection.da.tao.bo.suu.tap.them.tro.choi.tu.trang.cua.tung.tro.choi'));
         $this->redirect('/collections/' . $id);
     }
 
@@ -78,19 +78,19 @@ class CollectionController extends Controller {
         }
         CollectionModel::update($id, $data);
         audit('collection_update', 'bo_suu_tap', $id);
-        flash('success', 'Đã lưu bộ sưu tập.');
+        flash('success',t('collection.da.luu.bo.suu.tap'));
         $this->redirect('/collections/' . $id);
     }
 
     public function delete(array $params = []) {
         $collection = $this->ownCollection($params);
         if (!hash_equals('XOA', strtoupper(trim((string)($_POST['confirm'] ?? ''))))) {
-            $this->fail('Nhập XOA để xác nhận xóa bộ sưu tập.', '/collections/' . (int)$collection['ma'] . '#danger');
+            $this->fail(t('collection.nhap.xoa.de.xac.nhan.xoa.bo.suu.tap'), '/collections/' . (int)$collection['ma'] . '#danger');
         }
         // tro_choi_bo_suu_tap rows go with it (ON DELETE CASCADE); the games themselves are untouched.
         CollectionModel::delete((int)$collection['ma']);
         audit('collection_delete', 'bo_suu_tap', (int)$collection['ma'], ['tieu_de' => $collection['tieu_de']]);
-        flash('success', 'Đã xóa bộ sưu tập "' . $collection['tieu_de'] . '".');
+        flash('success',t('collection.da.xoa.bo.suu.tap', [$collection['tieu_de']]));
         $this->redirect('/collections');
     }
 
@@ -100,19 +100,19 @@ class CollectionController extends Controller {
         $back = safe_return((string)($_POST['return_to'] ?? ''), '/collections/' . $id);
         $game = $this->visibleGame((int)($_POST['game_id'] ?? 0));
         if (!$game) {
-            $this->fail('Trò chơi này không còn khả dụng.', $back);
+            $this->fail(t('collection.tro.choi.nay.khong.con.kha.dung'), $back);
         }
         $note = post_str('ghi_chu', 500);
         if ($note === null) {
-            $this->fail('Ghi chú tối đa 500 ký tự.', $back);
+            $this->fail(t('collection.ghi.chu.toi.da.500.ky.tu'), $back);
         }
         $isNew = !Model::scalar('SELECT 1 FROM tro_choi_bo_suu_tap WHERE bo_suu_tap_id = :c AND tro_choi_id = :g', [':c' => $id, ':g' => (int)$game['ma']]);
         if ($isNew && (int)Model::scalar('SELECT COUNT(*) FROM tro_choi_bo_suu_tap WHERE bo_suu_tap_id = :c', [':c' => $id]) >= self::MAX_GAMES) {
-            $this->fail('Một bộ sưu tập có tối đa ' . self::MAX_GAMES . ' trò chơi.', $back);
+            $this->fail(t('collection.mot.bo.suu.tap.co.toi.da.tro.choi', [self::MAX_GAMES]), $back);
         }
         // The note field is only sent from the collection page; the game page sends none.
         CollectionModel::addGame($id, (int)$game['ma'], current_user_id(), array_key_exists('ghi_chu', $_POST) ? $note : null);
-        flash('success', $isNew ? 'Đã thêm ' . $game['tieu_de'] . ' vào "' . $collection['tieu_de'] . '".' : 'Đã cập nhật ghi chú cho ' . $game['tieu_de'] . '.');
+        flash('success',($isNew ? t('collection.da.them.vao', [$game['tieu_de'], $collection['tieu_de']]) : t('collection.da.cap.nhat.ghi.chu.cho', [$game['tieu_de']])));
         $this->redirect($back);
     }
 
@@ -120,7 +120,7 @@ class CollectionController extends Controller {
         $collection = $this->ownCollection($params);
         $id = (int)$collection['ma'];
         $removed = CollectionModel::removeGame($id, (int)($params['game'] ?? 0));
-        flash($removed ? 'success' : 'info', $removed ? 'Đã bỏ trò chơi khỏi bộ sưu tập.' : 'Trò chơi này không có trong bộ sưu tập.');
+        flash($removed ? 'success' : 'info',($removed ? t('collection.da.bo.tro.choi.khoi.bo.suu.tap') : t('collection.tro.choi.nay.khong.co.trong.bo.suu.tap')));
         $this->back('/collections/' . $id);
     }
 
@@ -134,16 +134,16 @@ class CollectionController extends Controller {
         $layout = (string)($_POST['bo_cuc'] ?? 'grid');
         $errors = [];
         if ($title === null || $title === '') {
-            $errors[] = 'Tên bộ sưu tập cần 1–180 ký tự.';
+            $errors[] = t('collection.ten.bo.suu.tap.can.1.180.ky.tu');
         }
         if ($description === null) {
-            $errors[] = 'Mô tả tối đa 5.000 ký tự.';
+            $errors[] = t('collection.mo.ta.toi.da.5.000.ky.tu');
         }
         if (!in_array($visibility, CollectionModel::VISIBILITY, true)) {
-            $errors[] = 'Phạm vi hiển thị không hợp lệ.';
+            $errors[] = t('collection.pham.vi.hien.thi.khong.hop.le');
         }
         if (!in_array($layout, CollectionModel::LAYOUTS, true)) {
-            $errors[] = 'Bố cục không hợp lệ.';
+            $errors[] = t('collection.bo.cuc.khong.hop.le');
         }
         if ($errors) {
             remember_input($_POST);
@@ -157,7 +157,7 @@ class CollectionController extends Controller {
         $collection = CollectionModel::withOwner((int)($params['id'] ?? 0));
         $isOwner = $collection && (int)$collection['nguoi_dung_so_huu_id'] === current_user_id();
         if (!$collection || (!$isOwner && ($collection['pham_vi_hien_thi'] === 'private' || $collection['owner_status'] !== 'active'))) {
-            $this->notFound('Không tìm thấy bộ sưu tập này.');
+            $this->notFound(t('collection.khong.tim.thay.bo.suu.tap.nay'));
         }
         return $collection;
     }
@@ -166,10 +166,10 @@ class CollectionController extends Controller {
         $this->requireAuth();
         $collection = CollectionModel::withOwner((int)($params['id'] ?? 0));
         if (!$collection) {
-            $this->notFound('Không tìm thấy bộ sưu tập này.');
+            $this->notFound(t('collection.khong.tim.thay.bo.suu.tap.nay'));
         }
         if ((int)$collection['nguoi_dung_so_huu_id'] !== current_user_id()) {
-            $this->forbidden('Chỉ chủ bộ sưu tập mới chỉnh sửa được.');
+            $this->forbidden(t('collection.chi.chu.bo.suu.tap.moi.chinh.sua.duoc'));
         }
         return $collection;
     }

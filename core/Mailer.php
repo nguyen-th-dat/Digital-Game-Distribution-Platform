@@ -13,7 +13,7 @@ class Mailer {
     /** Gửi một email. Trả về true khi thư đã được gửi đi. */
     public static function send(string $to, string $subject, string $htmlBody, ?string $textBody = null): bool {
         if (!self::configured()) {
-            error_log('mail skipped: cấu hình SMTP hoặc thư viện PHPMailer chưa sẵn sàng.');
+            error_log('mail skipped: ' . t('core.cau.hinh.smtp.hoac.thu.vien.phpmailer.chua.san.sang'));
             return false;
         }
         try {

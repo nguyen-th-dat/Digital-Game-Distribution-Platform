@@ -30,7 +30,15 @@ class TaxonomyModel extends Model {
     ];
 
     public static function kind(string $kind): ?array {
-        return self::KINDS[$kind] ?? null;
+        $spec = self::KINDS[$kind] ?? null;
+        if (!$spec) {
+            return null;
+        }
+        // The names of a kind are shown on many pages, so they are translated
+        // with the rest of the interface.
+        $spec['label'] = t_or('label.taxonomy_kind.' . $kind . '.label', $spec['label']);
+        $spec['one'] = t_or('label.taxonomy_kind.' . $kind . '.one', $spec['one']);
+        return $spec;
     }
 
     /** Entries of one kind with the number of games linked to each. */
@@ -61,27 +69,27 @@ class TaxonomyModel extends Model {
         $errors = [];
         $name = trim((string)($post['ten'] ?? ''));
         if ($name === '' || mb_strlen($name) > $k['nameMax']) {
-            $errors[] = 'Tên cần 1–' . $k['nameMax'] . ' ký tự.';
+            $errors[] = t('taxonomymodel.ten.can.1.ky.tu', [$k['nameMax']]);
         }
         $slugIn = trim((string)($post['khoa'] ?? ''));
         $slug = $slugIn !== '' ? $slugIn : slugify($name);
         if ($slug === '' || strlen($slug) > $k['slugMax'] || !preg_match('/^[a-z0-9]+(-[a-z0-9]+)*$/', $slug)) {
-            $errors[] = ($k['table'] === 'nen_tang' ? 'Mã nền tảng' : 'Đường dẫn rút gọn') . ' chỉ gồm chữ thường không dấu, số và gạch ngang, tối đa ' . $k['slugMax'] . ' ký tự.';
+            $errors[] = ($k['table'] === 'nen_tang' ? t('taxonomymodel.ma.nen.tang.chi.gom.chu.thuong.khong.dau.so.va.gach.ngang.toi.da.ky.tu', [$k['slugMax']]) : t('taxonomymodel.duong.dan.rut.gon.chi.gom.chu.thuong.khong.dau.so.va.gach.ngang.toi.da.ky.tu', [$k['slugMax']]));
         }
         $row = [$k['name'] => $name, $k['slug'] => $slug];
         if ($k['desc']) {
             $desc = trim((string)($post['mo_ta'] ?? ''));
             if (mb_strlen($desc) > $k['descMax']) {
-                $errors[] = 'Mô tả tối đa ' . $k['descMax'] . ' ký tự.';
+                $errors[] = t('taxonomymodel.mo.ta.toi.da.ky.tu', [$k['descMax']]);
             }
             $row[$k['desc']] = $desc !== '' ? $desc : null;
         }
         if (!$errors) {
             // Compare in SQL so the check follows the column collation used by the UNIQUE keys.
-            foreach ([$k['name'] => 'Tên', $k['slug'] => $k['table'] === 'nen_tang' ? 'Mã nền tảng' : 'Đường dẫn rút gọn'] as $col => $what) {
+            foreach ([$k['name'] => t('taxonomymodel.ten'), $k['slug'] => $k['table'] === 'nen_tang' ? t('taxonomymodel.ma.nen.tang') : t('taxonomymodel.duong.dan.rut.gon')] as $col => $what) {
                 $dup = self::scalar("SELECT {$k['name']} FROM {$k['table']} WHERE $col = :v AND ma <> :id LIMIT 1", [':v' => $row[$col], ':id' => $id]);
                 if ($dup !== null && $dup !== false) {
-                    $errors[] = $what . ' đã được dùng bởi "' . $dup . '".';
+                    $errors[] = t('taxonomymodel.da.duoc.dung.boi', [$what, $dup]);
                 }
             }
         }

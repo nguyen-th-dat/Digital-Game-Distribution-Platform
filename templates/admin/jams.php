@@ -15,7 +15,7 @@
             <tr>
                 <td class="lead"><a class="link" href="<?= e(app_url('/admin/jams/' . (int)$j['ma'])) ?>"><?= e($j['tieu_de']) ?></a><span class="sub">/jams/<?= e($j['duong_dan_rut_gon']) ?> · <?= e($j['ten_hien_thi']) ?></span></td>
                 <td><?= e(label('jam_status', $j['trang_thai'])) ?></td>
-                <td><span class="pill<?= in_array($phase, ['submissions', 'voting'], true) ? ' pos' : ($phase === 'cancelled' ? ' neg' : '') ?>"><?= e(JamModel::PHASES[$phase]) ?></span></td>
+                <td><span class="pill<?= in_array($phase, ['submissions', 'voting'], true) ? ' pos' : ($phase === 'cancelled' ? ' neg' : '') ?>"><?= e(JamModel::phaseName($phase)) ?></span></td>
                 <td><?= e(fmt_datetime($j['han_nop_bai'])) ?></td>
                 <td class="num"><?= fmt_int((int)$j['so_bai']) ?></td>
                 <td class="num"><?= fmt_int((int)$j['so_nguoi_cham']) ?></td>

@@ -17,7 +17,7 @@ $voted = count(array_filter($myVotes, static fn($v) => isset($v['scores']['overa
 <header class="object-head">
     <div class="grow">
         <h1><?= e($jam['tieu_de']) ?></h1>
-        <p class="meta"><?= te('jam.show.to_chuc_boi') ?> <a class="link" href="<?= e(profile_url($jam)) ?>"><?= e($jam['ten_hien_thi']) ?></a> <?= te('admin.payouts.text') ?> <span class="pill<?= $pillClass ?>"><?= e(JamModel::PHASES[$phase]) ?></span></p>
+        <p class="meta"><?= te('jam.show.to_chuc_boi') ?> <a class="link" href="<?= e(profile_url($jam)) ?>"><?= e($jam['ten_hien_thi']) ?></a> <?= te('admin.payouts.text') ?> <span class="pill<?= $pillClass ?>"><?= e(JamModel::phaseName($phase)) ?></span></p>
         <div class="stat-line">
             <span><strong><?= fmt_int(count(array_filter($entries, static fn($en) => $en['entry_status'] === 'submitted'))) ?></strong> <?= te('jam.show.bai_du_thi') ?></span>
             <?php if ((int)$jam['bat_binh_chon']): ?><span><?= te('jam.show.co_binh_chon_cong_khai') ?></span><?php endif; ?>
@@ -114,7 +114,7 @@ $voted = count(array_filter($myVotes, static fn($v) => isset($v['scores']['overa
     <?php elseif ($results): ?>
         <div class="panel">
             <table class="results">
-                <thead><tr><th scope="col"><?= te('jam.show.hang') ?></th><th scope="col"><?= te('admin.games') ?></th><?php foreach (JamModel::CRITERIA as $c => $t): ?><th scope="col" class="num"><?= e($t) ?></th><?php endforeach; ?><th scope="col" class="num"><?= te('jam.show.luot_cham') ?></th></tr></thead>
+                <thead><tr><th scope="col"><?= te('jam.show.hang') ?></th><th scope="col"><?= te('admin.games') ?></th><?php foreach (JamModel::criteria() as $c => $t): ?><th scope="col" class="num"><?= e($t) ?></th><?php endforeach; ?><th scope="col" class="num"><?= te('jam.show.luot_cham') ?></th></tr></thead>
                 <tbody>
                 <?php $rank = 0; foreach ($entries as $en): if ($en['entry_status'] !== 'submitted') continue; $rank++; $eid = (int)$en['entry_id']; ?>
                     <tr id="entry-<?= $eid ?>">
@@ -155,7 +155,7 @@ $voted = count(array_filter($myVotes, static fn($v) => isset($v['scores']['overa
                                 <summary class="btn sm<?= $vote ? '' : ' primary' ?>"><?= $vote ? te('jam.show.sua_diem_da_cham') . ' (' . (int)($vote['scores']['overall'] ?? 0) . '/5)' : te('jam.show.cham_diem') ?></summary>
                                 <form class="form well vote-form" method="post" action="<?= e(app_url($self . '/entries/' . $eid . '/vote')) ?>">
                                     <?= csrf_field() ?>
-                                    <?php foreach (JamModel::CRITERIA as $c => $t): $cur = (int)($vote['scores'][$c] ?? 0); ?>
+                                    <?php foreach (JamModel::criteria() as $c => $t): $cur = (int)($vote['scores'][$c] ?? 0); ?>
                                         <fieldset class="score-row">
                                             <legend><?= e($t) ?></legend>
                                             <div class="score-options">

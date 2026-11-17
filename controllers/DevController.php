@@ -17,7 +17,7 @@ class DevController extends Controller {
         $series = DailyStatsModel::series(array_map('intval', array_column($games, 'ma')), 30);
         $sum = static fn(string $c): float => array_sum(array_column($series, $c));
         $this->render('dev/overview', [
-            'pageTitle' => 'Tổng quan nhà phát triển',
+            'pageTitle' => t('dev.overview.tong_quan_nha_phat_trien'),
             'balances' => RevenueLedgerModel::balances($uid),
             'games' => $games,
             'traffic' => ['views' => $sum('luot_xem_trang'), 'downloads' => $sum('luot_nhan_tai_xuong'), 'purchases' => $sum('so_luot_mua'), 'revenue' => $sum('doanh_thu_gop')],
@@ -52,7 +52,7 @@ class DevController extends Controller {
         $user = $this->requireRole('developer');
         $uid = (int)$user['ma'];
         $this->render('dev/payouts', [
-            'pageTitle' => 'Chi trả',
+            'pageTitle' => t('nav.payouts'),
             'balances' => RevenueLedgerModel::balances($uid),
             'accounts' => RevenueLedgerModel::accounts($uid),
             'payouts' => RevenueLedgerModel::payouts($uid),
@@ -70,10 +70,10 @@ class DevController extends Controller {
         $name = post_str('ten_tai_khoan', 120);
 
         if (!isset(labels('payout_provider')[$provider])) {
-            $this->fail('Chọn phương thức nhận tiền.', $back);
+            $this->fail(t('dev.chon.phuong.thuc.nhan.tien'), $back);
         }
         if ($name === null || $name === '') {
-            $this->fail('Nhập tên chủ tài khoản (tối đa 120 ký tự).', $back);
+            $this->fail(t('dev.nhap.ten.chu.tai.khoan.toi.da.120.ky.tu'), $back);
         }
         $external = preg_replace('/\s+/', $provider === 'bank_transfer' ? '' : ' ', trim((string)$external));
         $valid = match ($provider) {
@@ -83,27 +83,26 @@ class DevController extends Controller {
         };
         if (!$valid) {
             $this->fail(match ($provider) {
-                'bank_transfer' => 'Số tài khoản ngân hàng gồm 6 đến 34 chữ số.',
-                'paypal' => 'Nhập email PayPal hợp lệ.',
-                'stripe' => 'Mã tài khoản Stripe Connect có dạng acct_ theo sau là chữ và số.',
+                'bank_transfer' => t('dev.so.tai.khoan.ngan.hang.gom.6.den.34.chu.so'),
+                'paypal' => t('dev.nhap.email.paypal.hop.le'),
+                'stripe' => t('dev.ma.tai.khoan.stripe.connect.co.dang.acct_theo.sau.la.chu.va.so'),
             }, $back);
         }
         $existing = RevenueLedgerModel::accounts($uid);
         if (count($existing) >= self::MAX_ACCOUNTS) {
-            $this->fail('Mỗi tài khoản chỉ được lưu tối đa ' . self::MAX_ACCOUNTS . ' phương thức nhận tiền.', $back);
+            $this->fail(t('dev.moi.tai.khoan.chi.duoc.luu.toi.da.phuong.thuc.nhan.tien', [self::MAX_ACCOUNTS]), $back);
         }
         foreach ($existing as $a) {
             if ($a['nha_cung_cap'] === $provider && $a['ma_tai_khoan_ben_ngoai'] === $external) {
-                $this->fail('Phương thức nhận tiền này đã có trong danh sách.', $back);
+                $this->fail(t('dev.phuong.thuc.nhan.tien.nay.da.co.trong.danh.sach'), $back);
             }
         }
         Model::transaction(function () use ($uid, $provider, $external, $name, $existing, $user) {
             $id = PayoutAccountModel::create($uid, $provider, $external, $name, APP_CURRENCY, !$existing);
             audit('payout_account_added', 'tai_khoan_nhan_tien_nguoi_dung', $id, ['nha_cung_cap' => $provider]);
-            NotificationModel::notifyUsers(self::adminIds(), $uid, 'payout', 'Tài khoản nhận tiền mới cần xác minh',
-                $user['ten_hien_thi'] . ' đã thêm ' . label('payout_provider', $provider) . '.', '/admin/payouts#accounts');
+            NotificationModel::notifyUsers(self::adminIds(), $uid, 'payout',t('dev.tai.khoan.nhan.tien.moi.can.xac.minh'),t('dev.da.them', [$user['ten_hien_thi'], label('payout_provider', $provider)]), '/admin/payouts#accounts');
         });
-        flash('success', 'Đã thêm phương thức nhận tiền. Quản trị viên sẽ xác minh trước khi bạn có thể rút tiền.');
+        flash('success',t('dev.da.them.phuong.thuc.nhan.tien.quan.tri.vien.se.xac.minh.truoc.khi.ban.co.the.rut.tien'));
         $this->redirect('/dev/payouts');
     }
 
@@ -113,16 +112,16 @@ class DevController extends Controller {
         $id = (int)($params['id'] ?? 0);
         $account = Model::one('SELECT * FROM tai_khoan_nhan_tien_nguoi_dung WHERE ma = :i AND nguoi_dung_id = :u', [':i' => $id, ':u' => $uid]);
         if (!$account) {
-            $this->notFound('Không tìm thấy phương thức nhận tiền.');
+            $this->notFound(t('dev.khong.tim.thay.phuong.thuc.nhan.tien'));
         }
         if ($account['trang_thai'] === 'disabled') {
-            $this->fail('Không thể chọn phương thức đã bị vô hiệu hóa làm mặc định.', '/dev/payouts');
+            $this->fail(t('dev.khong.the.chon.phuong.thuc.da.bi.vo.hieu.hoa.lam.mac.dinh'), '/dev/payouts');
         }
         Model::transaction(function () use ($uid, $id) {
             Model::run('UPDATE tai_khoan_nhan_tien_nguoi_dung SET mac_dinh = (ma = :i) WHERE nguoi_dung_id = :u', [':i' => $id, ':u' => $uid]);
             audit('payout_account_default', 'tai_khoan_nhan_tien_nguoi_dung', $id);
         });
-        flash('success', 'Đã đặt làm phương thức mặc định.');
+        flash('success',t('dev.da.dat.lam.phuong.thuc.mac.dinh'));
         $this->redirect('/dev/payouts');
     }
 
@@ -134,13 +133,13 @@ class DevController extends Controller {
                 $id = RevenueLedgerModel::requestPayout($uid);
                 $amount = (float)Model::scalar('SELECT so_tien FROM dot_chi_tra WHERE ma = :i', [':i' => $id]);
                 audit('payout_requested', 'dot_chi_tra', $id, ['so_tien' => $amount]);
-                NotificationModel::notifyUsers(self::adminIds(), $uid, 'payout', 'Yêu cầu chi trả mới', $user['ten_hien_thi'] . ' yêu cầu rút ' . money($amount) . '.', '/admin/payouts');
+                NotificationModel::notifyUsers(self::adminIds(), $uid, 'payout',t('dev.yeu.cau.chi.tra.moi'),t('dev.yeu.cau.rut', [$user['ten_hien_thi'], money($amount)]), '/admin/payouts');
                 return $id;
             });
         } catch (RuntimeException $error) {
             $this->fail($error->getMessage(), '/dev/payouts');
         }
-        flash('success', 'Đã gửi yêu cầu chi trả #' . $payoutId . '.');
+        flash('success',t('dev.da.gui.yeu.cau.chi.tra', [$payoutId]));
         $this->redirect('/dev/payouts');
     }
 

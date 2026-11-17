@@ -14,11 +14,11 @@ class TaxonomyController extends Controller {
         if ($editId) {
             $editing = TaxonomyModel::findIn($k, $editId);
             if (!$editing) {
-                $this->notFound('Không tìm thấy mục phân loại.');
+                $this->notFound(t('admin.taxonomy.khong.tim.thay.muc.phan.loai'));
             }
         }
         $this->render('admin/taxonomy', [
-            'pageTitle' => 'Danh mục: ' . $k['label'],
+            'pageTitle' => t('admin.taxonomy.danh.muc', [$k['label']]),
             'kindKey' => $key,
             'kind' => $k,
             'items' => TaxonomyModel::listKind($k),
@@ -36,7 +36,7 @@ class TaxonomyController extends Controller {
         }
         $id = TaxonomyModel::insertIn($k, $row);
         audit('taxonomy.create', $k['table'], $id, $row);
-        flash('success', 'Đã thêm ' . $k['one'] . ' "' . $row[$k['name']] . '".');
+        flash('success',t('admin.taxonomy.da.them', [$k['one'], $row[$k['name']]]));
         $this->redirect('/admin/taxonomy?kind=' . $key);
     }
 
@@ -52,7 +52,7 @@ class TaxonomyController extends Controller {
         TaxonomyModel::updateIn($k, $id, $row);
         $before = array_intersect_key($item, $row);
         audit('taxonomy.update', $k['table'], $id, ['before' => $before, 'after' => $row]);
-        flash('success', 'Đã lưu ' . $k['one'] . ' "' . $row[$k['name']] . '".');
+        flash('success',t('admin.taxonomy.da.luu', [$k['one'], $row[$k['name']]]));
         $this->redirect('/admin/taxonomy?kind=' . $key);
     }
 
@@ -62,11 +62,11 @@ class TaxonomyController extends Controller {
         $item = $this->item($k, $params);
         $id = (int)$item['ma'];
         if (!TaxonomyModel::deleteIn($k, $id)) {
-            flash('error', 'Không xóa được "' . $item[$k['name']] . '" vì đang gắn với ' . fmt_int(TaxonomyModel::gameCount($k, $id)) . ' trò chơi.');
+            flash('error',t('admin.taxonomy.khong.xoa.duoc.vi.dang.gan.voi.tro.choi', [$item[$k['name']], fmt_int(TaxonomyModel::gameCount($k, $id))]));
             $this->redirect('/admin/taxonomy?kind=' . $key);
         }
         audit('taxonomy.delete', $k['table'], $id, ['name' => $item[$k['name']], 'key' => $item[$k['slug']]]);
-        flash('success', 'Đã xóa ' . $k['one'] . ' "' . $item[$k['name']] . '".');
+        flash('success',t('admin.taxonomy.da.xoa', [$k['one'], $item[$k['name']]]));
         $this->redirect('/admin/taxonomy?kind=' . $key);
     }
 
@@ -74,7 +74,7 @@ class TaxonomyController extends Controller {
         $key = (string)($params['kind'] ?? '');
         $k = TaxonomyModel::kind($key);
         if (!$k) {
-            $this->notFound('Không có loại danh mục này.');
+            $this->notFound(t('admin.taxonomy.khong.co.loai.danh.muc.nay'));
         }
         return [$key, $k];
     }
@@ -82,7 +82,7 @@ class TaxonomyController extends Controller {
     private function item(array $k, array $params): array {
         $item = TaxonomyModel::findIn($k, (int)($params['id'] ?? 0));
         if (!$item) {
-            $this->notFound('Không tìm thấy mục phân loại.');
+            $this->notFound(t('admin.taxonomy.khong.tim.thay.muc.phan.loai'));
         }
         return $item;
     }

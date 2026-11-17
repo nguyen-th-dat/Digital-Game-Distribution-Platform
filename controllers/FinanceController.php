@@ -25,7 +25,7 @@ class FinanceController extends Controller {
         }
         unset($o);
         $this->render('admin/orders', [
-            'pageTitle' => 'Đơn hàng',
+            'pageTitle' => t('order.title'),
             'filters' => ['q' => $q, 'status' => $status],
             'counts' => array_column(Model::query('SELECT trang_thai, COUNT(*) AS n FROM don_hang GROUP BY trang_thai'), 'n', 'trang_thai'),
             'totals' => Model::one("SELECT COALESCE(SUM(CASE WHEN trang_thai IN ('paid','partially_refunded') THEN tong_thanh_toan END), 0) AS gross,
@@ -47,7 +47,7 @@ class FinanceController extends Controller {
         $pages = max(1, (int)ceil($total / self::PER));
         $page = min($this->page(), $pages);
         $this->render('admin/refunds', [
-            'pageTitle' => 'Hoàn tiền',
+            'pageTitle' => t('nav.refunds'),
             'status' => $status,
             'counts' => array_column(Model::query('SELECT trang_thai, COUNT(*) AS n FROM hoan_tien GROUP BY trang_thai'), 'n', 'trang_thai'),
             'refunds' => RefundModel::search($status, self::PER, ($page - 1) * self::PER),
@@ -62,13 +62,13 @@ class FinanceController extends Controller {
         $decision = (string)($_POST['quyet_dinh'] ?? '');
         $note = post_str('ghi_chu', 1000);
         if (!in_array($decision, ['approve', 'reject'], true)) {
-            $this->fail('Chọn duyệt hoặc từ chối.', $back);
+            $this->fail(t('admin.finance.chon.duyet.hoac.tu.choi'), $back);
         }
         if ($note === null) {
-            $this->fail('Ghi chú tối đa 1.000 ký tự.', $back);
+            $this->fail(t('admin.finance.ghi.chu.toi.da.1.000.ky.tu'), $back);
         }
         if ($decision === 'reject' && $note === '') {
-            $this->fail('Hãy ghi lý do từ chối; người mua sẽ nhận được ghi chú này.', $back);
+            $this->fail(t('admin.finance.hay.ghi.ly.do.tu.choi.nguoi.mua.se.nhan.duoc.ghi.chu.nay'), $back);
         }
         try {
             $result = Model::transaction(function () use ($id, $decision, $note, $admin) {
@@ -76,10 +76,7 @@ class FinanceController extends Controller {
                 audit('refund_' . $result['decision'], 'hoan_tien', $id, ['ghi_chu' => $note ?: null]);
                 if ($result['nguoi_mua_id']) {
                     $approved = $result['decision'] === 'completed';
-                    NotificationModel::notifyUsers([(int)$result['nguoi_mua_id']], (int)$admin['ma'], 'refund',
-                        $approved ? 'Yêu cầu hoàn tiền đã được chấp nhận' : 'Yêu cầu hoàn tiền bị từ chối',
-                        ($approved ? 'Đã hoàn ' . money($result['so_tien']) . ' cho "' . $result['tieu_de_luc_mua'] . '". Quyền sở hữu mục này đã bị thu hồi.' : 'Lý do: ' . $note)
-                            . ($approved && $note !== '' ? ' Ghi chú: ' . $note : ''),
+                    NotificationModel::notifyUsers([(int)$result['nguoi_mua_id']], (int)$admin['ma'], 'refund',($approved ? t('admin.finance.yeu.cau.hoan.tien.da.duoc.chap.nhan') : t('admin.finance.yeu.cau.hoan.tien.bi.tu.choi')),($approved ? ($approved && $note !== '' ? t('admin.finance.da.hoan.cho.quyen.so.huu.muc.nay.da.bi.thu.hoi.ghi.chu', [money($result['so_tien']), $result['tieu_de_luc_mua'], $note]) : t('admin.finance.da.hoan.cho.quyen.so.huu.muc.nay.da.bi.thu.hoi', [money($result['so_tien']), $result['tieu_de_luc_mua']])) : ($approved && $note !== '' ? t('admin.finance.ly.do.ghi.chu', [$note, $note]) : t('download.ly.do', [$note]))),
                         '/orders/' . rawurlencode($result['ma_don_hang']));
                 }
                 return $result;
@@ -87,7 +84,7 @@ class FinanceController extends Controller {
         } catch (RuntimeException $error) {
             $this->fail($error->getMessage(), $back);
         }
-        flash('success', $result['decision'] === 'completed' ? 'Đã hoàn tiền và thu hồi quyền sở hữu.' : 'Đã từ chối yêu cầu hoàn tiền.');
+        flash('success',($result['decision'] === 'completed' ? t('admin.finance.da.hoan.tien.va.thu.hoi.quyen.so.huu') : t('admin.finance.da.tu.choi.yeu.cau.hoan.tien')));
         $this->redirect($back);
     }
 
@@ -107,7 +104,7 @@ class FinanceController extends Controller {
             FROM dot_chi_tra p JOIN nguoi_dung u ON u.ma = p.nguoi_dung_id JOIN tai_khoan_nhan_tien_nguoi_dung a ON a.ma = p.tai_khoan_nhan_tien_id
             $where ORDER BY p.ngay_yeu_cau DESC, p.ma DESC", $args), self::PER);
         $this->render('admin/payouts', $pager + [
-            'pageTitle' => 'Chi trả cho nhà phát triển',
+            'pageTitle' => t('admin.payouts.chi_tra_cho_nha_phat'),
             'status' => $status,
             'counts' => array_column(Model::query('SELECT trang_thai, COUNT(*) AS n FROM dot_chi_tra GROUP BY trang_thai'), 'n', 'trang_thai'),
             'payouts' => $payouts,
@@ -124,16 +121,16 @@ class FinanceController extends Controller {
         $reference = post_str('ma_tham_chieu', 190);
         $reason = post_str('ly_do', 1000);
         if (!in_array($status, ['processing', 'paid', 'failed', 'cancelled'], true)) {
-            $this->fail('Trạng thái chi trả không hợp lệ.', '/admin/payouts');
+            $this->fail(t('admin.finance.trang.thai.chi.tra.khong.hop.le'), '/admin/payouts');
         }
         if ($reference === null || $reason === null) {
-            $this->fail('Mã tham chiếu tối đa 190 ký tự, lý do tối đa 1.000 ký tự.', '/admin/payouts');
+            $this->fail(t('admin.finance.ma.tham.chieu.toi.da.190.ky.tu.ly.do.toi.da.1.000.ky.tu'), '/admin/payouts');
         }
         if ($status === 'paid' && $reference === '') {
-            $this->fail('Nhập mã tham chiếu của giao dịch chuyển tiền khi đánh dấu đã chi trả.', '/admin/payouts');
+            $this->fail(t('admin.finance.nhap.ma.tham.chieu.cua.giao.dich.chuyen.tien.khi.danh.dau.da.chi.tra'), '/admin/payouts');
         }
         if (in_array($status, ['failed', 'cancelled'], true) && $reason === '') {
-            $this->fail('Hãy ghi lý do khi đánh dấu thất bại hoặc hủy.', '/admin/payouts');
+            $this->fail(t('admin.finance.hay.ghi.ly.do.khi.danh.dau.that.bai.hoac.huy'), '/admin/payouts');
         }
         try {
             RevenueLedgerModel::decidePayout($id, $status, $reference, $reason);
@@ -141,7 +138,7 @@ class FinanceController extends Controller {
             $this->fail($error->getMessage(), '/admin/payouts');
         }
         audit('payout_' . $status, 'dot_chi_tra', $id, ['ma_tham_chieu' => $reference ?: null, 'ly_do' => $reason ?: null, 'nguoi_xu_ly' => (int)$admin['ma']]);
-        flash('success', 'Đợt chi trả #' . $id . ': ' . label('payout_status', $status) . '.');
+        flash('success',t('admin.finance.dot.chi.tra', [$id, label('payout_status', $status)]));
         $this->redirect('/admin/payouts');
     }
 
@@ -150,29 +147,27 @@ class FinanceController extends Controller {
         $id = (int)($params['id'] ?? 0);
         $status = (string)($_POST['trang_thai'] ?? '');
         if (!in_array($status, ['active', 'disabled'], true)) {
-            $this->fail('Trạng thái tài khoản không hợp lệ.', '/admin/payouts#accounts');
+            $this->fail(t('admin.finance.trang.thai.tai.khoan.khong.hop.le'), '/admin/payouts#accounts');
         }
         $account = Model::one('SELECT * FROM tai_khoan_nhan_tien_nguoi_dung WHERE ma = :i', [':i' => $id]);
         if (!$account) {
-            $this->notFound('Không tìm thấy tài khoản nhận tiền.');
+            $this->notFound(t('admin.finance.khong.tim.thay.tai.khoan.nhan.tien'));
         }
         if ($account['trang_thai'] === $status) {
-            $this->fail('Tài khoản đã ở trạng thái này.', '/admin/payouts#accounts');
+            $this->fail(t('admin.tai.khoan.da.o.trang.thai.nay'), '/admin/payouts#accounts');
         }
         if ($status === 'disabled') {
             $busy = Model::scalar("SELECT 1 FROM dot_chi_tra WHERE tai_khoan_nhan_tien_id = :i AND trang_thai IN ('requested','processing')", [':i' => $id]);
             if ($busy) {
-                $this->fail('Tài khoản đang gắn với một đợt chi trả chưa xong. Xử lý đợt chi trả trước.', '/admin/payouts#accounts');
+                $this->fail(t('admin.finance.tai.khoan.dang.gan.voi.mot.dot.chi.tra.chua.xong.xu.ly.dot.chi.tra.truoc'), '/admin/payouts#accounts');
             }
         }
         Model::transaction(function () use ($id, $status, $account, $admin) {
             Model::run('UPDATE tai_khoan_nhan_tien_nguoi_dung SET trang_thai = :s WHERE ma = :i', [':s' => $status, ':i' => $id]);
             audit('payout_account_' . $status, 'tai_khoan_nhan_tien_nguoi_dung', $id);
-            NotificationModel::notifyUsers([(int)$account['nguoi_dung_id']], (int)$admin['ma'], 'payout',
-                $status === 'active' ? 'Tài khoản nhận tiền đã được xác minh' : 'Tài khoản nhận tiền đã bị vô hiệu hóa',
-                $account['nha_cung_cap'] . ' · ' . ($account['ten_tai_khoan'] ?: $account['ma_tai_khoan_ben_ngoai']), '/dev/payouts');
+            NotificationModel::notifyUsers([(int)$account['nguoi_dung_id']], (int)$admin['ma'], 'payout',($status === 'active' ? t('admin.finance.tai.khoan.nhan.tien.da.duoc.xac.minh') : t('admin.finance.tai.khoan.nhan.tien.da.bi.vo.hieu.hoa')),($account['ten_tai_khoan'] ? t('devlog.message', [$account['nha_cung_cap'], $account['ten_tai_khoan']]) : t('devlog.message', [$account['nha_cung_cap'], $account['ma_tai_khoan_ben_ngoai']])), '/dev/payouts');
         });
-        flash('success', 'Đã cập nhật tài khoản nhận tiền.');
+        flash('success',t('admin.finance.da.cap.nhat.tai.khoan.nhan.tien'));
         $this->redirect('/admin/payouts#accounts');
     }
 }

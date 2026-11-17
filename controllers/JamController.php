@@ -5,17 +5,20 @@
 // =============================================================================
 
 class JamController extends Controller {
-    private const TABS = ['open' => 'Đang mở', 'judging' => 'Đang chấm', 'past' => 'Đã kết thúc'];
+    private const TABS = ['open', 'judging', 'past'];
 
     public function index(array $params = []) {
-        $tabs = self::TABS + (is_staff() ? ['hidden' => 'Nháp và đã hủy'] : []);
+        $tabs = ['open' => t('jam.index.dang.mo'), 'judging' => t('jam.index.dang.cham'), 'past' => t('jam.index.da.ket.thuc')];
+        if (is_staff()) {
+            $tabs['hidden'] = t('jam.index.nhap.va.da.huy');
+        }
         $tab = (string)($_GET['tab'] ?? 'open');
         if (!isset($tabs[$tab])) {
             $tab = 'open';
         }
         [$jams, $pager] = $this->paginate(JamModel::listing($tab), 12);
         $this->render('jam/index', [
-            'pageTitle' => 'Cuộc thi làm game',
+            'pageTitle' => t('jam.index.cuoc_thi_lam_game'),
             'tabs' => $tabs,
             'tab' => $tab,
             'counts' => JamModel::tabCounts(),
@@ -65,28 +68,28 @@ class JamController extends Controller {
         $uid = (int)$user['ma'];
         $self = '/jams/' . rawurlencode($jam['duong_dan_rut_gon']);
         if (JamModel::phase($jam) !== 'submissions') {
-            $this->fail('Cuộc thi hiện không nhận bài.', $self);
+            $this->fail(t('jam.cuoc.thi.hien.khong.nhan.bai'), $self);
         }
         $gameId = (int)($_POST['tro_choi_id'] ?? 0);
         $game = Model::one('SELECT ma, tieu_de, trang_thai FROM tro_choi WHERE ma = :g', [':g' => $gameId]);
         if (!$game || !GameModel::isAuthor($gameId, $uid)) {
-            $this->fail('Bạn chỉ nộp được trò chơi do mình phát triển.', $self . '#submit');
+            $this->fail(t('jam.ban.chi.nop.duoc.tro.choi.do.minh.phat.trien'), $self . '#submit');
         }
         if (!in_array($game['trang_thai'], ['published', 'unlisted'], true)) {
-            $this->fail('Trò chơi cần ở trạng thái công bố hoặc không liệt kê thì người chấm mới mở được.', $self . '#submit');
+            $this->fail(t('jam.tro.choi.can.o.trang.thai.cong.bo.hoac.khong.liet.ke.thi.nguoi.cham.moi.mo.duoc'), $self . '#submit');
         }
         $existing = Model::scalar('SELECT trang_thai FROM bai_du_thi WHERE cuoc_thi_id = :j AND tro_choi_id = :g', [':j' => (int)$jam['ma'], ':g' => $gameId]);
         if ($existing === 'submitted') {
-            $this->fail('Trò chơi này đã có trong cuộc thi.', $self . '#entries');
+            $this->fail(t('jam.tro.choi.nay.da.co.trong.cuoc.thi'), $self . '#entries');
         }
         if ($existing === 'disqualified') {
-            $this->fail('Trò chơi này đã bị loại khỏi cuộc thi và không nộp lại được.', $self . '#submit');
+            $this->fail(t('jam.tro.choi.nay.da.bi.loai.khoi.cuoc.thi.va.khong.nop.lai.duoc'), $self . '#submit');
         }
         $entryId = JamModel::submit((int)$jam['ma'], $gameId, $uid);
         audit('jam_submit', 'bai_du_thi', $entryId, ['jam' => (int)$jam['ma'], 'game' => $gameId]);
         $hosts = array_map('intval', Model::column("SELECT nguoi_dung_id FROM thanh_vien_cuoc_thi WHERE cuoc_thi_id = :j AND vai_tro_thanh_vien IN ('host','admin')", [':j' => (int)$jam['ma']]));
-        NotificationModel::notifyUsers($hosts, $uid, 'jam_entry', 'Bài dự thi mới: ' . $game['tieu_de'], 'Nộp vào ' . $jam['tieu_de'], $self . '#entry-' . $entryId);
-        flash('success', 'Đã nộp ' . $game['tieu_de'] . ' vào cuộc thi.');
+        NotificationModel::notifyUsers($hosts, $uid, 'jam_entry',t('jam.bai.du.thi.moi', [$game['tieu_de']]),t('jam.nop.vao', [$jam['tieu_de']]), $self . '#entry-' . $entryId);
+        flash('success',t('jam.da.nop.vao.cuoc.thi', [$game['tieu_de']]));
         $this->redirect($self . '#entry-' . $entryId);
     }
 
@@ -96,17 +99,17 @@ class JamController extends Controller {
         $self = '/jams/' . rawurlencode($jam['duong_dan_rut_gon']);
         $entry = JamModel::entry((int)$jam['ma'], (int)($params['entry'] ?? 0));
         if (!$entry || $entry['trang_thai'] !== 'submitted') {
-            $this->notFound('Không tìm thấy bài dự thi này.');
+            $this->notFound(t('jam.khong.tim.thay.bai.du.thi.nay'));
         }
         if (!GameModel::isAuthor((int)$entry['tro_choi_id'], (int)$user['ma'])) {
-            $this->forbidden('Chỉ nhà phát triển của trò chơi mới rút được bài.');
+            $this->forbidden(t('jam.chi.nha.phat.trien.cua.tro.choi.moi.rut.duoc.bai'));
         }
         if (JamModel::phase($jam) !== 'submissions') {
-            $this->fail('Đã hết hạn nộp bài nên không rút bài được nữa.', $self . '#entry-' . (int)$entry['ma']);
+            $this->fail(t('jam.da.het.han.nop.bai.nen.khong.rut.bai.duoc.nua'), $self . '#entry-' . (int)$entry['ma']);
         }
         Model::run("UPDATE bai_du_thi SET trang_thai = 'withdrawn' WHERE ma = :e", [':e' => (int)$entry['ma']]);
         audit('jam_withdraw', 'bai_du_thi', (int)$entry['ma']);
-        flash('success', 'Đã rút ' . $entry['game_title'] . ' khỏi cuộc thi. Bạn có thể nộp lại trước hạn.');
+        flash('success',t('jam.da.rut.khoi.cuoc.thi.ban.co.the.nop.lai.truoc.han', [$entry['game_title']]));
         $this->redirect($self . '#submit');
     }
 
@@ -117,30 +120,30 @@ class JamController extends Controller {
         $self = '/jams/' . rawurlencode($jam['duong_dan_rut_gon']);
         $entry = JamModel::entry((int)$jam['ma'], (int)($params['entry'] ?? 0));
         if (!$entry || $entry['trang_thai'] !== 'submitted' || !in_array($entry['game_status'], ['published', 'unlisted'], true)) {
-            $this->notFound('Không tìm thấy bài dự thi này.');
+            $this->notFound(t('jam.khong.tim.thay.bai.du.thi.nay'));
         }
         $anchor = $self . '#entry-' . (int)$entry['ma'];
         if (JamModel::phase($jam) !== 'voting') {
-            $this->fail('Cuộc thi hiện không mở bình chọn.', $anchor);
+            $this->fail(t('jam.cuoc.thi.hien.khong.mo.binh.chon'), $anchor);
         }
         if (GameModel::isAuthor((int)$entry['tro_choi_id'], $uid)) {
-            $this->fail('Bạn không chấm điểm trò chơi của chính mình.', $anchor);
+            $this->fail(t('jam.ban.khong.cham.diem.tro.choi.cua.chinh.minh'), $anchor);
         }
         $scores = [];
         foreach (array_keys(JamModel::CRITERIA) as $criterion) {
             $value = (int)($_POST['diem'][$criterion] ?? 0);
             if ($value < 1 || $value > 5) {
-                $this->fail('Hãy chấm từ 1 đến 5 cho mọi tiêu chí.', $anchor);
+                $this->fail(t('jam.hay.cham.tu.1.den.5.cho.moi.tieu.chi'), $anchor);
             }
             $scores[$criterion] = $value;
         }
         $comment = post_str('binh_luan', 1000);
         if ($comment === null) {
-            $this->fail('Nhận xét tối đa 1.000 ký tự.', $anchor);
+            $this->fail(t('jam.nhan.xet.toi.da.1.000.ky.tu'), $anchor);
         }
         JamModel::vote((int)$entry['ma'], $uid, $scores, $comment !== '' ? $comment : null);
         audit('jam_vote', 'bai_du_thi', (int)$entry['ma']);
-        flash('success', 'Đã lưu điểm cho ' . $entry['game_title'] . '.');
+        flash('success',t('jam.da.luu.diem.cho', [$entry['game_title']]));
         $this->redirect($anchor);
     }
 
@@ -158,10 +161,10 @@ class JamController extends Controller {
     private function visibleJam(array $params): array {
         $jam = JamModel::bySlug((string)($params['slug'] ?? ''));
         if (!$jam) {
-            $this->notFound('Không tìm thấy cuộc thi này.');
+            $this->notFound(t('jam.khong.tim.thay.cuoc.thi.nay'));
         }
         if ($jam['trang_thai'] === 'draft' && !is_staff() && !JamModel::memberRole((int)$jam['ma'], current_user_id())) {
-            $this->notFound('Không tìm thấy cuộc thi này.');
+            $this->notFound(t('jam.khong.tim.thay.cuoc.thi.nay'));
         }
         return $jam;
     }

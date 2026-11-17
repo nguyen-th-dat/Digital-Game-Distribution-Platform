@@ -61,7 +61,7 @@ class BundleAdminController extends Controller {
     private function index(string $scope, ?int $creatorId) {
         [$bundles, $pager] = $this->paginate(BundleModel::listFor($creatorId), 20);
         $this->render('bundle/manage', $pager + [
-            'pageTitle' => $scope === 'admin' ? 'Gói game' : 'Gói game của tôi',
+            'pageTitle' => ($scope === 'admin' ? t('nav.bundles') : t('nav.my_bundles')),
             'scope' => $scope,
             'bundles' => $bundles,
             'gameCount' => $creatorId === null ? 0 : count(BundleModel::eligibleGames($creatorId)),
@@ -76,7 +76,7 @@ class BundleAdminController extends Controller {
         // Games already in the bundle that can no longer be picked (unpublished, or not this developer's).
         $gone = array_diff($picked, array_map('intval', array_column($games, 'ma')));
         $this->render('bundle/form', [
-            'pageTitle' => $bundle ? 'Sửa ' . $bundle['tieu_de'] : 'Tạo gói game',
+            'pageTitle' => ($bundle ? t('bundle.admin.sua', [$bundle['tieu_de']]) : t('bundle.new')),
             'scope' => $scope,
             'bundle' => $bundle,
             'games' => $games,
@@ -103,7 +103,7 @@ class BundleAdminController extends Controller {
             return $id;
         });
         audit('bundle.create', 'goi_game', $id, ['status' => $row['trang_thai'], 'price' => $row['gia'], 'games' => $games]);
-        flash('success', 'Đã tạo gói "' . $row['tieu_de'] . '".');
+        flash('success',t('bundle.admin.da.tao.goi', [$row['tieu_de']]));
         $this->redirect($base . '/' . $id);
     }
 
@@ -119,7 +119,7 @@ class BundleAdminController extends Controller {
             BundleModel::saveGames($id, $games);
         });
         audit('bundle.update', 'goi_game', $id, ['status' => $row['trang_thai'], 'price' => $row['gia'], 'games' => $games]);
-        flash('success', 'Đã lưu gói "' . $row['tieu_de'] . '".');
+        flash('success',t('bundle.admin.da.luu.goi', [$row['tieu_de']]));
         $this->redirect($back);
     }
 
@@ -133,7 +133,7 @@ class BundleAdminController extends Controller {
         $id = (int)($params['id'] ?? 0);
         $bundle = $id > 0 ? BundleModel::find($id) : null;
         if (!$bundle || ($ownerId !== null && (int)$bundle['nguoi_tao_id'] !== $ownerId)) {
-            $this->notFound('Không tìm thấy gói game.');
+            $this->notFound(t('bundle.admin.khong.tim.thay.goi.game'));
         }
         return $bundle;
     }
