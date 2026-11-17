@@ -10,3 +10,6 @@ node_modules/
 
 # Tài liệu hướng dẫn chỉ giữ ở máy
 /HUONG_DAN_SU_DUNG.docx
+
+/.cusor
+/tools

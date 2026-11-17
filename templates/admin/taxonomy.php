@@ -11,7 +11,7 @@ $val = static fn(string $field, ?string $col) => old($field, $editing && $col ? 
 </div>
 
 <nav class="tabs" aria-label="<?= te('admin.taxonomy.loai_danh_muc') ?>">
-    <?php foreach (TaxonomyModel::KINDS as $key => $k): ?>
+    <?php foreach (TaxonomyModel::kinds() as $key => $k): ?>
         <a href="<?= e(app_url($base . '?kind=' . $key)) ?>" aria-selected="<?= $key === $kindKey ? 'true' : 'false' ?>"><?= e($k['label']) ?> <span class="muted"><?= fmt_int($counts[$key]) ?></span></a>
     <?php endforeach; ?>
 </nav>

@@ -4,7 +4,7 @@
 <div class="title-row">
     <div>
         <h1><?= te('library.title') ?></h1>
-        <p class="sub"><?= te('library.index.tro-choi', [ fmt_int($total) ,  $q !== '' ? ' khớp "' . e($q) . '"' : '' ]) ?></p>
+        <p class="sub"><?= te('library.index.tro-choi', [ fmt_int($total) ,  $q !== '' ? t('library.index.khop', [$q]) : '' ]) ?></p>
     </div>
 </div>
 

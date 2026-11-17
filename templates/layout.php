@@ -6,7 +6,7 @@ $isAdmin = in_array('admin', $roles, true);
 $isMod = $isAdmin || in_array('moderator', $roles, true);
 $counts = shell_counts();
 $flashes = take_flashes();
-$pageTitle = isset($pageTitle) && $pageTitle !== '' ? $pageTitle . ' · ' . APP_NAME : APP_NAME;
+$pageTitle = isset($pageTitle) && $pageTitle !== '' ? $pageTitle . t('common.dot_app', [APP_NAME]) : APP_NAME;
 $searchValue = current_path() === '/games' ? (string)($_GET['q'] ?? '') : '';
 $theme = theme_preference();
 $themeNext = theme_toggle_target($theme);
