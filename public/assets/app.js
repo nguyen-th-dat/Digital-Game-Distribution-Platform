@@ -120,4 +120,19 @@
       button.textContent = 'Đang gửi…';
     });
   });
+
+  // Theme toggle: repaint at once so the click feels instant, then let the form
+  // save the choice on the server (cookie for guests, account for members).
+  var themeToggle = document.querySelector('[data-theme-toggle]');
+  if (themeToggle) {
+    var root = document.documentElement;
+    themeToggle.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      themeToggle.setAttribute('aria-label', next === 'light' ? 'Chuyển sang giao diện tối' : 'Chuyển sang giao diện sáng');
+      themeToggle.setAttribute('title', next === 'light' ? 'Giao diện tối' : 'Giao diện sáng');
+      var field = themeToggle.form && themeToggle.form.querySelector('input[name="theme"]');
+      if (field) field.value = next;
+    });
+  }
 })();

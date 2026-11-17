@@ -43,6 +43,7 @@ class UserModel extends Model {
         return $row ?: [
             'nguoi_dung_id' => $userId, 'pham_vi_hien_thi_ho_so' => 'public', 'hien_thi_game_so_huu' => 1, 'cho_phep_nhan_tin' => 1,
             'email_cap_nhat_san_pham' => 1, 'email_cap_nhat_cong_dong' => 1, 'ngon_ngu_uu_tien' => 'vi', 'tien_te_uu_tien' => APP_CURRENCY,
+            'giao_dien' => THEME_DEFAULT,
         ];
     }
 

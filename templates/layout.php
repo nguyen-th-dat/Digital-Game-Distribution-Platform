@@ -8,14 +8,17 @@ $counts = shell_counts();
 $flashes = take_flashes();
 $pageTitle = isset($pageTitle) && $pageTitle !== '' ? $pageTitle . ' · ' . APP_NAME : APP_NAME;
 $searchValue = current_path() === '/games' ? (string)($_GET['q'] ?? '') : '';
+$theme = theme_preference();
+$themeNext = theme_toggle_target($theme);
 ?>
 <!doctype html>
-<html lang="vi">
+<html lang="vi" data-theme="<?= e($theme) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($pageTitle) ?></title>
     <meta name="description" content="<?= e($metaDescription ?? 'Cửa hàng và cộng đồng trò chơi độc lập: khám phá, mua, sưu tầm và thảo luận.') ?>">
+    <meta name="theme-color" content="<?= $theme === THEME_LIGHT ? '#f4f4f5' : '#0d0d0f' ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
@@ -97,6 +100,15 @@ $searchValue = current_path() === '/games' ? (string)($_GET['q'] ?? '') : '';
             </form>
             <span class="spacer"></span>
             <nav class="topbar-links" aria-label="Tài khoản">
+                <form class="theme-toggle-form" method="post" action="<?= e(app_url('/theme/toggle')) ?>">
+                    <?= csrf_field() ?>
+                    <?= return_field() ?>
+                    <input type="hidden" name="theme" value="<?= e($themeNext) ?>">
+                    <button type="submit" class="theme-toggle" data-theme-toggle aria-label="<?= $themeNext === THEME_LIGHT ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối' ?>" title="<?= $themeNext === THEME_LIGHT ? 'Giao diện sáng' : 'Giao diện tối' ?>">
+                        <svg class="icon-sun" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 1.5v2M10 16.5v2M18.5 10h-2M3.5 10h-2M16 4l-1.4 1.4M5.4 14.6 4 16M16 16l-1.4-1.4M5.4 5.4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                        <svg class="icon-moon" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M16.5 12.4A7 7 0 0 1 7.6 3.5a7 7 0 1 0 8.9 8.9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                    </button>
+                </form>
                 <?php if ($user): ?>
                     <a class="top-link hide-mobile" href="<?= e(app_url('/library')) ?>"<?= nav_current('/library') ?>>Thư viện</a>
                     <a class="top-link" href="<?= e(app_url('/cart')) ?>"<?= nav_current('/cart') ?>>Giỏ<span class="hide-mobile">&nbsp;hàng</span><span class="badge"><?= fmt_int($counts['cart']) ?></span></a>

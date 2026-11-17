@@ -11,8 +11,8 @@ $layouts = [
     'minimal' => ['Tối giản', 'Ẩn cột thông tin, chỉ giữ một cột nội dung.'],
 ];
 $colors = [
-    'mau_nen'      => ['Màu nền', 'Để trống: nền đen của cửa hàng.'],
-    'mau_chu'      => ['Màu chữ', 'Để trống: chữ trắng.'],
+    'mau_nen'      => ['Màu nền', 'Để trống: nền mặc định của giao diện đang dùng.'],
+    'mau_chu'      => ['Màu chữ', 'Để trống: màu chữ mặc định của giao diện đang dùng.'],
     'mau_lien_ket' => ['Màu liên kết', 'Để trống: cùng màu chữ.'],
 ];
 // Preview uses the saved values, the same way the public page does.

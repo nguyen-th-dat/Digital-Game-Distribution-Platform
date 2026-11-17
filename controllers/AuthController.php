@@ -125,6 +125,7 @@ class AuthController extends Controller {
         session_destroy();
         session_start();
         session_regenerate_id(true);
+        unset($_SESSION['theme'], $_SESSION['theme_uid']);
         flash('info', 'Bạn đã đăng xuất.');
         $this->redirect('/');
     }
@@ -132,6 +133,8 @@ class AuthController extends Controller {
     private function startSession(array $user): void {
         session_regenerate_id(true);
         unset($_SESSION['csrf_token']);
+        // The account preference decides the theme from now on, not the guest one.
+        unset($_SESSION['theme'], $_SESSION['theme_uid']);
         $_SESSION['user'] = UserModel::publicFields($user);
         $_SESSION['user_roles'] = array_column(UserModel::getRoles((int)$user['ma']), 'ma_vai_tro');
     }
