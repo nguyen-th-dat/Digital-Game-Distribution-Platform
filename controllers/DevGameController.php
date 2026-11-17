@@ -390,9 +390,10 @@ class DevGameController extends Controller {
         if (!in_array($layout, ['default', 'wide', 'minimal'], true)) {
             $this->fail('Chọn bố cục trang.', $back);
         }
-        // Defaults mirror .game-page.themed in app.css: black ground, white ink, links inherit ink.
-        $bg = $colors['mau_nen'] ?? '#000000';
-        $ink = $colors['mau_chu'] ?? '#ffffff';
+        // Defaults mirror .game-page.themed in app.css: the theme ground and its ink.
+        $fallback = theme_page_colors();
+        $bg = $colors['mau_nen'] ?? $fallback['ground'];
+        $ink = $colors['mau_chu'] ?? $fallback['ink'];
         $link = $colors['mau_lien_ket'] ?? $ink;
         if (self::contrast($bg, $ink) < 4.5) {
             $this->fail('Màu chữ và màu nền có độ tương phản ' . number_format(self::contrast($bg, $ink), 1) . ':1, cần ít nhất 4.5:1 để dễ đọc.', $back);

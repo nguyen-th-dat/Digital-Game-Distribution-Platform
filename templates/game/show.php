@@ -5,8 +5,14 @@ $slug = $game['duong_dan_rut_gon'];
 $base = '/games/' . rawurlencode($slug);
 $hex = fn($v) => is_string($v) && preg_match('/^#[0-9a-fA-F]{6}$/', $v) ? $v : null;
 $vars = [];
-if ($c = $hex($settings['mau_nen'] ?? null)) $vars[] = '--page-bg:' . $c;
-if ($c = $hex($settings['mau_chu'] ?? null)) $vars[] = '--page-ink:' . $c;
+$pageInk = $hex($settings['mau_chu'] ?? null);
+// A game with its own background but no ink colour gets ink that reads on it.
+$pageBg = $hex($settings['mau_nen'] ?? null);
+if ($pageBg && !$pageInk) {
+    $pageInk = theme_readable_ink($pageBg);
+}
+if ($pageBg) $vars[] = '--page-bg:' . $pageBg;
+if ($pageInk) $vars[] = '--page-ink:' . $pageInk;
 if ($c = $hex($settings['mau_lien_ket'] ?? null)) $vars[] = '--page-link:' . $c;
 $pageLayout = in_array($settings['bo_cuc_trang'] ?? 'default', ['default', 'wide', 'minimal'], true) ? $settings['bo_cuc_trang'] : 'default';
 $isFree = game_is_free($game);

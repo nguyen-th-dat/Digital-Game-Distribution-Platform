@@ -61,6 +61,108 @@ function old(string $key, $default = '') {
     return $_SESSION['old_input_view'][$key] ?? $default;
 }
 
+// ---------------------------------------------------------------- theme -----
+
+/** The two supported themes. */
+const THEME_DARK = 'dark';
+const THEME_LIGHT = 'light';
+
+/** Cookie that remembers the theme for visitors who are not signed in. */
+const THEME_COOKIE = 'kgdl_theme';
+
+/** Normalise a theme value; anything unknown becomes the dark theme. */
+function theme_normalize(?string $value): string {
+    return $value === THEME_LIGHT ? THEME_LIGHT : THEME_DARK;
+}
+
+/**
+ * The theme of this request: the account preference for a signed-in visitor,
+ * the cookie for a guest, and the dark theme as the last resort.
+ *
+ * The result is cached in the session together with the account it belongs to,
+ * so a page costs one query at most and switching accounts never shows the
+ * previous account's theme.
+ */
+function theme_preference(): string {
+    $uid = current_user_id();
+    $cachedUid = $_SESSION['theme_uid'] ?? null;
+    if ($uid > 0) {
+        if (isset($_SESSION['theme']) && $cachedUid === $uid
+            && in_array($_SESSION['theme'], [THEME_DARK, THEME_LIGHT], true)) {
+            return $_SESSION['theme'];
+        }
+        try {
+            $stored = Model::scalar('SELECT giao_dien FROM cai_dat_nguoi_dung WHERE nguoi_dung_id = :uid', [':uid' => $uid]);
+            if (is_string($stored) && $stored !== '') {
+                return theme_cache(theme_normalize($stored), $uid);
+            }
+        } catch (Throwable $error) {
+            // The column is missing on installs that have not run the theme migration.
+            error_log('theme_preference: ' . $error->getMessage());
+        }
+    }
+    // A guest, or a member whose row has no theme yet: the cookie decides.
+    return theme_cache(theme_normalize((string)($_COOKIE[THEME_COOKIE] ?? '')), $uid);
+}
+
+/** Remember the theme in the session. */
+function theme_cache(string $theme, ?int $userId): string {
+    $_SESSION['theme'] = $theme;
+    $_SESSION['theme_uid'] = $userId;
+    return $theme;
+}
+
+/** Store the theme for the rest of this session and for the next visit. */
+function theme_set(string $theme): void {
+    $theme = theme_normalize($theme);
+    theme_cache($theme, current_user_id());
+    theme_set_cookie($theme);
+}
+
+/**
+ * The fallback colours of a themed game page. They follow the active theme so
+ * a game without its own colours still reads well in light mode.
+ */
+function theme_page_colors(): array {
+    return theme_preference() === THEME_LIGHT
+        ? ['ground' => '#ffffff', 'ink' => '#17171a']
+        : ['ground' => '#0d0d0f', 'ink' => '#ffffff'];
+}
+
+/**
+ * Black or white, whichever reads better on the given background colour.
+ * Used when a game paints its own background but leaves the ink to the theme.
+ */
+function theme_readable_ink(string $background): string {
+    if (!preg_match('/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i', $background, $m)) {
+        return theme_page_colors()['ink'];
+    }
+    $channels = array_map(static fn(string $part): float => hexdec($part) / 255, [$m[1], $m[2], $m[3]]);
+    $linear = array_map(static fn(float $c): float => $c <= 0.03928 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4, $channels);
+    $luminance = 0.2126 * $linear[0] + 0.7152 * $linear[1] + 0.0722 * $linear[2];
+    return $luminance > 0.4 ? '#17171a' : '#ffffff';
+}
+
+/** The theme to switch to when the toggle is pressed. */
+function theme_toggle_target(?string $current = null): string {
+    $current = $current ?? theme_preference();
+    return $current === THEME_LIGHT ? THEME_DARK : THEME_LIGHT;
+}
+
+/** Remember the theme in a cookie so guests keep it between visits. */
+function theme_set_cookie(string $theme): void {
+    if (headers_sent()) {
+        return;
+    }
+    setcookie(THEME_COOKIE, theme_normalize($theme), [
+        'expires' => time() + 31536000,
+        'path' => APP_BASE_URL === '' ? '/' : APP_BASE_URL . '/',
+        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
 // ---------------------------------------------------------------- auth -----
 
 function current_user(): ?array {

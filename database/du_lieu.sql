@@ -1606,6 +1606,7 @@ CREATE TABLE `cai_dat_nguoi_dung` (
   `email_cap_nhat_cong_dong` tinyint(1) NOT NULL DEFAULT 1,
   `ngon_ngu_uu_tien` varchar(10) NOT NULL DEFAULT 'vi',
   `tien_te_uu_tien` char(3) NOT NULL DEFAULT 'VND',
+  `giao_dien` enum('dark','light') NOT NULL DEFAULT 'dark',
   `ngay_cap_nhat` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

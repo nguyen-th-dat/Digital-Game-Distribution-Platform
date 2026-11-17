@@ -1,6 +1,8 @@
 /* Kho Game Độc Lập — one design system for every screen.
    Direction: soft-black flat. Elevation by lightness alone,
-   no borders or shadows on cards, lime only on data (prices, discounts, "owned"), never on controls. */
+   no borders or shadows on cards, lime only on data (prices, discounts, "owned"), never on controls.
+   Two themes share one set of tokens: the dark palette below is the default and
+   :root[data-theme="light"] overrides every colour token for the light palette. */
 
 :root {
   --ground: #0d0d0f;
@@ -26,6 +28,24 @@
   --pill-neutral-bg: #212124; --pill-neutral-ink: #ffffff;
   --chart-1: #c6f24e; --chart-2: #e6e6e6; --chart-3: #6b6b6b; --grid: #2b2b2b;
 
+  /* Interactive shades that need their own token to survive the light theme. */
+  --raised-hover: #303035;
+  --menu-rule: #323238;
+  --primary-hover: #e2e2e2;
+  --negative-bg-hover: #3a2029;
+  --negative-bright: #ff9aaa;
+  --control-hover: #565660;
+  --overlay: rgba(13, 13, 15, 0.86);
+  --prose-ink: #e6e6e6;
+
+  /* A game page may paint its own background and ink; these are the defaults. */
+  --page-ground: #0d0d0f;
+  --page-ink-default: #ffffff;
+
+  /* Inline icons keep the theme colour, so they ship as swappable images. */
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5l3-3' fill='none' stroke='%23b4b4b4' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.5' fill='none' stroke='%23949494' stroke-width='1.5'/%3E%3Cpath d='m10.5 10.5 3 3' stroke='%23949494' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+
   --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --fs-title: 20px; --fs-section: 16px; --fs-kpi: 24px; --fs-body: 14px; --fs-small: 13px;
 
@@ -45,6 +65,50 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --t-hover: 150ms; --t-ui: 200ms;
   color-scheme: dark;
+}
+
+/* Light theme: same structure, inverted lightness. The accent keeps its role as
+   the data colour (prices, discounts, "owned"), but darkens enough to read on white. */
+:root[data-theme="light"] {
+  --ground: #f4f4f5;
+  --surface: #ffffff;
+  --raised: #ececed;
+  --well: #f7f7f8;
+  --border: #e2e2e5;
+  --rule: #ebebee;
+  --control: #c9c9d0;
+  --text: #17171a;
+  --nav: #55555c;
+  --muted: #5c5c64;
+  --faint: #85858e;
+  --accent: #4a7607;
+  --positive: #4a7607;
+  --negative: #c02a2f;
+  --warning: #9a6a06;
+  --primary: #17171a;
+  --primary-ink: #ffffff;
+  --pill-positive-bg: #eaf3d6; --pill-positive-ink: #4a7607;
+  --pill-negative-bg: #fbe7e8; --pill-negative-ink: #b3242a;
+  --pill-warning-bg: #fbf0da; --pill-warning-ink: #8a5f05;
+  --pill-neutral-bg: #ececed; --pill-neutral-ink: #17171a;
+  --chart-1: #4a7607; --chart-2: #6b6b73; --chart-3: #b0b0b8; --grid: #e2e2e5;
+
+  --raised-hover: #e0e0e3;
+  --menu-rule: #dcdce0;
+  --primary-hover: #2c2c31;
+  --negative-bg-hover: #f5d5d7;
+  --negative-bright: #b3242a;
+  --control-hover: #a9a9b2;
+  --overlay: rgba(255, 255, 255, 0.88);
+  --prose-ink: #2a2a2f;
+
+  --page-ground: #ffffff;
+  --page-ink-default: #17171a;
+
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5l3-3' fill='none' stroke='%235c5c64' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.5' fill='none' stroke='%2385858e' stroke-width='1.5'/%3E%3Cpath d='m10.5 10.5 3 3' stroke='%2385858e' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+
+  color-scheme: light;
 }
 
 /* ---------- reset ---------- */
@@ -91,14 +155,22 @@ hr.rule { border: 0; border-top: 1px solid var(--border); margin: var(--gap) 0; 
 .top-link { display: inline-flex; align-items: center; gap: 6px; height: var(--control-height); padding: 0 12px; border-radius: var(--radius-control); color: var(--nav); transition: color var(--t-hover) ease, background-color var(--t-hover) ease; }
 .top-link:hover, .top-link[aria-current="page"] { color: var(--text); background: var(--surface); }
 .top-link .badge { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--raised); color: var(--text); font-size: 11px; line-height: 18px; text-align: center; font-variant-numeric: tabular-nums; }
+
+/* Theme toggle: one round control that shows the icon of the theme it switches to. */
+.theme-toggle-form { margin: 0; }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); padding: 0; border: 0; border-radius: var(--radius-control); background: none; color: var(--nav); cursor: pointer; transition: color var(--t-hover) ease, background-color var(--t-hover) ease; }
+.theme-toggle:hover { color: var(--text); background: var(--surface); }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 .account { position: relative; }
 .account > summary { list-style: none; display: flex; align-items: center; gap: 8px; height: var(--control-height); padding: 0 6px 0 4px; border-radius: var(--radius-control); cursor: pointer; }
 .account > summary::-webkit-details-marker { display: none; }
 .account > summary:hover { background: var(--surface); }
 .account .menu { position: absolute; right: 0; top: calc(100% + 8px); width: 240px; padding: 8px; border-radius: 16px; background: var(--raised); display: grid; gap: 2px; z-index: 30; }
 .account .menu a, .account .menu button { display: flex; align-items: center; width: 100%; height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: none; color: var(--text); text-align: left; cursor: pointer; }
-.account .menu a:hover, .account .menu button:hover { background: #303035; }
-.account .menu .who { padding: 8px 12px 10px; border-bottom: 1px solid #323238; margin-bottom: 6px; }
+.account .menu a:hover, .account .menu button:hover { background: var(--raised-hover); }
+.account .menu .who { padding: 8px 12px 10px; border-bottom: 1px solid var(--menu-rule); margin-bottom: 6px; }
 .account .menu .who span { display: block; color: var(--muted); font-size: var(--fs-small); }
 .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--raised); object-fit: cover; flex: none; }
 .avatar.lg { width: 72px; height: 72px; }
@@ -190,14 +262,14 @@ a.tag:hover { color: var(--text); }
 
 /* ---------- controls ---------- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: var(--control-height); padding: 0 16px; border-radius: var(--radius-control); border: 0; background: var(--raised); color: var(--text); font-weight: 500; white-space: nowrap; cursor: pointer; transition: background-color var(--t-hover) ease, transform 120ms var(--ease-out); }
-.btn:hover { background: #303035; }
+.btn:hover { background: var(--raised-hover); }
 .btn:active { transform: translateY(1px); }
 .btn.primary { background: var(--primary); color: var(--primary-ink); }
-.btn.primary:hover { background: #e2e2e2; }
+.btn.primary:hover { background: var(--primary-hover); }
 .btn.ghost { background: transparent; color: var(--nav); }
 .btn.ghost:hover { color: var(--text); background: var(--surface); }
 .btn.danger { background: var(--pill-negative-bg); color: var(--pill-negative-ink); }
-.btn.danger:hover { background: #3a2029; }
+.btn.danger:hover { background: var(--negative-bg-hover); }
 .btn.sm { height: 30px; padding: 0 12px; font-size: 13px; }
 .btn.block { width: 100%; }
 .btn[disabled], .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
@@ -215,17 +287,17 @@ form.inline { display: inline; }
 .field .hint { color: var(--faint); font-size: var(--fs-small); line-height: 16px; }
 .field .error-text { color: var(--pill-negative-ink); font-size: var(--fs-small); }
 .input { width: 100%; height: var(--input-height); padding: 0 14px; border: 1px solid var(--control); border-radius: 12px; background: var(--ground); color: var(--text); transition: border-color var(--t-hover) ease; }
-.input:hover { border-color: #565660; }
+.input:hover { border-color: var(--control-hover); }
 .input:focus { outline: none; border-color: var(--text); }
 .input::placeholder { color: var(--faint); }
 textarea.input { height: auto; min-height: 120px; padding: 10px 14px; line-height: 20px; resize: vertical; }
-select.input { appearance: none; padding-right: 36px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5l3-3' fill='none' stroke='%23b4b4b4' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 12px; }
+select.input { appearance: none; padding-right: 36px; background-image: var(--select-arrow); background-repeat: no-repeat; background-position: right 14px center; background-size: 12px; }
 input[type="file"].input { padding: 8px 14px; height: auto; }
 .input.sm { height: var(--control-height); border-radius: var(--radius-control); }
-.search .input { height: var(--control-height); border-radius: var(--radius-control); background: var(--surface); border-color: transparent; padding-left: 38px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.5' fill='none' stroke='%23949494' stroke-width='1.5'/%3E%3Cpath d='m10.5 10.5 3 3' stroke='%23949494' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 14px center; background-size: 15px; }
+.search .input { height: var(--control-height); border-radius: var(--radius-control); background: var(--surface); border-color: transparent; padding-left: 38px; background-image: var(--search-icon); background-repeat: no-repeat; background-position: 14px center; background-size: 15px; }
 .search .input:focus { border-color: var(--control); }
 .check { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
-.check input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: #ffffff; flex: none; }
+.check input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--text); flex: none; }
 .check .sub { display: block; color: var(--faint); font-size: var(--fs-small); line-height: 16px; }
 .choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px 16px; }
 .check-list { display: grid; gap: 12px; }
@@ -258,7 +330,7 @@ input[type="file"].input { padding: 8px 14px; height: auto; }
 .flashes { display: grid; gap: 8px; margin-bottom: 18px; }
 .flash { padding: 12px 16px; border-radius: 14px; background: var(--surface); color: var(--text); }
 .flash.success { background: var(--pill-positive-bg); color: var(--pill-positive-ink); }
-.flash.error { background: var(--pill-negative-bg); color: #ff9aaa; }
+.flash.error { background: var(--pill-negative-bg); color: var(--negative-bright); }
 .flash.info { background: var(--surface); color: var(--muted); }
 .notice { padding: 12px 16px; border-radius: 14px; background: var(--pill-warning-bg); color: var(--pill-warning-ink); }
 .notice.neutral { background: var(--raised); color: var(--muted); }
@@ -289,7 +361,7 @@ input[type="file"].input { padding: 8px 14px; height: auto; }
 .feature-art { margin: 0; }
 .feature-art > a { display: block; height: 100%; }
 .feature-art img { width: 100%; height: 100%; object-fit: cover; }
-.feature-art figcaption { position: absolute; left: 12px; bottom: 12px; max-width: calc(100% - 24px); padding: 5px 12px; border-radius: 999px; background: rgba(13, 13, 15, 0.86); color: var(--muted); font-size: 12px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.feature-art figcaption { position: absolute; left: 12px; bottom: 12px; max-width: calc(100% - 24px); padding: 5px 12px; border-radius: 999px; background: var(--overlay); color: var(--muted); font-size: 12px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .feature-art figcaption a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
 .feature-info { display: flex; flex-direction: column; gap: 14px; background: var(--surface); border-radius: var(--radius-card); padding: 26px; }
 .feature-info h2 { font-size: 24px; line-height: 30px; font-weight: 600; letter-spacing: -0.015em; }
@@ -330,7 +402,7 @@ input[type="file"].input { padding: 8px 14px; height: auto; }
 .rating strong { font-weight: 600; }
 .stars { letter-spacing: 1px; color: var(--text); }
 .stars .off { color: var(--control); }
-.prose { color: #e6e6e6; line-height: 22px; max-width: 72ch; }
+.prose { color: var(--prose-ink); line-height: 22px; max-width: 72ch; }
 .prose p + p { margin-top: 12px; }
 .game-body { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 34px; margin-top: 34px; align-items: start; }
 .review { padding: 18px 0; }
@@ -490,7 +562,8 @@ a.row-link + a.row-link { border-top-color: transparent; }
 .rank-row.compact img, .rank-row.compact .thumb { width: 72px; height: 40px; }
 .sub-head { margin: 24px 0 8px; font-size: var(--fs-body); font-weight: 600; }
 .chips-row { margin-bottom: 20px; }
-.game-page.themed { --ground: var(--page-bg, #0d0d0f); --text: var(--page-ink, #ffffff); background: var(--page-bg, transparent); color: var(--page-ink, inherit); border-radius: var(--radius-card); }
+.game-page.themed { --ground: var(--page-bg, var(--page-ground)); --text: var(--page-ink, var(--page-ink-default)); background: var(--page-bg, transparent); color: var(--page-ink, inherit); border-radius: var(--radius-card); }
+.game-page.themed .prose { color: inherit; }
 .game-page.themed .prose a, .game-page.themed .facts dd a, .game-page.themed a.link { color: var(--page-link, inherit); }
 .game-page.themed.has-bg { padding: 18px; }
 .game-page.layout-wide .game-body { grid-template-columns: minmax(0, 1fr) 300px; }

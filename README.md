@@ -53,6 +53,16 @@ Developed as part of the **Open Source Software Development** course.
 
 **Note:** Keep `public/uploads/` intact because the database references images stored in this directory.
 
+## Appearance
+
+The site has a light and a dark theme. The button in the top bar switches between them; the choice is saved to your account when you are signed in, and in a cookie for guests. You can also pick a theme under `Settings → Privacy and preferences`.
+
+Installations that were set up before the theme was added need one extra statement, because `database/du_lieu.sql` already ships with the column:
+
+```bash
+mysql -u root -p game_distribution_platform_db < database/migration_giao_dien.sql
+```
+
 ## Demo accounts
 
 `database/du_lieu.sql` ships with a complete set of sample accounts. Every one of them uses the same password:

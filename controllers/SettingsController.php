@@ -115,18 +115,20 @@ class SettingsController extends Controller {
         $visibility = ($_POST['pham_vi_hien_thi_ho_so'] ?? '') === 'private' ? 'private' : 'public';
         $lang = in_array($_POST['ngon_ngu_uu_tien'] ?? '', ['vi', 'en'], true) ? $_POST['ngon_ngu_uu_tien'] : 'vi';
         $currency = in_array($_POST['tien_te_uu_tien'] ?? '', ['USD', 'VND'], true) ? $_POST['tien_te_uu_tien'] : APP_CURRENCY;
-        Model::run('INSERT INTO cai_dat_nguoi_dung (nguoi_dung_id, pham_vi_hien_thi_ho_so, hien_thi_game_so_huu, cho_phep_nhan_tin, email_cap_nhat_san_pham, email_cap_nhat_cong_dong, ngon_ngu_uu_tien, tien_te_uu_tien)
-            VALUES (:u, :v, :o, :m, :p, :c, :l, :cur)
+        $theme = in_array($_POST['giao_dien'] ?? '', [THEME_DARK, THEME_LIGHT], true) ? $_POST['giao_dien'] : THEME_DARK;
+        Model::run('INSERT INTO cai_dat_nguoi_dung (nguoi_dung_id, pham_vi_hien_thi_ho_so, hien_thi_game_so_huu, cho_phep_nhan_tin, email_cap_nhat_san_pham, email_cap_nhat_cong_dong, ngon_ngu_uu_tien, tien_te_uu_tien, giao_dien)
+            VALUES (:u, :v, :o, :m, :p, :c, :l, :cur, :g)
             ON DUPLICATE KEY UPDATE pham_vi_hien_thi_ho_so = VALUES(pham_vi_hien_thi_ho_so), hien_thi_game_so_huu = VALUES(hien_thi_game_so_huu),
                 cho_phep_nhan_tin = VALUES(cho_phep_nhan_tin), email_cap_nhat_san_pham = VALUES(email_cap_nhat_san_pham),
-                email_cap_nhat_cong_dong = VALUES(email_cap_nhat_cong_dong), ngon_ngu_uu_tien = VALUES(ngon_ngu_uu_tien), tien_te_uu_tien = VALUES(tien_te_uu_tien)', [
+                email_cap_nhat_cong_dong = VALUES(email_cap_nhat_cong_dong), ngon_ngu_uu_tien = VALUES(ngon_ngu_uu_tien), tien_te_uu_tien = VALUES(tien_te_uu_tien), giao_dien = VALUES(giao_dien)', [
             ':u' => $uid, ':v' => $visibility,
             ':o' => post_bool('hien_thi_game_so_huu') ? 1 : 0,
             ':m' => post_bool('cho_phep_nhan_tin') ? 1 : 0,
             ':p' => post_bool('email_cap_nhat_san_pham') ? 1 : 0,
             ':c' => post_bool('email_cap_nhat_cong_dong') ? 1 : 0,
-            ':l' => $lang, ':cur' => $currency,
+            ':l' => $lang, ':cur' => $currency, ':g' => $theme,
         ]);
+        theme_set($theme);
         audit('settings_update', 'cai_dat_nguoi_dung', $uid);
         flash('success', 'Đã lưu quyền riêng tư và tuỳ chọn.');
         $this->redirect('/settings#privacy');

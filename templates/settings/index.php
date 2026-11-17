@@ -116,6 +116,16 @@ $val = static fn(string $key, $fallback) => old($key, $fallback);
                 <span class="hint">Thanh toán luôn tính bằng USD.</span>
             </div>
         </div>
+        <div class="form-grid">
+            <div class="field">
+                <label for="giao_dien">Giao diện</label>
+                <select class="input" id="giao_dien" name="giao_dien">
+                    <option value="dark"<?= ($settings['giao_dien'] ?? THEME_DARK) !== THEME_LIGHT ? ' selected' : '' ?>>Tối</option>
+                    <option value="light"<?= ($settings['giao_dien'] ?? THEME_DARK) === THEME_LIGHT ? ' selected' : '' ?>>Sáng</option>
+                </select>
+                <span class="hint">Nút trên thanh đầu cũng đổi nhanh giữa hai giao diện.</span>
+            </div>
+        </div>
         <div class="form-actions"><button class="btn primary" type="submit">Lưu tuỳ chọn</button></div>
     </form>
 </section>
