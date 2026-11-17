@@ -3,15 +3,15 @@
 $gid = (int)$game['ma'];
 $base = '/dev/games/' . $gid;
 $sections = [
-    'details' => ['', 'Chi tiết'],
-    'media' => ['/media', 'Ảnh & video'],
-    'downloads' => ['/downloads', 'Liên kết tải về'],
-    'authors' => ['/authors', 'Tác giả'],
-    'releases' => ['/releases', 'Phiên bản'],
-    'devlogs' => ['/devlogs', 'Nhật ký'],
-    'page' => ['/page', 'Giao diện trang'],
-    'keys' => ['/keys', 'Mã truy cập'],
-    'stats' => ['/stats', 'Thống kê'],
+    'details' => ['', t('dev.game-tabs.chi.tiet')],
+    'media' => ['/media', t('dev.game-tabs.anh.video')],
+    'downloads' => ['/downloads', t('dev.game-tabs.lien.ket.tai.ve')],
+    'authors' => ['/authors', t('dev.game-tabs.tac.gia')],
+    'releases' => ['/releases', t('dev.game-tabs.phien.ban')],
+    'devlogs' => ['/devlogs', t('dev.game-tabs.nhat.ky')],
+    'page' => ['/page', t('dev.game-tabs.giao.dien.trang')],
+    'keys' => ['/keys', t('dev.game-tabs.ma.truy.cap')],
+    'stats' => ['/stats', t('dev.game-tabs.thong.ke')],
 ];
 $isPublic = in_array($game['trang_thai'], ['published', 'unlisted'], true);
 ?>

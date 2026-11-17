@@ -6,14 +6,14 @@ $hasOld = old('bo_cuc_trang', null) !== null;
 $on = static fn(string $key) => $hasOld ? old($key) !== '' : (int)($settings[$key] ?? 1) === 1;
 $pickedLayout = old('bo_cuc_trang', $settings['bo_cuc_trang'] ?? 'default');
 $layouts = [
-    'default' => ['Mặc định', 'Ảnh và mô tả bên trái, khung mua và thông tin bên phải.'],
-    'wide'    => ['Rộng', 'Thư viện ảnh lớn hơn, cột thông tin hẹp lại.'],
-    'minimal' => ['Tối giản', 'Ẩn cột thông tin, chỉ giữ một cột nội dung.'],
+    'default' => [t('dev.game-page.bo.cuc.default'), t('dev.game-page.bo.cuc.default.mo.ta')],
+    'wide'    => [t('dev.game-page.bo.cuc.wide'), t('dev.game-page.bo.cuc.wide.mo.ta')],
+    'minimal' => [t('dev.game-page.bo.cuc.minimal'), t('dev.game-page.bo.cuc.minimal.mo.ta')],
 ];
 $colors = [
-    'mau_nen'      => ['Màu nền', 'Để trống: nền mặc định của giao diện đang dùng.'],
-    'mau_chu'      => ['Màu chữ', 'Để trống: màu chữ mặc định của giao diện đang dùng.'],
-    'mau_lien_ket' => ['Màu liên kết', 'Để trống: cùng màu chữ.'],
+    'mau_nen'      => [t('dev.game.mau.nen'), t('dev.game-page.mau.nen.mo.ta')],
+    'mau_chu'      => [t('dev.game.mau.chu'), t('dev.game-page.mau.chu.mo.ta')],
+    'mau_lien_ket' => [t('dev.game.mau.lien.ket'), t('dev.game-page.mau.lien.ket.mo.ta')],
 ];
 // Preview uses the saved values, the same way the public page does.
 $saved = array_filter([

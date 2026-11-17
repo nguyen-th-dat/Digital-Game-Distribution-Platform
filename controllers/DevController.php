@@ -85,7 +85,7 @@ class DevController extends Controller {
             $this->fail(match ($provider) {
                 'bank_transfer' => t('dev.so.tai.khoan.ngan.hang.gom.6.den.34.chu.so'),
                 'paypal' => t('dev.nhap.email.paypal.hop.le'),
-                'stripe' => t('dev.ma.tai.khoan.stripe.connect.co.dang.acct_theo.sau.la.chu.va.so'),
+                'stripe' => t('dev.ma.tai.khoan.stripe.connect.co.dang.acct.theo.sau.la.chu.va.so'),
             }, $back);
         }
         $existing = RevenueLedgerModel::accounts($uid);
