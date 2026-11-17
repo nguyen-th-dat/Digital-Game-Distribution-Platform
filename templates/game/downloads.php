@@ -7,33 +7,33 @@ $slug = $game['duong_dan_rut_gon'];
 $base = '/games/' . rawurlencode($slug);
 $playUrl = game_play_url($game);
 ?>
-<nav class="crumbs" aria-label="Đường dẫn">
-    <a href="<?= e(app_url('/')) ?>">Cửa hàng</a>
-    <a href="<?= e(app_url('/games')) ?>">Khám phá</a>
+<nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>">
+    <a href="<?= e(app_url('/')) ?>"><?= te('home.title') ?></a>
+    <a href="<?= e(app_url('/games')) ?>"><?= te('game.explore') ?></a>
     <span><?= e($game['tieu_de']) ?></span>
 </nav>
 
 <div class="title-row">
     <div>
-        <h1>Tải <?= e($game['tieu_de']) ?></h1>
-        <p class="sub">Chọn một liên kết để bắt đầu tải về.</p>
+        <h1><?= te('game.downloads.tai', [ e($game['tieu_de']) ]) ?></h1>
+        <p class="sub"><?= te('game.downloads.chon_mot_lien_ket_de') ?></p>
     </div>
     <div class="cluster">
         <?php if ($owned && $playUrl): ?>
-            <a class="btn primary" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer">Chơi trên trình duyệt</a>
+            <a class="btn primary" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer"><?= te('game.downloads.choi_tren_trinh_duyet') ?></a>
         <?php endif; ?>
-        <a class="btn" href="<?= e(app_url($base)) ?>">Về trang trò chơi</a>
+        <a class="btn" href="<?= e(app_url($base)) ?>"><?= te('devlog.index.ve_trang_tro_choi') ?></a>
     </div>
 </div>
 
 <?php if (!$owned): ?>
     <section class="panel">
         <div class="empty">
-            <p>Bạn cần sở hữu trò chơi này để xem các liên kết tải về.</p>
+            <p><?= te('game.downloads.ban_can_so_huu_tro') ?></p>
             <?php if (!current_user()): ?>
-                <a class="btn primary" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base . '/downloads'))) ?>">Đăng nhập</a>
+                <a class="btn primary" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base . '/downloads'))) ?>"><?= te('auth.login_button') ?></a>
             <?php else: ?>
-                <a class="btn primary" href="<?= e(app_url($base)) ?>">Mua hoặc nhận trò chơi</a>
+                <a class="btn primary" href="<?= e(app_url($base)) ?>"><?= te('game.downloads.mua_hoac_nhan_tro_choi') ?></a>
             <?php endif; ?>
         </div>
     </section>
@@ -41,17 +41,17 @@ $playUrl = game_play_url($game);
     <section class="panel">
         <div class="empty">
             <?php if ($playUrl): ?>
-                <p>Trò chơi này chạy ngay trên trình duyệt, nhà phát triển không đăng link tải về nào.</p>
-                <a class="btn primary" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer">Chơi trên trình duyệt</a>
+                <p><?= te('game.downloads.tro_choi_nay_chay_ngay') ?></p>
+                <a class="btn primary" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer"><?= te('game.downloads.choi_tren_trinh_duyet') ?></a>
             <?php else: ?>
-                <p>Nhà phát triển chưa đăng liên kết tải về nào cho trò chơi này.</p>
-                <a class="btn" href="<?= e(app_url($base)) ?>">Về trang trò chơi</a>
+                <p><?= te('game.downloads.nha_phat_trien_chua_dang') ?></p>
+                <a class="btn" href="<?= e(app_url($base)) ?>"><?= te('devlog.index.ve_trang_tro_choi') ?></a>
             <?php endif; ?>
         </div>
     </section>
 <?php else: ?>
     <section class="panel" aria-labelledby="dl-list-h">
-        <header><h2 id="dl-list-h">Liên kết tải về</h2><span class="meta"><?= count($links) ?> liên kết</span></header>
+        <header><h2 id="dl-list-h"><?= te('dev.game-downloads.lien_ket_tai_ve') ?></h2><span class="meta"><?= te('game.downloads.lien-ket', [ count($links) ]) ?></span></header>
         <div class="rows">
             <?php foreach ($links as $l): $lid = (int)$l['ma']; ?>
                 <div class="row">
@@ -60,22 +60,22 @@ $playUrl = game_play_url($game);
                         <?= status_pill('download_provider', $l['nha_cung_cap']) ?>
                         <?= status_pill('download_platform', $l['he_dieu_ke']) ?>
                         <span class="sub">
-                            <?= $l['ten_phien_ban'] ? 'Phiên bản ' . e($l['ten_phien_ban']) . ' (' . e(label('channel', $l['kenh_phat_hanh'])) . ')' : '' ?>
-                            <?= $l['dung_luong'] ? ' · ' . e($l['dung_luong']) : '' ?>
+                            <?= $l['ten_phien_ban'] ? te('game.version') . ' ' . e($l['ten_phien_ban']) . ' (' . e(label('channel', $l['kenh_phat_hanh'])) . ')' : '' ?>
+                            <?= $l['dung_luong'] ? ' ' . te('common.dot') . ' ' . e($l['dung_luong']) : '' ?>
                         </span>
                         <?php if ($l['ghi_chu']): ?><span class="sub"><?= e($l['ghi_chu']) ?></span><?php endif; ?>
                     </div>
-                    <a class="btn sm primary" href="<?= e(app_url($base . '/download/' . $lid)) ?>">Tải về</a>
+                    <a class="btn sm primary" href="<?= e(app_url($base . '/download/' . $lid)) ?>"><?= te('game.downloads.tai_ve') ?></a>
                 </div>
             <?php endforeach; ?>
         </div>
-        <p class="hint">Liên kết mở ở nơi lưu trữ của nhà phát triển. Trình duyệt có thể chặn cửa sổ mới — hãy cho phép pop-up cho trang này nếu chưa mở.</p>
+        <p class="hint"><?= te('game.downloads.lien_ket_mo_o_noi') ?></p>
     </section>
 <?php endif; ?>
 
 <?php if ($owned && $releases): ?>
     <section class="panel" style="margin-top: 18px" aria-labelledby="dl-rel-h">
-        <header><h2 id="dl-rel-h">Phiên bản đã phát hành</h2></header>
+        <header><h2 id="dl-rel-h"><?= te('game.downloads.phien_ban_da_phat_hanh') ?></h2></header>
         <div class="rows">
             <?php foreach ($releases as $r): ?>
                 <div class="row">

@@ -31,7 +31,7 @@ class DevlogModel extends Model {
                 $gameId,
                 $authorId,
                 'game_devlog',
-                'Nhật ký phát triển mới',
+                t('devlog.nhat.ky.phat.trien.moi'),
                 $game['tieu_de'] . ': ' . $title,
                 '/games/' . rawurlencode($game['duong_dan_rut_gon']) . '/devlogs/' . rawurlencode($slug)
             );

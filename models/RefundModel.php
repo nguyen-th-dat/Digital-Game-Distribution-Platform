@@ -13,20 +13,20 @@ class RefundModel extends Model {
     /** Why this line cannot be refunded, or null when it can. */
     public static function problem(array $order, array $item): ?string {
         if (!in_array($order['trang_thai'], ['paid', 'partially_refunded'], true)) {
-            return 'Đơn hàng không ở trạng thái có thể hoàn tiền.';
+            return t('refundmodel.don.hang.khong.o.trang.thai.co.the.hoan.tien');
         }
         if ((float)$item['thanh_tien_dong'] <= 0) {
-            return 'Mục miễn phí không cần hoàn tiền.';
+            return t('refundmodel.muc.mien.phi.khong.can.hoan.tien');
         }
         if (!empty($item['refund_status']) && in_array($item['refund_status'], self::OPEN, true)) {
-            return 'Mục này đã có yêu cầu hoàn tiền.';
+            return t('refundmodel.muc.nay.da.co.yeu.cau.hoan.tien');
         }
         $paidAt = $order['ngay_thanh_toan'] ?: $order['ngay_dat_hang'];
         if (strtotime($paidAt) < time() - REFUND_WINDOW_DAYS * 86400) {
-            return 'Đã quá ' . REFUND_WINDOW_DAYS . ' ngày kể từ khi thanh toán.';
+            return t('refundmodel.da.qua.ngay.ke.tu.khi.thanh.toan', [REFUND_WINDOW_DAYS]);
         }
         if (!OrderModel::paidPayment((int)$order['ma'])) {
-            return 'Đơn hàng không có giao dịch thanh toán thành công.';
+            return t('refundmodel.don.hang.khong.co.giao.dich.thanh.toan.thanh.cong');
         }
         return null;
     }
@@ -35,7 +35,7 @@ class RefundModel extends Model {
         return self::transaction(function () use ($order, $item, $userId, $reason) {
             $open = self::scalar("SELECT 1 FROM hoan_tien WHERE chi_tiet_don_hang_id = :i AND trang_thai IN ('requested','approved','processing','completed') FOR UPDATE", [':i' => (int)$item['ma']]);
             if ($open) {
-                throw new RuntimeException('Mục này đã có yêu cầu hoàn tiền.');
+                throw new RuntimeException(t('refundmodel.muc.nay.da.co.yeu.cau.hoan.tien'));
             }
             $payment = OrderModel::paidPayment((int)$order['ma']);
             self::run('INSERT INTO hoan_tien (thanh_toan_id, chi_tiet_don_hang_id, nguoi_yeu_cau_id, so_tien, ma_tien_te, ly_do) VALUES (:p, :i, :u, :a, :c, :r)', [
@@ -74,7 +74,7 @@ class RefundModel extends Model {
         return self::transaction(function () use ($id, $approve, $note) {
             $refund = self::one("SELECT * FROM hoan_tien WHERE ma = :id FOR UPDATE", [':id' => $id]);
             if (!$refund || $refund['trang_thai'] !== 'requested') {
-                throw new RuntimeException('Yêu cầu này đã được xử lý.');
+                throw new RuntimeException(t('refundmodel.yeu.cau.nay.da.duoc.xu.ly'));
             }
             $full = self::findFull($id);
             if (!$approve) {

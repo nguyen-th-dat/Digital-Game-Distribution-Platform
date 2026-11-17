@@ -8,7 +8,7 @@ class BundleController extends Controller {
     public function index(array $params = []) {
         [$bundles, $pager] = $this->paginate(BundleModel::onSale(500), 12);
         $this->render('bundle/index', [
-            'pageTitle' => 'Gói game',
+            'pageTitle' => t('nav.bundles'),
             'bundles' => $bundles,
         ] + $pager);
     }
@@ -19,7 +19,7 @@ class BundleController extends Controller {
         $canManage = $bundle && $uid && ((int)$bundle['nguoi_tao_id'] === $uid || has_role('admin'));
         // Drafts and hidden bundles are only visible to their creator and admins.
         if (!$bundle || (!in_array($bundle['trang_thai'], ['published', 'ended'], true) && !$canManage)) {
-            $this->notFound('Không tìm thấy gói game này.');
+            $this->notFound(t('bundle.khong.tim.thay.goi.game.nay'));
         }
         $games = BundleModel::games((int)$bundle['ma']);
         $owned = $uid ? OwnershipModel::ownedIds($uid, array_map('intval', array_column($games, 'ma'))) : [];

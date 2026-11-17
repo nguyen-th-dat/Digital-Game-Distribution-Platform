@@ -46,37 +46,37 @@ class DiscountCampaignModel extends Model {
         $errors = [];
         $title = trim((string)($post['tieu_de'] ?? ''));
         if (mb_strlen($title) < 3 || mb_strlen($title) > 200) {
-            $errors[] = 'Tiêu đề cần 3–200 ký tự.';
+            $errors[] = t('discountcampaignmodel.tieu.de.can.3.200.ky.tu');
         }
         $desc = trim((string)($post['mo_ta'] ?? ''));
         if (mb_strlen($desc) > 5000) {
-            $errors[] = 'Mô tả tối đa 5.000 ký tự.';
+            $errors[] = t('collection.mo.ta.toi.da.5.000.ky.tu');
         }
         $percent = parse_money($post['phan_tram_giam_gia'] ?? '');
         if ($percent === null || $percent < 1 || $percent > 95) {
-            $errors[] = 'Mức giảm phải từ 1 đến 95%.';
+            $errors[] = t('discountcampaignmodel.muc.giam.phai.tu.1.den.95');
         }
         $start = parse_datetime($post['ngay_bat_dau'] ?? '');
         $end = parse_datetime($post['ngay_ket_thuc'] ?? '');
         if (!$start || !$end) {
-            $errors[] = 'Nhập ngày bắt đầu và ngày kết thúc.';
+            $errors[] = t('discountcampaignmodel.nhap.ngay.bat.dau.va.ngay.ket.thuc');
         } elseif (strtotime($end) <= strtotime($start)) {
-            $errors[] = 'Ngày kết thúc phải sau ngày bắt đầu.';
+            $errors[] = t('bundlemodel.ngay.ket.thuc.phai.sau.ngay.bat.dau');
         }
         $mode = (string)($post['che_do'] ?? '');
         if (!in_array($mode, ['draft', 'run', 'cancelled'], true)) {
-            $errors[] = 'Chọn trạng thái chiến dịch.';
+            $errors[] = t('discountcampaignmodel.chon.trang.thai.chien.dich');
         }
         $picked = array_values(array_unique(array_map('intval', (array)($post['tro_choi'] ?? []))));
         $eligible = array_map('intval', self::column("SELECT ma FROM tro_choi WHERE mo_hinh_gia = 'paid' AND gia_toi_thieu > 0"));
         if (array_diff($picked, $eligible)) {
-            $errors[] = 'Chỉ chọn được trò chơi trả phí có giá.';
+            $errors[] = t('discountcampaignmodel.chi.chon.duoc.tro.choi.tra.phi.co.gia');
         }
         if ($mode === 'run' && !$picked) {
-            $errors[] = 'Chọn ít nhất một trò chơi trước khi chạy chiến dịch.';
+            $errors[] = t('discountcampaignmodel.chon.it.nhat.mot.tro.choi.truoc.khi.chay.chien.dich');
         }
         if ($mode === 'run' && $end && strtotime($end) <= time()) {
-            $errors[] = 'Ngày kết thúc đã qua: chọn ngày sau thời điểm hiện tại hoặc lưu bản nháp.';
+            $errors[] = t('discountcampaignmodel.ngay.ket.thuc.da.qua.chon.ngay.sau.thoi.diem.hien.tai.hoac.luu.ban.nhap');
         }
         $status = $mode === 'run' ? ($start && strtotime($start) > time() ? 'scheduled' : 'active') : $mode;
         return [[

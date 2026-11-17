@@ -23,7 +23,7 @@ class Model {
             } catch (PDOException $e) {
                 http_response_code(500);
                 error_log('Database connection failed: ' . $e->getMessage());
-                die('Không kết nối được cơ sở dữ liệu. Hãy bật MySQL trong XAMPP và kiểm tra config/config.php.');
+                die(t('core.khong.ket.noi.duoc.co.so.dulieu.hay.bat.mysql.trong.xampp.va.kiem.tra.config.config.php'));
             }
         }
         return self::$db;

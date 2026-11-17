@@ -36,20 +36,20 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
             <div class="cluster small faint">
                 <?php if (!$reply && $user && $commentsOn): ?>
                     <details class="edit">
-                        <summary class="link-btn">Trả lời</summary>
+                        <summary class="link-btn"><?= te('forum.reply') ?></summary>
                         <form method="post" action="<?= e(app_url($base . '/comments')) ?>" class="form reply-form">
                             <?= csrf_field() ?>
                             <input type="hidden" name="parent_id" value="<?= (int)$c['ma'] ?>">
-                            <label class="sr-only" for="reply-<?= (int)$c['ma'] ?>">Nội dung trả lời</label>
+                            <label class="sr-only" for="reply-<?= (int)$c['ma'] ?>"><?= te('devlog.show.noi_dung_tra_loi') ?></label>
                             <textarea class="input" id="reply-<?= (int)$c['ma'] ?>" name="noi_dung" maxlength="5000" required></textarea>
-                            <div class="form-actions"><button class="btn sm primary" type="submit">Gửi trả lời</button></div>
+                            <div class="form-actions"><button class="btn sm primary" type="submit"><?= te('devlog.show.gui_tra_loi') ?></button></div>
                         </form>
                     </details>
                 <?php endif; ?>
                 <?php if ($mine || is_staff()): ?>
-                    <form method="post" action="<?= e(app_url('/comments/' . (int)$c['ma'] . '/delete')) ?>" data-confirm="Xóa bình luận này?">
+                    <form method="post" action="<?= e(app_url('/comments/' . (int)$c['ma'] . '/delete')) ?>" data-confirm="<?= te('game.show.xoa-binh-luan-nay') ?>">
                         <?= csrf_field() ?><?= return_field() ?>
-                        <button class="link-btn neg" type="submit">Xóa</button>
+                        <button class="link-btn neg" type="submit"><?= te('admin.delete') ?></button>
                     </form>
                 <?php endif; ?>
                 <?php if (!$mine) partial('report', ['type' => 'game_comment', 'id' => (int)$c['ma']]); ?>
@@ -60,15 +60,15 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 };
 ?>
 <div class="game-page layout-<?= e($pageLayout) ?><?= $vars ? ' themed' : '' ?><?= $hex($settings['mau_nen'] ?? null) ? ' has-bg' : '' ?>"<?= $vars ? ' style="' . e(implode(';', $vars)) . '"' : '' ?>>
-<nav class="crumbs" aria-label="Đường dẫn">
-    <a href="<?= e(app_url('/')) ?>">Cửa hàng</a>
-    <a href="<?= e(app_url('/games')) ?>">Khám phá</a>
+<nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>">
+    <a href="<?= e(app_url('/')) ?>"><?= te('home.title') ?></a>
+    <a href="<?= e(app_url('/games')) ?>"><?= te('game.explore') ?></a>
     <?php if ($categories): ?><a href="<?= e(app_url('/games?category=' . rawurlencode($categories[0]['duong_dan_rut_gon']))) ?>"><?= e($categories[0]['ten']) ?></a><?php endif; ?>
     <span><?= e($game['tieu_de']) ?></span>
 </nav>
 
 <?php if (!$isPublic): ?>
-    <p class="notice game-notice">Trang này đang ở trạng thái “<?= e(label('game_status', $game['trang_thai'])) ?>” nên chỉ tác giả và quản trị viên nhìn thấy.</p>
+    <p class="notice game-notice"><?= te('game.show.trang-nay-dang-o-trang-thai-nen-chi-tac-gia-va-quan-tri-vien-nhin-thay', [ e(label('game_status', $game['trang_thai'])) ]) ?></p>
 <?php endif; ?>
 
 <div class="game-head">
@@ -81,37 +81,37 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
             <?php endif; ?>
         </div>
         <?php if (count($gallery) > 1): ?>
-            <div class="gallery-strip" role="group" aria-label="Ảnh của trò chơi">
+            <div class="gallery-strip" role="group" aria-label="<?= te('game.show.anh_cua_tro_choi') ?>">
                 <?php foreach ($gallery as $i => $m): ?>
-                    <button type="button" data-gallery-thumb data-src="<?= e(app_media_url($m['url_media'])) ?>" data-alt="<?= e($m['van_ban_thay_the'] ?: $game['tieu_de']) ?>" data-credit="<?= e(media_credit($m['chu_thich'])[0]) ?>" data-credit-url="<?= e(media_credit($m['chu_thich'])[1]) ?>" aria-pressed="<?= $i === 0 ? 'true' : 'false' ?>" aria-label="Xem ảnh <?= $i + 1 ?>">
+                    <button type="button" data-gallery-thumb data-src="<?= e(app_media_url($m['url_media'])) ?>" data-alt="<?= e($m['van_ban_thay_the'] ?: $game['tieu_de']) ?>" data-credit="<?= e(media_credit($m['chu_thich'])[0]) ?>" data-credit-url="<?= e(media_credit($m['chu_thich'])[1]) ?>" aria-pressed="<?= $i === 0 ? 'true' : 'false' ?>" aria-label="<?= te('game.show.xem-anh-i-1') ?>">
                         <img src="<?= e(app_media_url($m['url_media'])) ?>" alt="" loading="lazy" data-fallback="">
                     </button>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-        <?php if ($gallery): ?><p class="gallery-credit"><span data-gallery-credit><?= e(media_credit($gallery[0]['chu_thich'])[0]) ?></span><a class="link" data-gallery-source href="<?= e(media_credit($gallery[0]['chu_thich'])[1]) ?>" target="_blank" rel="noopener noreferrer"<?= media_credit($gallery[0]['chu_thich'])[1] === '' ? ' hidden' : '' ?>>Nguồn ảnh</a></p><?php endif; ?>
+        <?php if ($gallery): ?><p class="gallery-credit"><span data-gallery-credit><?= e(media_credit($gallery[0]['chu_thich'])[0]) ?></span><a class="link" data-gallery-source href="<?= e(media_credit($gallery[0]['chu_thich'])[1]) ?>" target="_blank" rel="noopener noreferrer"<?= media_credit($gallery[0]['chu_thich'])[1] === '' ? ' hidden' : '' ?>><?= te('common.photo_source') ?></a></p><?php endif; ?>
     </div>
 
-    <aside class="buy-card" aria-label="Mua và thông tin">
+    <aside class="buy-card" aria-label="<?= te('game.show.mua_va_thong_tin') ?>">
         <div>
             <h1><?= e($game['tieu_de']) ?></h1>
             <?php if ($game['mo_ta_ngan']): ?><p class="lede"><?= e($game['mo_ta_ngan']) ?></p><?php endif; ?>
         </div>
         <?php if ($reviewTotal): ?>
-            <a class="rating" href="#reviews"><?= stars((float)$game['diem_tb']) ?> <strong><?= e(number_format((float)$game['diem_tb'], 1)) ?></strong> <span class="faint"><?= fmt_int($reviewTotal) ?> đánh giá</span></a>
+            <a class="rating" href="#reviews"><?= stars((float)$game['diem_tb']) ?> <strong><?= e(number_format((float)$game['diem_tb'], 1)) ?></strong> <span class="faint"><?= te('game.show.danh-gia', [ fmt_int($reviewTotal) ]) ?></span></a>
         <?php endif; ?>
 
         <div class="buy-actions">
             <?php if ($owned): ?>
-                <div class="split"><span class="owned">Đã có trong thư viện</span><a class="link small" href="<?= e(app_url('/library')) ?>">Mở thư viện</a></div>
+                <div class="split"><span class="owned"><?= te('game.show.da_co_trong_thu_vien') ?></span><a class="link small" href="<?= e(app_url('/library')) ?>"><?= te('game.show.mo_thu_vien') ?></a></div>
                 <?php if ($playUrl): ?>
-                    <a class="btn primary block" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer">Chơi trên trình duyệt</a>
+                    <a class="btn primary block" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer"><?= te('game.downloads.choi_tren_trinh_duyet') ?></a>
                 <?php endif; ?>
                 <?php if ($downloadCount > 0): ?>
-                    <a class="btn<?= $playUrl ? '' : ' primary' ?> block" href="<?= e(app_url($base . '/downloads')) ?>">Tải về<?= $downloadCount > 1 ? ' · ' . fmt_int($downloadCount) . ' liên kết' : '' ?></a>
+                    <a class="btn<?= $playUrl ? '' : ' primary' ?> block" href="<?= e(app_url($base . '/downloads')) ?>"><?= te('game.show.tai-ve', [ $downloadCount > 1 ? ' ' . te('common.dot') . ' ' . fmt_int($downloadCount) . ' ' . te('game.show.lien_ket') : '' ]) ?></a>
                 <?php endif; ?>
             <?php elseif (!$isPublic): ?>
-                <p class="muted small">Trò chơi chưa mở bán.</p>
+                <p class="muted small"><?= te('game.show.tro_choi_chua_mo_ban') ?></p>
             <?php endif; ?>
 
             <?php if (!$owned && $isPublic): ?>
@@ -120,13 +120,13 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                     <?php if ($user): ?>
                         <form method="post" action="<?= e(app_url($base . '/claim')) ?>">
                             <?= csrf_field() ?>
-                            <button class="btn primary block" type="submit">Thêm vào thư viện miễn phí</button>
+                            <button class="btn primary block" type="submit"><?= te('game.show.them_vao_thu_vien_mien') ?></button>
                         </form>
                     <?php else: ?>
-                        <a class="btn primary block" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base))) ?>">Đăng nhập để nhận</a>
+                        <a class="btn primary block" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base))) ?>"><?= te('game.show.dang_nhap_de_nhan') ?></a>
                     <?php endif; ?>
                 <?php elseif ($inCart): ?>
-                    <a class="btn primary block" href="<?= e(app_url('/cart')) ?>">Đã trong giỏ hàng · Thanh toán</a>
+                    <a class="btn primary block" href="<?= e(app_url('/cart')) ?>"><?= te('game.show.da_trong_gio_hang_thanh') ?></a>
                 <?php elseif ($user): ?>
                     <form method="post" action="<?= e(app_url('/cart/add')) ?>" class="form">
                         <?= csrf_field() ?><?= return_field() ?>
@@ -134,15 +134,15 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                         <input type="hidden" name="id" value="<?= (int)$game['ma'] ?>">
                         <?php if ($isPwyw): ?>
                             <div class="field">
-                                <label for="pwyw">Số tiền bạn muốn trả (USD)</label>
+                                <label for="pwyw"><?= te('game.show.so_tien_ban_muon_tra') ?></label>
                                 <input class="input" id="pwyw" name="amount" type="number" inputmode="decimal" step="0.01" min="<?= e(number_format((float)$game['gia_toi_thieu'], 2, '.', '')) ?>" max="1000" value="<?= e(number_format($suggested, 2, '.', '')) ?>" required>
-                                <span class="hint">Tối thiểu <?= e(money($game['gia_toi_thieu'])) ?><?= $game['gia_de_xuat'] ? ' · đề xuất ' . e(money($game['gia_de_xuat'])) : '' ?></span>
+                                <span class="hint"><?= te('game.show.toi-thieu', [ e(money($game['gia_toi_thieu'])) ,  $game['gia_de_xuat'] ? ' ' . te('game.show.dot_de_xuat') . ' ' . e(money($game['gia_de_xuat'])) : '' ]) ?></span>
                             </div>
                         <?php endif; ?>
-                        <button class="btn primary block" type="submit">Thêm vào giỏ hàng</button>
+                        <button class="btn primary block" type="submit"><?= te('game.show.them_vao_gio_hang') ?></button>
                     </form>
                 <?php else: ?>
-                    <a class="btn primary block" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base))) ?>">Đăng nhập để mua</a>
+                    <a class="btn primary block" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base))) ?>"><?= te('bundle.show.dang_nhap_de_mua') ?></a>
                 <?php endif; ?>
             <?php endif; ?>
 
@@ -150,26 +150,26 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                 <div class="cluster">
                     <form method="post" action="<?= e(app_url($base . '/wishlist')) ?>">
                         <?= csrf_field() ?>
-                        <button class="btn sm" type="submit" aria-pressed="<?= $wishlisted ? 'true' : 'false' ?>"><?= $wishlisted ? 'Bỏ khỏi danh sách mong muốn' : 'Thêm vào mong muốn' ?></button>
+                        <button class="btn sm" type="submit" aria-pressed="<?= $wishlisted ? 'true' : 'false' ?>"><?= $wishlisted ? te('game.show.bo_khoi_danh_sach_mong') : te('game.add_wishlist') ?></button>
                     </form>
                     <form method="post" action="<?= e(app_url($base . '/follow')) ?>">
                         <?= csrf_field() ?>
-                        <button class="btn sm" type="submit" aria-pressed="<?= $following ? 'true' : 'false' ?>"><?= $following ? 'Đang theo dõi' : 'Theo dõi cập nhật' ?></button>
+                        <button class="btn sm" type="submit" aria-pressed="<?= $following ? 'true' : 'false' ?>"><?= $following ? te('profile.following') : te('game.show.theo_doi_cap_nhat') ?></button>
                     </form>
-                    <?php if ($isAuthor): ?><a class="btn sm" href="<?= e(app_url('/dev/games/' . (int)$game['ma'])) ?>">Chỉnh sửa</a><?php endif; ?>
+                    <?php if ($isAuthor): ?><a class="btn sm" href="<?= e(app_url('/dev/games/' . (int)$game['ma'])) ?>"><?= te('game.show.chinh_sua') ?></a><?php endif; ?>
                 </div>
                 <details class="edit collect">
-                    <summary class="link-btn">Thêm vào bộ sưu tập</summary>
+                    <summary class="link-btn"><?= te('game.show.them_vao_bo_suu_tap') ?></summary>
                     <div class="well collect-list">
                         <?php foreach ($collections as $c): ?>
                             <?php if ((int)$c['co_game']): ?>
-                                <div class="split small"><span><?= e($c['tieu_de']) ?></span><a class="link faint" href="<?= e(app_url('/collections/' . (int)$c['ma'])) ?>">Đã có</a></div>
+                                <div class="split small"><span><?= e($c['tieu_de']) ?></span><a class="link faint" href="<?= e(app_url('/collections/' . (int)$c['ma'])) ?>"><?= te('game.show.da_co') ?></a></div>
                             <?php else: ?>
                                 <form class="split small" method="post" action="<?= e(app_url('/collections/' . (int)$c['ma'] . '/items')) ?>">
                                     <?= csrf_field() ?><?= return_field($base) ?>
                                     <input type="hidden" name="game_id" value="<?= (int)$game['ma'] ?>">
                                     <span><?= e($c['tieu_de']) ?></span>
-                                    <button class="btn sm" type="submit">Thêm</button>
+                                    <button class="btn sm" type="submit"><?= te('common.more') ?></button>
                                 </form>
                             <?php endif; ?>
                         <?php endforeach; ?>
@@ -177,10 +177,10 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                             <?= csrf_field() ?><?= return_field($base) ?>
                             <input type="hidden" name="game_id" value="<?= (int)$game['ma'] ?>">
                             <input type="hidden" name="pham_vi_hien_thi" value="public"><input type="hidden" name="bo_cuc" value="grid">
-                            <label class="small" for="new-collection">Bộ sưu tập mới</label>
+                            <label class="small" for="new-collection"><?= te('game.show.bo_suu_tap_moi') ?></label>
                             <div class="cluster">
-                                <input class="input sm grow" id="new-collection" name="tieu_de" maxlength="180" required placeholder="Tên bộ sưu tập">
-                                <button class="btn sm" type="submit">Tạo và thêm</button>
+                                <input class="input sm grow" id="new-collection" name="tieu_de" maxlength="180" required placeholder="<?= te('collection.name_placeholder') ?>">
+                                <button class="btn sm" type="submit"><?= te('game.show.tao_va_them') ?></button>
                             </div>
                         </form>
                     </div>
@@ -190,27 +190,27 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
         <dl class="facts">
             <?php if ($showCreators && $authors): ?>
-                <dt>Nhà phát triển</dt>
+                <dt><?= te('common.developer') ?></dt>
                 <dd><?php foreach ($authors as $i => $a): ?><?= $i ? ', ' : '' ?><a href="<?= e(profile_url($a)) ?>"><?= e($a['ten_hien_thi']) ?></a><?php endforeach; ?></dd>
             <?php endif; ?>
             <?php if ($showCreators && $publisher): ?>
-                <dt>Phát hành bởi</dt><dd><a href="<?= e(profile_url($publisher)) ?>"><?= e($publisher['ten_hien_thi']) ?></a></dd>
+                <dt><?= te('game.show.phat_hanh_boi') ?></dt><dd><a href="<?= e(profile_url($publisher)) ?>"><?= e($publisher['ten_hien_thi']) ?></a></dd>
             <?php endif; ?>
-            <dt>Giai đoạn</dt><dd><?= e(label('release_status', $game['trang_thai_phat_hanh'])) ?></dd>
-            <dt>Loại</dt><dd><?= e(label('project_type', $game['loai_du_an'])) ?></dd>
+            <dt><?= te('game.index.giai_doan') ?></dt><dd><?= e(label('release_status', $game['trang_thai_phat_hanh'])) ?></dd>
+            <dt><?= te('common.type') ?></dt><dd><?= e(label('project_type', $game['loai_du_an'])) ?></dd>
             <?php if ($platforms): ?>
-                <dt>Nền tảng</dt>
+                <dt><?= te('common.platform') ?></dt>
                 <dd><?php foreach ($platforms as $i => $p): ?><?= $i ? ', ' : '' ?><a href="<?= e(app_url('/games?platform=' . rawurlencode($p['ma_nen_tang']))) ?>"><?= e($p['ten_nen_tang']) ?></a><?php endforeach; ?></dd>
             <?php endif; ?>
             <?php if ($categories): ?>
-                <dt>Thể loại</dt>
+                <dt><?= te('common.categories') ?></dt>
                 <dd><?php foreach ($categories as $i => $c): ?><?= $i ? ', ' : '' ?><a href="<?= e(app_url('/games?category=' . rawurlencode($c['duong_dan_rut_gon']))) ?>"><?= e($c['ten']) ?></a><?php endforeach; ?></dd>
             <?php endif; ?>
-            <?php if ($game['ten_giay_phep']): ?><dt>Giấy phép</dt><dd><?= e($game['ten_giay_phep']) ?></dd><?php endif; ?>
-            <?php if ($game['phan_loai_do_tuoi']): ?><dt>Độ tuổi</dt><dd><?= e($game['phan_loai_do_tuoi']) ?></dd><?php endif; ?>
-            <?php if ($game['ngay_cong_bo']): ?><dt>Công bố</dt><dd><?= e(fmt_date($game['ngay_cong_bo'])) ?></dd><?php endif; ?>
-            <?php if ($releases): ?><dt>Phiên bản</dt><dd><?= e($releases[0]['ten_phien_ban']) ?> · <?= e(label('channel', $releases[0]['kenh_phat_hanh'])) ?></dd><?php endif; ?>
-            <dt>Người sở hữu</dt><dd><?= fmt_int($ownerCount) ?></dd>
+            <?php if ($game['ten_giay_phep']): ?><dt><?= te('game.license') ?></dt><dd><?= e($game['ten_giay_phep']) ?></dd><?php endif; ?>
+            <?php if ($game['phan_loai_do_tuoi']): ?><dt><?= te('game.show.do_tuoi') ?></dt><dd><?= e($game['phan_loai_do_tuoi']) ?></dd><?php endif; ?>
+            <?php if ($game['ngay_cong_bo']): ?><dt><?= te('game.show.cong_bo') ?></dt><dd><?= e(fmt_date($game['ngay_cong_bo'])) ?></dd><?php endif; ?>
+            <?php if ($releases): ?><dt><?= te('dev.release_version') ?></dt><dd><?= e($releases[0]['ten_phien_ban']) ?> · <?= e(label('channel', $releases[0]['kenh_phat_hanh'])) ?></dd><?php endif; ?>
+            <dt><?= te('dev.game-stats.nguoi_so_huu') ?></dt><dd><?= fmt_int($ownerCount) ?></dd>
         </dl>
     </aside>
 </div>
@@ -218,11 +218,11 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 <div class="game-body">
     <div class="game-main">
         <section class="section-flat" aria-labelledby="about">
-            <h2 id="about" class="block-head">Giới thiệu</h2>
+            <h2 id="about" class="block-head"><?= te('game.about') ?></h2>
             <?php if (trim((string)$game['mo_ta']) !== ''): ?>
                 <div class="prose"><?= e_multiline($game['mo_ta']) ?></div>
             <?php else: ?>
-                <p class="muted">Nhà phát triển chưa viết phần giới thiệu.</p>
+                <p class="muted"><?= te('game.show.nha_phat_trien_chua_viet') ?></p>
             <?php endif; ?>
             <?php if ($links): ?>
                 <ul class="link-list">
@@ -235,7 +235,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
         <?php if ($devlogs): ?>
             <section class="section" aria-labelledby="devlogs">
-                <div class="section-head"><h2 id="devlogs">Nhật ký phát triển</h2><a class="meta link" href="<?= e(app_url($base . '/devlogs')) ?>">Tất cả <?= fmt_int($devlogCount) ?> bài</a></div>
+                <div class="section-head"><h2 id="devlogs"><?= te('devlog.title') ?></h2><a class="meta link" href="<?= e(app_url($base . '/devlogs')) ?>"><?= te('game.show.tat-ca-bai', [ fmt_int($devlogCount) ]) ?></a></div>
                 <div class="rows">
                     <?php foreach ($devlogs as $d): ?>
                         <a class="row row-link" href="<?= e(app_url($base . '/devlogs/' . rawurlencode($d['duong_dan_rut_gon']))) ?>">
@@ -248,18 +248,18 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
         <section class="section" id="reviews" aria-labelledby="reviews-h">
             <div class="section-head">
-                <h2 id="reviews-h">Đánh giá</h2>
+                <h2 id="reviews-h"><?= te('game.reviews') ?></h2>
                 <?php if ($reviews): ?>
                     <div class="cluster small">
-                        <a class="link<?= $reviewSort === 'recent' ? ' is-on' : '' ?>" href="<?= e(app_url($base . qs(['reviews' => null]) . '#reviews')) ?>"<?= $reviewSort === 'recent' ? ' aria-current="true"' : '' ?>>Mới nhất</a>
-                        <a class="link<?= $reviewSort === 'helpful' ? ' is-on' : '' ?>" href="<?= e(app_url($base . qs(['reviews' => 'helpful']) . '#reviews')) ?>"<?= $reviewSort === 'helpful' ? ' aria-current="true"' : '' ?>>Hữu ích nhất</a>
+                        <a class="link<?= $reviewSort === 'recent' ? ' is-on' : '' ?>" href="<?= e(app_url($base . qs(['reviews' => null]) . '#reviews')) ?>"<?= $reviewSort === 'recent' ? ' aria-current="true"' : '' ?>><?= te('game.sort_new') ?></a>
+                        <a class="link<?= $reviewSort === 'helpful' ? ' is-on' : '' ?>" href="<?= e(app_url($base . qs(['reviews' => 'helpful']) . '#reviews')) ?>"<?= $reviewSort === 'helpful' ? ' aria-current="true"' : '' ?>><?= te('game.show.huu_ich_nhat') ?></a>
                     </div>
                 <?php endif; ?>
             </div>
 
             <?php if ($reviewTotal): ?>
                 <div class="review-summary">
-                    <div class="score"><strong><?= e(number_format((float)$game['diem_tb'], 1)) ?></strong><span class="faint small"><?= fmt_int($reviewTotal) ?> đánh giá</span></div>
+                    <div class="score"><strong><?= e(number_format((float)$game['diem_tb'], 1)) ?></strong><span class="faint small"><?= te('game.show.danh-gia', [ fmt_int($reviewTotal) ]) ?></span></div>
                     <div class="breakdown">
                         <?php for ($s = 5; $s >= 1; $s--): $n = $breakdown[$s]; $pct = $reviewTotal ? round($n / $reviewTotal * 100) : 0; ?>
                             <div class="bar-row"><span><?= $s ?> sao</span><span class="bar"><span class="fill w-<?= (int)(round($pct / 5) * 5) ?>"></span></span><span class="n"><?= fmt_int($n) ?></span></div>
@@ -270,11 +270,11 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
             <?php if ($canReview): ?>
                 <details class="edit review-form"<?= $myReview ? '' : ' open' ?>>
-                    <summary class="btn sm"><?= $myReview ? 'Sửa đánh giá của bạn' : 'Viết đánh giá' ?></summary>
+                    <summary class="btn sm"><?= $myReview ? te('game.show.sua_danh_gia_cua_ban') : te('game.write_review') ?></summary>
                     <form method="post" action="<?= e(app_url($base . '/reviews')) ?>" class="form well">
                         <?= csrf_field() ?>
                         <fieldset class="field">
-                            <legend class="label">Điểm của bạn</legend>
+                            <legend class="label"><?= te('game.show.diem_cua_ban') ?></legend>
                             <div class="star-input">
                                 <?php for ($s = 5; $s >= 1; $s--): ?>
                                     <input type="radio" id="star-<?= $s ?>" name="diem" value="<?= $s ?>"<?= (int)($myReview['diem_danh_gia'] ?? 0) === $s ? ' checked' : '' ?> required>
@@ -283,32 +283,32 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                             </div>
                         </fieldset>
                         <div class="field">
-                            <label for="review-title">Tiêu đề (không bắt buộc)</label>
+                            <label for="review-title"><?= te('game.show.tieu_de_khong_bat_buoc') ?></label>
                             <input class="input" id="review-title" name="tieu_de" maxlength="200" value="<?= e($myReview['tieu_de'] ?? '') ?>">
                         </div>
                         <div class="field">
-                            <label for="review-body">Nhận xét</label>
+                            <label for="review-body"><?= te('game.show.nhan_xet') ?></label>
                             <textarea class="input" id="review-body" name="noi_dung" maxlength="10000"><?= e($myReview['noi_dung_danh_gia'] ?? '') ?></textarea>
-                            <?php if (!$owned): ?><span class="hint">Bạn chưa sở hữu trò chơi này nên đánh giá sẽ không có nhãn “Đã sở hữu”.</span><?php endif; ?>
+                            <?php if (!$owned): ?><span class="hint"><?= te('game.show.ban_chua_so_huu_tro') ?></span><?php endif; ?>
                         </div>
                         <div class="form-actions">
-                            <button class="btn primary" type="submit"><?= $myReview ? 'Cập nhật đánh giá' : 'Gửi đánh giá' ?></button>
+                            <button class="btn primary" type="submit"><?= $myReview ? te('game.show.cap_nhat_danh_gia') : te('game.show.gui_danh_gia') ?></button>
                         </div>
                     </form>
                     <?php if ($myReview): ?>
-                        <form method="post" action="<?= e(app_url($base . '/reviews/delete')) ?>" data-confirm="Xóa đánh giá của bạn?" class="review-delete">
+                        <form method="post" action="<?= e(app_url($base . '/reviews/delete')) ?>" data-confirm="<?= te('game.show.xoa-danh-gia-cua-ban') ?>" class="review-delete">
                             <?= csrf_field() ?>
-                            <button class="link-btn neg" type="submit">Xóa đánh giá</button>
+                            <button class="link-btn neg" type="submit"><?= te('game.show.xoa_danh_gia') ?></button>
                         </form>
                     <?php endif; ?>
                 </details>
                 <?php if ($myReview && $myReview['trang_thai'] !== 'published'): ?>
-                    <p class="notice">Đánh giá của bạn đang ở trạng thái “<?= e(label('content_status', $myReview['trang_thai'])) ?>” do điều hành viên xử lý.</p>
+                    <p class="notice"><?= te('game.show.danh-gia-cua-ban-dang-o-trang-thai-do-dieu-hanh-vien-xu-ly', [ e(label('content_status', $myReview['trang_thai'])) ]) ?></p>
                 <?php endif; ?>
             <?php elseif (!$user && (int)$game['cho_phep_danh_gia']): ?>
-                <p class="muted"><a class="link" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base . '#reviews'))) ?>">Đăng nhập</a> để viết đánh giá.</p>
+                <p class="muted"><a class="link" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base . '#reviews'))) ?>"><?= te('auth.login_button') ?></a> <?= te('game.show.de_viet_danh_gia') ?></p>
             <?php elseif (!(int)$game['cho_phep_danh_gia']): ?>
-                <p class="muted">Nhà phát triển đã tắt đánh giá cho trò chơi này.</p>
+                <p class="muted"><?= te('game.show.nha_phat_trien_da_tat') ?></p>
             <?php endif; ?>
 
             <?php if ($reviews): ?>
@@ -317,18 +317,18 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                         <article class="review" id="review-<?= (int)$r['ma'] ?>">
                             <header>
                                 <img class="avatar md" src="<?= e(avatar_url($r)) ?>" alt="" loading="lazy">
-                                <div class="who"><a class="link" href="<?= e(profile_url($r)) ?>"><?= e($r['ten_hien_thi']) ?></a><span><?= e(fmt_date($r['ngay_tao'])) ?><?= (int)$r['da_xac_minh_so_huu'] ? ' · Đã sở hữu' : '' ?></span></div>
+                                <div class="who"><a class="link" href="<?= e(profile_url($r)) ?>"><?= e($r['ten_hien_thi']) ?></a><span><?= e(fmt_date($r['ngay_tao'])) ?><?= (int)$r['da_xac_minh_so_huu'] ? ' ' . te('common.dot_da_so_huu') : '' ?></span></div>
                                 <?= stars((float)$r['diem_danh_gia']) ?>
                             </header>
                             <?php if ($r['tieu_de']): ?><h4><?= e($r['tieu_de']) ?></h4><?php endif; ?>
                             <?php if ($r['noi_dung_danh_gia']): ?><div class="prose"><?= e_multiline($r['noi_dung_danh_gia']) ?></div><?php endif; ?>
                             <div class="actions">
-                                <span><?= fmt_int($r['co_ich']) ?> người thấy hữu ích</span>
+                                <span><?= te('game.show.nguoi-thay-huu-ich', [ fmt_int($r['co_ich']) ]) ?></span>
                                 <?php if ($user && !$mine): $vote = $r['phieu_cua_toi']; ?>
                                     <form method="post" action="<?= e(app_url('/reviews/' . (int)$r['ma'] . '/vote')) ?>" class="cluster">
                                         <?= csrf_field() ?><?= return_field() ?>
-                                        <button class="react" type="submit" name="co_ich" value="1" aria-pressed="<?= $vote !== null && (int)$vote === 1 ? 'true' : 'false' ?>">Hữu ích</button>
-                                        <button class="react" type="submit" name="co_ich" value="0" aria-pressed="<?= $vote !== null && (int)$vote === 0 ? 'true' : 'false' ?>">Không hữu ích</button>
+                                        <button class="react" type="submit" name="co_ich" value="1" aria-pressed="<?= $vote !== null && (int)$vote === 1 ? 'true' : 'false' ?>"><?= te('label.reaction.helpful') ?></button>
+                                        <button class="react" type="submit" name="co_ich" value="0" aria-pressed="<?= $vote !== null && (int)$vote === 0 ? 'true' : 'false' ?>"><?= te('game.show.khong_huu_ich') ?></button>
                                     </form>
                                 <?php endif; ?>
                                 <?php if ($user && !$mine) partial('report', ['type' => 'review', 'id' => (int)$r['ma']]); ?>
@@ -337,22 +337,22 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                     <?php endforeach; ?>
                 </div>
             <?php elseif ((int)$game['cho_phep_danh_gia']): ?>
-                <div class="empty">Chưa có đánh giá nào. Hãy là người đầu tiên.</div>
+                <div class="empty"><?= te('game.show.chua_co_danh_gia_nao') ?></div>
             <?php endif; ?>
         </section>
 
         <?php if ($commentsOn): ?>
             <section class="section" id="comments" aria-labelledby="comments-h">
-                <div class="section-head"><h2 id="comments-h">Bình luận</h2><span class="meta"><?= fmt_int(count($comments) + array_sum(array_map('count', $replies))) ?> bình luận</span></div>
+                <div class="section-head"><h2 id="comments-h"><?= te('devlog.comments') ?></h2><span class="meta"><?= te('game.show.binh-luan', [ fmt_int(count($comments) + array_sum(array_map('count', $replies))) ]) ?></span></div>
                 <?php if ($user): ?>
                     <form method="post" action="<?= e(app_url($base . '/comments')) ?>" class="form comment-form">
                         <?= csrf_field() ?>
-                        <label class="sr-only" for="comment-body">Bình luận của bạn</label>
-                        <textarea class="input" id="comment-body" name="noi_dung" maxlength="5000" placeholder="Chia sẻ cảm nhận hoặc đặt câu hỏi cho nhà phát triển" required></textarea>
-                        <div class="form-actions"><button class="btn primary" type="submit">Gửi bình luận</button></div>
+                        <label class="sr-only" for="comment-body"><?= te('devlog.show.binh_luan_cua_ban') ?></label>
+                        <textarea class="input" id="comment-body" name="noi_dung" maxlength="5000" placeholder="<?= te('game.show.chia_se_cam_nhan_hoac') ?>" required></textarea>
+                        <div class="form-actions"><button class="btn primary" type="submit"><?= te('game.post_comment') ?></button></div>
                     </form>
                 <?php else: ?>
-                    <p class="muted"><a class="link" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base . '#comments'))) ?>">Đăng nhập</a> để bình luận.</p>
+                    <p class="muted"><a class="link" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base . '#comments'))) ?>"><?= te('auth.login_button') ?></a> <?= te('devlog.show.de_binh_luan') ?></p>
                 <?php endif; ?>
                 <?php if ($comments): ?>
                     <div class="comments">
@@ -362,20 +362,20 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <div class="empty">Chưa có bình luận nào.</div>
+                    <div class="empty"><?= te('game.no_comments') ?></div>
                 <?php endif; ?>
             </section>
         <?php endif; ?>
     </div>
 
-    <aside class="game-rail stack" aria-label="Thông tin thêm">
+    <aside class="game-rail stack" aria-label="<?= te('game.show.thong_tin_them') ?>">
         <?php if ($releases): ?>
             <section class="panel">
-                <header><h2>Phiên bản</h2></header>
+                <header><h2><?= te('dev.release_version') ?></h2></header>
                 <div class="rows">
                     <?php foreach ($releases as $rel): ?>
                         <div class="row">
-                            <span class="grow"><?= e($rel['ten_phien_ban']) ?><span class="sub"><?= e($rel['ngay_phat_hanh'] ? fmt_date($rel['ngay_phat_hanh']) : 'Chưa đặt ngày') ?></span></span>
+                            <span class="grow"><?= e($rel['ten_phien_ban']) ?><span class="sub"><?= e($rel['ngay_phat_hanh'] ? fmt_date($rel['ngay_phat_hanh']) : te('game.show.chua_dat_ngay')) ?></span></span>
                             <span class="pill"><?= e(label('channel', $rel['kenh_phat_hanh'])) ?></span>
                         </div>
                         <?php if ($rel['ghi_chu_phat_hanh']): ?><p class="small muted release-note"><?= e(excerpt($rel['ghi_chu_phat_hanh'], 180)) ?></p><?php endif; ?>
@@ -386,7 +386,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
         <?php if ($tags): ?>
             <section class="panel">
-                <header><h2>Thẻ</h2></header>
+                <header><h2><?= te('common.tag') ?></h2></header>
                 <div class="chips">
                     <?php foreach ($tags as $t): ?><a class="chip" href="<?= e(app_url('/games?tag=' . rawurlencode($t['duong_dan_rut_gon']))) ?>"><?= e($t['ten']) ?></a><?php endforeach; ?>
                 </div>
@@ -395,10 +395,10 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
         <?php if ($bundles): ?>
             <section class="panel">
-                <header><h2>Có trong gói</h2></header>
+                <header><h2><?= te('game.show.co_trong_goi') ?></h2></header>
                 <div class="rows">
                     <?php foreach ($bundles as $b): ?>
-                        <a class="row row-link" href="<?= e(app_url('/bundles/' . rawurlencode($b['duong_dan_rut_gon']))) ?>"><span class="grow"><?= e($b['tieu_de']) ?></span><span><?= (float)$b['gia'] <= 0 ? 'Miễn phí' : e(money($b['gia'])) ?></span></a>
+                        <a class="row row-link" href="<?= e(app_url('/bundles/' . rawurlencode($b['duong_dan_rut_gon']))) ?>"><span class="grow"><?= e($b['tieu_de']) ?></span><span><?= (float)$b['gia'] <= 0 ? te('price.free') : e(money($b['gia'])) ?></span></a>
                     <?php endforeach; ?>
                 </div>
             </section>
@@ -406,14 +406,14 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
         <?php if ($forum): ?>
             <section class="panel">
-                <header><h2>Cộng đồng</h2></header>
-                <a class="row row-link" href="<?= e(app_url('/forums/' . (int)$forum['ma'])) ?>"><span class="grow"><?= e($forum['tieu_de']) ?><span class="sub"><?= fmt_int($forum['so_chu_de']) ?> chủ đề thảo luận</span></span></a>
+                <header><h2><?= te('nav.community') ?></h2></header>
+                <a class="row row-link" href="<?= e(app_url('/forums/' . (int)$forum['ma'])) ?>"><span class="grow"><?= e($forum['tieu_de']) ?><span class="sub"><?= te('game.show.chu-de-thao-luan', [ fmt_int($forum['so_chu_de']) ]) ?></span></span></a>
             </section>
         <?php endif; ?>
 
         <?php if ($moreGames): ?>
             <section class="panel">
-                <header><h2>Cùng nhà phát triển</h2></header>
+                <header><h2><?= te('game.show.cung_nha_phat_trien') ?></h2></header>
                 <div class="rank-list">
                     <?php foreach ($moreGames as $mg): ?>
                         <a class="rank-row compact row-link" href="<?= e(game_url($mg)) ?>">
@@ -426,7 +426,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
         <?php endif; ?>
 
         <?php if ($user && !$isAuthor): ?>
-            <div class="small"><?php partial('report', ['type' => 'game', 'id' => (int)$game['ma'], 'labelText' => 'Báo cáo trò chơi này']); ?></div>
+            <div class="small"><?php partial('report', ['type' => 'game', 'id' => (int)$game['ma'], 'labelText' => te('game.show.bao_cao_tro_choi_nay')]); ?></div>
         <?php endif; ?>
     </aside>
 </div>

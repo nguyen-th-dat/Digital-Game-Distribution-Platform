@@ -8,7 +8,7 @@ class CampaignController extends Controller {
     public function index(array $params = []) {
         $this->requireRole('admin');
         [$campaigns, $pager] = $this->paginate(DiscountCampaignModel::listAll(), 20);
-        $this->render('admin/campaigns', ['pageTitle' => 'Chiến dịch giảm giá', 'campaigns' => $campaigns] + $pager);
+        $this->render('admin/campaigns', ['pageTitle' => t('nav.campaigns'), 'campaigns' => $campaigns] + $pager);
     }
 
     public function create(array $params = []) {
@@ -28,7 +28,7 @@ class CampaignController extends Controller {
             return $id;
         });
         audit('campaign.create', 'chien_dich_giam_gia', $id, ['status' => $row['trang_thai'], 'games' => $games]);
-        flash('success', 'Đã tạo chiến dịch "' . $row['tieu_de'] . '".');
+        flash('success',t('campaign.da.tao.chien.dich', [$row['tieu_de']]));
         $this->redirect('/admin/campaigns/' . $id);
     }
 
@@ -50,14 +50,14 @@ class CampaignController extends Controller {
             DiscountCampaignModel::setGames($id, $games);
         });
         audit('campaign.update', 'chien_dich_giam_gia', $id, ['status' => $row['trang_thai'], 'games' => $games]);
-        flash('success', 'Đã lưu chiến dịch.');
+        flash('success',t('campaign.da.luu.chien.dich'));
         $this->redirect('/admin/campaigns/' . $id);
     }
 
     private function form(?array $campaign) {
         $id = $campaign ? (int)$campaign['ma'] : 0;
         $this->render('admin/campaign-form', [
-            'pageTitle' => $campaign ? 'Sửa ' . $campaign['tieu_de'] : 'Tạo chiến dịch',
+            'pageTitle' => ($campaign ? t('bundle.admin.sua', [$campaign['tieu_de']]) : t('admin.campaigns.tao_chien_dich')),
             'campaign' => $campaign,
             'games' => DiscountCampaignModel::eligibleGames($id),
             'picked' => $id ? DiscountCampaignModel::gameIds($id) : [],
@@ -68,7 +68,7 @@ class CampaignController extends Controller {
         $id = (int)($params['id'] ?? 0);
         $campaign = $id > 0 ? DiscountCampaignModel::find($id) : null;
         if (!$campaign) {
-            $this->notFound('Không tìm thấy chiến dịch.');
+            $this->notFound(t('campaign.khong.tim.thay.chien.dich'));
         }
         return $campaign;
     }

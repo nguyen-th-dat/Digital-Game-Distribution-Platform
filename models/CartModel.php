@@ -72,11 +72,11 @@ class CartModel extends Model {
             $list = $g['mo_hinh_gia'] === 'pay_what_you_want' ? $price : $base;
             $problem = null;
             if ($g['trang_thai'] !== 'published') {
-                $problem = 'Trò chơi này hiện không còn bán.';
+                $problem = t('cartmodel.tro.choi.nay.hien.khong.con.ban');
             } elseif (in_array((int)$g['ma'], $owned, true)) {
-                $problem = 'Bạn đã sở hữu trò chơi này.';
+                $problem = t('cart.item_owned');
             } elseif ($price <= 0) {
-                $problem = 'Trò chơi miễn phí — hãy nhận trực tiếp trên trang trò chơi.';
+                $problem = t('cartmodel.tro.choi.mien.phi.hay.nhan.truc.tiep.tren.trang.tro.choi');
             }
             $lines['g' . $g['ma']] = [
                 'item_id' => (int)$g['item_id'], 'type' => 'game', 'id' => (int)$g['ma'], 'title' => $g['tieu_de'],
@@ -104,11 +104,11 @@ class CartModel extends Model {
             }
             $problem = null;
             if (!BundleModel::isOnSale($b)) {
-                $problem = 'Gói game này hiện không còn bán.';
+                $problem = t('cartmodel.goi.game.nay.hien.khong.con.ban');
             } elseif (!$contents) {
-                $problem = 'Gói game chưa có trò chơi nào.';
+                $problem = t('cartmodel.goi.game.chua.co.tro.choi.nao');
             } elseif ($newGames === 0) {
-                $problem = 'Bạn đã sở hữu mọi trò chơi trong gói này.';
+                $problem = t('bundle.show.ban_da_so_huu_moi');
             }
             $price = round((float)$b['gia'], 2);
             $lines['b' . $b['ma']] = [
@@ -172,33 +172,35 @@ class CartModel extends Model {
     }
 
     /** Add a game or bundle. Returns null on success or an error message. */
-    public const ALREADY = 'Sản phẩm này đã có trong giỏ hàng.';
+    public static function already(): string {
+        return t('cartmodel.san.pham.nay.da.co.trong.gio.hang');
+    }
 
     public static function add(int $userId, string $type, int $id): ?string {
         if ($type === 'game') {
             $game = GameModel::findWithCard($id);
             if (!$game || $game['trang_thai'] !== 'published') {
-                return 'Không tìm thấy trò chơi đang bán.';
+                return t('cartmodel.khong.tim.thay.tro.choi.dang.ban');
             }
             if (game_is_free($game)) {
-                return 'Trò chơi này miễn phí — hãy bấm "Nhận miễn phí".';
+                return t('cartmodel.tro.choi.nay.mien.phi.hay.bam.nhan.mien.phi');
             }
             if (OwnershipModel::has($userId, $id)) {
-                return 'Bạn đã sở hữu trò chơi này.';
+                return t('cart.item_owned');
             }
         } elseif ($type === 'bundle') {
             $bundle = BundleModel::find($id);
             if (!$bundle || !BundleModel::isOnSale($bundle)) {
-                return 'Gói game này hiện không bán.';
+                return t('cartmodel.goi.game.nay.hien.khong.ban');
             }
         } else {
-            return 'Loại sản phẩm không hợp lệ.';
+            return t('cartmodel.loai.san.pham.khong.hop.le');
         }
         $cartId = self::cartId($userId);
         $column = $type === 'game' ? 'tro_choi_id' : 'goi_game_id';
         $added = self::run("INSERT IGNORE INTO muc_gio_hang (gio_hang_id, loai_muc, $column) VALUES (:c, :t, :id)", [':c' => $cartId, ':t' => $type, ':id' => $id]);
         self::run('UPDATE gio_hang SET ngay_cap_nhat = NOW() WHERE ma = :c', [':c' => $cartId]);
-        return $added ? null : self::ALREADY;
+        return $added ? null : self::already();
     }
 
     public static function remove(int $userId, int $itemId): bool {
@@ -217,15 +219,15 @@ class CartModel extends Model {
         return self::transaction(function () use ($userId) {
             $cart = self::one("SELECT ma FROM gio_hang WHERE nguoi_dung_id = :u AND trang_thai = 'active' FOR UPDATE", [':u' => $userId]);
             if (!$cart) {
-                throw new RuntimeException('Giỏ hàng đang trống.');
+                throw new RuntimeException(t('cart.empty_checkout'));
             }
             $lines = self::lines($userId);
             if (!$lines) {
-                throw new RuntimeException('Giỏ hàng đang trống.');
+                throw new RuntimeException(t('cart.empty_checkout'));
             }
             foreach ($lines as $line) {
                 if ($line['problem']) {
-                    throw new RuntimeException('"' . $line['title'] . '": ' . $line['problem'] . ' Hãy xóa mục này khỏi giỏ trước khi thanh toán.');
+                    throw new RuntimeException(t('cartmodel.hay.xoa.muc.nay.khoi.gio.truoc.khi.thanh.toan', [$line['title'], $line['problem']]));
                 }
             }
             $coupon = null;
@@ -233,7 +235,7 @@ class CartModel extends Model {
                 $coupon = self::one('SELECT * FROM ma_giam_gia WHERE ma_uu_dai = :c FOR UPDATE', [':c' => $_SESSION['cart_coupon']]);
                 if (!$coupon || ($problem = CouponModel::problem($coupon))) {
                     unset($_SESSION['cart_coupon']);
-                    throw new RuntimeException(($problem ?? 'Mã giảm giá không còn hợp lệ.') . ' Mã đã được gỡ khỏi giỏ hàng.');
+                    throw new RuntimeException(t('cartmodel.ma.da.duoc.go.khoi.gio.hang', [$problem ?? t('cartmodel.ma.giam.gia.khong.con.hop.le')]));
                 }
             }
             $totals = self::totals($lines, $coupon);
@@ -287,7 +289,7 @@ class CartModel extends Model {
                 $updated = self::run('UPDATE ma_giam_gia SET so_luot_da_dung = so_luot_da_dung + 1
                     WHERE ma = :id AND (so_luot_dung_toi_da IS NULL OR so_luot_da_dung < so_luot_dung_toi_da)', [':id' => (int)$coupon['ma']]);
                 if ($updated !== 1) {
-                    throw new RuntimeException('Mã giảm giá vừa hết lượt sử dụng.');
+                    throw new RuntimeException(t('cartmodel.ma.giam.gia.vua.het.luot.su.dung'));
                 }
                 self::run('INSERT INTO luot_dung_ma_giam_gia (ma_giam_gia_id, don_hang_id, nguoi_dung_id, so_tien_giam) VALUES (:c, :o, :u, :a)',
                     [':c' => (int)$coupon['ma'], ':o' => $orderId, ':u' => $userId, ':a' => $totals['coupon']]);
@@ -297,10 +299,10 @@ class CartModel extends Model {
             self::run("UPDATE gio_hang SET trang_thai = 'checked_out' WHERE ma = :c", [':c' => (int)$cart['ma']]);
 
             $orderUrl = '/orders/' . $code;
-            NotificationModel::create($userId, 'order_paid', 'Đơn hàng ' . $code . ' đã thanh toán (thử nghiệm)', 'Các trò chơi đã được thêm vào thư viện của bạn.', $orderUrl);
+            NotificationModel::create($userId, 'order_paid',t('cartmodel.don.hang.da.thanh.toan.thu.nghiem', [$code]),t('cartmodel.cac.tro.choi.da.duoc.them.vao.thu.vien.cua.ban'), $orderUrl);
             foreach ($sellers as $authorId => $titles) {
                 if ($authorId !== $userId) {
-                    NotificationModel::create((int)$authorId, 'sale', 'Bạn có lượt bán mới', implode(', ', array_unique($titles)), '/dev/sales');
+                    NotificationModel::create((int)$authorId, 'sale',t('cartmodel.ban.co.luot.ban.moi'), implode(', ', array_unique($titles)), '/dev/sales');
                 }
             }
             unset($_SESSION['cart_coupon'], $_SESSION['pwyw']);

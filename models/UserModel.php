@@ -94,7 +94,7 @@ class UserModel extends Model {
         return self::transaction(function () use ($userId, $roleIds) {
             $adminRole = RoleModel::findByCode('admin');
             if (!$adminRole) {
-                throw new RuntimeException('Không tìm thấy vai trò quản trị viên.');
+                throw new RuntimeException(t('usermodel.khong.tim.thay.vai.tro.quan.tri.vien'));
             }
             $adminId = (int)$adminRole['ma'];
             self::query('SELECT ma FROM vai_tro WHERE ma = :rid FOR UPDATE', [':rid' => $adminId]);

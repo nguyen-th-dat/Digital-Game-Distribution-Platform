@@ -51,7 +51,7 @@ class Controller {
             if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
                 $_SESSION['redirect_after_login'] = $this->relativeRequestUri();
             }
-            flash('info', 'Vui lòng đăng nhập để tiếp tục.');
+            flash('info', t('core.please_sign_in_to_continue'));
             $this->redirect('/auth/login');
         }
         // A suspended or deleted account loses its session immediately.
@@ -59,7 +59,7 @@ class Controller {
         if (!$fresh || $fresh['trang_thai'] !== 'active') {
             $_SESSION = [];
             session_regenerate_id(true);
-            flash('error', 'Tài khoản của bạn đã bị đình chỉ hoặc không còn hoạt động.');
+            flash('error', t('core.your_account_has_been_suspended'));
             $this->redirect('/auth/login');
         }
         unset($fresh['mat_khau_da_bam']);
@@ -73,20 +73,22 @@ class Controller {
         $user = $this->requireAuth();
         $userRoles = $this->currentUserRoles();
         if (!array_intersect($roles, $userRoles)) {
-            $this->forbidden('Bạn không có quyền truy cập trang này.');
+            $this->forbidden(t('core.you_cannot_access_this_page'));
         }
         return $user;
     }
 
-    protected function forbidden(string $message = 'Bạn không có quyền thực hiện thao tác này.') {
+    protected function forbidden(string $message = '') {
         http_response_code(403);
-        $this->render('errors/403', ['message' => $message, 'pageTitle' => 'Không có quyền']);
+        $message = $message !== '' ? $message : t('core.you_do_not_have_permission_to_perform_this_action');
+        $this->render('errors/403', ['message' => $message, 'pageTitle' => t('core.no_permission')]);
         exit;
     }
 
-    protected function notFound(string $message = 'Không tìm thấy trang bạn yêu cầu.') {
+    protected function notFound(string $message = '') {
         http_response_code(404);
-        $this->render('errors/404', ['message' => $message, 'pageTitle' => 'Không tìm thấy']);
+        $message = $message !== '' ? $message : t('core.the_page_you_requested_was_not_found');
+        $this->render('errors/404', ['message' => $message, 'pageTitle' => t('core.not_found')]);
         exit;
     }
 
@@ -125,7 +127,7 @@ class Controller {
     protected function publishedGame(array $params): array {
         $game = GameModel::findBySlug((string)($params['slug'] ?? ''));
         if (!$game || !in_array($game['trang_thai'], ['published', 'unlisted'], true)) {
-            $this->notFound('Không tìm thấy trò chơi này.');
+            $this->notFound(t('core.this_game_was_not_found'));
         }
         return $game;
     }

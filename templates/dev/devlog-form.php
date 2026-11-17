@@ -12,12 +12,12 @@ $publicUrl = !$isNew && $post['trang_thai'] === 'published' && in_array($game['t
 
 <div class="title-row">
     <div>
-        <h2><?= $isNew ? 'Viết bài nhật ký' : 'Sửa bài nhật ký' ?></h2>
-        <?php if (!$isNew): ?><p class="sub"><?= status_pill('content_status', $post['trang_thai']) ?><?= $post['ngay_cong_bo'] ? ' Đăng ' . e(fmt_datetime($post['ngay_cong_bo'])) : '' ?> · đường dẫn /<?= e($post['duong_dan_rut_gon']) ?></p><?php endif; ?>
+        <h2><?= $isNew ? te('dev.devlog-form.viet_bai_nhat_ky') : te('dev.devlog-form.sua_bai_nhat_ky') ?></h2>
+        <?php if (!$isNew): ?><p class="sub"><?= te('dev.devlog-form.duong-dan', [ status_pill('content_status', $post['trang_thai']) ,  $post['ngay_cong_bo'] ? ' ' . te('dev.devlog-form.dang') . ' ' . e(fmt_datetime($post['ngay_cong_bo'])) : '' ,  e($post['duong_dan_rut_gon']) ]) ?></p><?php endif; ?>
     </div>
     <div class="cluster">
-        <a class="btn ghost" href="<?= e(app_url('/dev/games/' . $gid . '/devlogs')) ?>">Tất cả bài viết</a>
-        <?php if ($publicUrl): ?><a class="btn" href="<?= e($publicUrl) ?>">Xem bài</a><?php endif; ?>
+        <a class="btn ghost" href="<?= e(app_url('/dev/games/' . $gid . '/devlogs')) ?>"><?= te('dev.devlog-form.tat_ca_bai_viet') ?></a>
+        <?php if ($publicUrl): ?><a class="btn" href="<?= e($publicUrl) ?>"><?= te('dev.devlog-form.xem_bai') ?></a><?php endif; ?>
     </div>
 </div>
 
@@ -25,26 +25,26 @@ $publicUrl = !$isNew && $post['trang_thai'] === 'published' && in_array($game['t
     <form class="form" method="post" action="<?= e(app_url($action)) ?>">
         <?= csrf_field() ?>
         <div class="field">
-            <label for="d-title">Tiêu đề</label>
+            <label for="d-title"><?= te('common.title') ?></label>
             <input class="input" id="d-title" name="tieu_de" maxlength="200" required value="<?= e($v('tieu_de')) ?>">
-            <?php if ($isNew): ?><span class="hint">Đường dẫn bài viết được tạo từ tiêu đề và không đổi sau đó.</span><?php endif; ?>
+            <?php if ($isNew): ?><span class="hint"><?= te('dev.devlog-form.duong_dan_bai_viet_duoc') ?></span><?php endif; ?>
         </div>
         <div class="field">
-            <label for="d-body">Nội dung</label>
+            <label for="d-body"><?= te('admin.comments') ?></label>
             <textarea class="input tall" id="d-body" name="noi_dung" maxlength="50000" required><?= e((string)$v('noi_dung')) ?></textarea>
-            <span class="hint">Văn bản thuần, xuống dòng được giữ nguyên. Tối đa 50.000 ký tự.</span>
+            <span class="hint"><?= te('dev.devlog-form.van_ban_thuan_xuong_dong') ?></span>
         </div>
         <?php if ($hidden): ?>
-            <p class="hint">Bài viết đã bị đội ngũ kiểm duyệt ẩn. Bạn vẫn sửa được nội dung nhưng không thể tự hiển thị lại.</p>
+            <p class="hint"><?= te('dev.devlog-form.bai_viet_da_bi_doi') ?></p>
         <?php else: ?>
             <fieldset class="field">
-                <legend>Trạng thái</legend>
+                <legend><?= te('common.status') ?></legend>
                 <div class="choice-grid">
-                    <label class="check"><input type="radio" name="trang_thai" value="draft"<?= $v('trang_thai', 'draft') === 'draft' ? ' checked' : '' ?>> <span>Bản nháp<span class="sub">Chỉ tác giả thấy.</span></span></label>
-                    <label class="check"><input type="radio" name="trang_thai" value="published"<?= $v('trang_thai', 'draft') === 'published' ? ' checked' : '' ?>> <span>Đăng<span class="sub">Hiện trên trang trò chơi.</span></span></label>
+                    <label class="check"><input type="radio" name="trang_thai" value="draft"<?= $v('trang_thai', 'draft') === 'draft' ? ' checked' : '' ?>> <span><?= te('label.bundle_status.draft') ?><span class="sub"><?= te('dev.devlog-form.chi_tac_gia_thay') ?></span></span></label>
+                    <label class="check"><input type="radio" name="trang_thai" value="published"<?= $v('trang_thai', 'draft') === 'published' ? ' checked' : '' ?>> <span><?= te('dev.devlog-form.dang') ?><span class="sub"><?= te('dev.devlog-form.hien_tren_trang_tro_choi') ?></span></span></label>
                 </div>
             </fieldset>
         <?php endif; ?>
-        <div class="form-actions"><button class="btn primary" type="submit"><?= $isNew ? 'Lưu bài viết' : 'Lưu thay đổi' ?></button></div>
+        <div class="form-actions"><button class="btn primary" type="submit"><?= $isNew ? te('dev.devlog-form.luu_bai_viet') : te('collection.show.luu_thay_doi') ?></button></div>
     </form>
 </section>

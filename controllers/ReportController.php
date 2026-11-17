@@ -18,31 +18,31 @@ class ReportController extends Controller {
         $reason = (string)($_POST['reason'] ?? '');
         $detail = trim((string)($_POST['detail'] ?? ''));
         if (!isset(self::TARGETS[$type]) || $id <= 0) {
-            flash('error', 'Nội dung cần báo cáo không hợp lệ.');
+            flash('error',t('report.noi.dung.can.bao.cao.khong.hop.le'));
             $this->back('/');
         }
         if (!in_array($reason, self::REASONS, true)) {
-            flash('error', 'Hãy chọn lý do báo cáo.');
+            flash('error',t('report.hay.chon.ly.do.bao.cao'));
             $this->back('/');
         }
         if (mb_strlen($detail) > 2000) {
-            flash('error', 'Chi tiết tối đa 2.000 ký tự.');
+            flash('error',t('report.chi.tiet.toi.da.2.000.ky.tu'));
             $this->back('/');
         }
         $table = self::TARGETS[$type];
         if (!Model::scalar("SELECT 1 FROM `$table` WHERE ma = :id", [':id' => $id])) {
-            flash('error', 'Nội dung này không còn tồn tại.');
+            flash('error',t('report.noi.dung.nay.khong.con.ton.tai'));
             $this->back('/');
         }
         if ($type === 'user' && $id === (int)$user['ma']) {
-            flash('error', 'Bạn không thể báo cáo chính mình.');
+            flash('error',t('report.ban.khong.the.bao.cao.chinh.minh'));
             $this->back('/');
         }
         $open = Model::scalar("SELECT 1 FROM bao_cao_noi_dung WHERE nguoi_bao_cao_id = :u AND loai_doi_tuong = :t AND doi_tuong_id = :id AND trang_thai IN ('open','investigating')", [
             ':u' => (int)$user['ma'], ':t' => $type, ':id' => $id,
         ]);
         if ($open) {
-            flash('info', 'Bạn đã báo cáo nội dung này. Điều hành viên đang xem xét.');
+            flash('info',t('report.ban.da.bao.cao.noi.dung.nay.dieu.hanh.vien.dang.xem.xet'));
             $this->back('/');
         }
         Model::run('INSERT INTO bao_cao_noi_dung (nguoi_bao_cao_id, loai_doi_tuong, doi_tuong_id, ma_ly_do, chi_tiet) VALUES (:u, :t, :id, :r, :d)', [
@@ -50,8 +50,8 @@ class ReportController extends Controller {
         ]);
         $reportId = Model::lastId();
         $staff = Model::column("SELECT DISTINCT x.nguoi_dung_id FROM nguoi_dung_vai_tro x JOIN vai_tro r ON r.ma = x.vai_tro_id WHERE r.ma_vai_tro IN ('moderator','admin')");
-        NotificationModel::notifyUsers($staff, (int)$user['ma'], 'report', 'Báo cáo mới: ' . label('report_target', $type), 'Lý do: ' . label('report_reason', $reason), '/admin/reports/' . $reportId);
-        flash('success', 'Cảm ơn bạn. Báo cáo đã được gửi tới điều hành viên.');
+        NotificationModel::notifyUsers($staff, (int)$user['ma'], 'report',t('report.bao.cao.moi', [label('report_target', $type)]),t('download.ly.do', [label('report_reason', $reason)]), '/admin/reports/' . $reportId);
+        flash('success',t('report.cam.on.ban.bao.cao.da.duoc.gui.toi.dieu.hanh.vien'));
         $this->back('/');
     }
 }

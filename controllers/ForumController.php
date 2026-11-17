@@ -28,7 +28,7 @@ class ForumController extends Controller {
                   AND NOT EXISTS (SELECT 1 FROM dien_dan d WHERE d.tro_choi_id = g.ma) ORDER BY g.tieu_de", [':u1' => $uid, ':u2' => $uid]);
         }
         $this->render('forum/index', [
-            'pageTitle' => 'Diễn đàn',
+            'pageTitle' => t('nav.forums'),
             'groups' => $groups,
             'myGames' => $myGames,
             'jamsWithoutBoard' => is_staff() ? Model::query("SELECT j.ma, j.tieu_de FROM cuoc_thi_lam_game j WHERE NOT EXISTS (SELECT 1 FROM dien_dan d WHERE d.cuoc_thi_id = j.ma) ORDER BY j.ngay_bat_dau DESC") : [],
@@ -43,48 +43,48 @@ class ForumController extends Controller {
         $description = post_str('mo_ta', 1000);
         $public = post_bool('cong_khai');
         if ($title === null || $description === null) {
-            $this->fail('Tên diễn đàn tối đa 180 ký tự, mô tả tối đa 1.000 ký tự.', '/forums#new');
+            $this->fail(t('forum.ten.dien.dan.toi.da.180.ky.tu.mo.ta.toi.da.1.000.ky.tu'), '/forums#new');
         }
         $row = ['loai_dien_dan' => $kind, 'tro_choi_id' => null, 'cuoc_thi_id' => null, 'mo_ta' => $description !== '' ? $description : null, 'cong_khai' => $public];
         if ($kind === 'platform') {
             if (!is_staff()) {
-                $this->forbidden('Chỉ điều hành viên mới tạo được diễn đàn chung.');
+                $this->forbidden(t('forum.chi.dieu.hanh.vien.moi.tao.duoc.dien.dan.chung'));
             }
             if ($title === '') {
-                $this->fail('Hãy đặt tên cho diễn đàn.', '/forums#new');
+                $this->fail(t('forum.hay.dat.ten.cho.dien.dan'), '/forums#new');
             }
         } elseif ($kind === 'game') {
             $game = Model::one('SELECT ma, tieu_de FROM tro_choi WHERE ma = :g', [':g' => (int)($_POST['tro_choi_id'] ?? 0)]);
             if (!$game) {
-                $this->fail('Hãy chọn trò chơi.', '/forums#new');
+                $this->fail(t('forum.hay.chon.tro.choi'), '/forums#new');
             }
             if (!is_staff() && !GameModel::isAuthor((int)$game['ma'], (int)$user['ma'])) {
-                $this->forbidden('Chỉ nhà phát triển của trò chơi mới mở được diễn đàn cho nó.');
+                $this->forbidden(t('forum.chi.nha.phat.trien.cua.tro.choi.moi.mo.duoc.dien.dan.cho.no'));
             }
             if (Model::scalar('SELECT 1 FROM dien_dan WHERE tro_choi_id = :g', [':g' => (int)$game['ma']])) {
-                $this->fail('Trò chơi này đã có diễn đàn.', '/forums#new');
+                $this->fail(t('forum.tro.choi.nay.da.co.dien.dan'), '/forums#new');
             }
             $row['tro_choi_id'] = (int)$game['ma'];
-            $title = $title !== '' ? $title : 'Thảo luận về ' . mb_substr($game['tieu_de'], 0, 160);
+            $title = $title !== '' ? $title : t('forum.thao.luan.ve', [mb_substr($game['tieu_de'], 0, 160)]);
         } elseif ($kind === 'jam') {
             if (!is_staff()) {
-                $this->forbidden('Chỉ điều hành viên mới mở được diễn đàn cho cuộc thi.');
+                $this->forbidden(t('forum.chi.dieu.hanh.vien.moi.mo.duoc.dien.dan.cho.cuoc.thi'));
             }
             $jam = Model::one('SELECT ma, tieu_de FROM cuoc_thi_lam_game WHERE ma = :j', [':j' => (int)($_POST['cuoc_thi_id'] ?? 0)]);
             if (!$jam) {
-                $this->fail('Hãy chọn cuộc thi.', '/forums#new');
+                $this->fail(t('forum.hay.chon.cuoc.thi'), '/forums#new');
             }
             if (Model::scalar('SELECT 1 FROM dien_dan WHERE cuoc_thi_id = :j', [':j' => (int)$jam['ma']])) {
-                $this->fail('Cuộc thi này đã có diễn đàn.', '/forums#new');
+                $this->fail(t('forum.cuoc.thi.nay.da.co.dien.dan'), '/forums#new');
             }
             $row['cuoc_thi_id'] = (int)$jam['ma'];
-            $title = $title !== '' ? $title : 'Thảo luận ' . mb_substr($jam['tieu_de'], 0, 166);
+            $title = $title !== '' ? $title : t('forum.thao.luan', [mb_substr($jam['tieu_de'], 0, 166)]);
         } else {
-            $this->fail('Loại diễn đàn không hợp lệ.', '/forums#new');
+            $this->fail(t('forum.loai.dien.dan.khong.hop.le'), '/forums#new');
         }
         $id = ForumModel::insert($row + ['tieu_de' => $title]);
         audit('forum_create', 'dien_dan', $id, ['loai' => $kind]);
-        flash('success', 'Đã mở diễn đàn "' . $title . '".');
+        flash('success',t('forum.da.mo.dien.dan', [$title]));
         $this->redirect('/forums/' . $id);
     }
 
@@ -108,7 +108,7 @@ class ForumController extends Controller {
     public function newTopic(array $params = []) {
         $board = $this->visibleBoard($params);
         $this->requireAuth();
-        $this->render('forum/new-topic', ['pageTitle' => 'Chủ đề mới', 'board' => $board]);
+        $this->render('forum/new-topic', ['pageTitle' => t('forum.new_topic'), 'board' => $board]);
     }
 
     public function createTopic(array $params = []) {
@@ -119,11 +119,11 @@ class ForumController extends Controller {
         $title = post_str('tieu_de', 220);
         $body = post_str('noi_dung', 20000);
         if ($title === null || mb_strlen($title) < 3 || $body === null || $body === '') {
-            $this->fail('Tiêu đề cần 3–220 ký tự, nội dung cần 1–20.000 ký tự.', $back);
+            $this->fail(t('forum.tieu.de.can.3.220.ky.tu.noi.dung.can.1.20.000.ky.tu'), $back);
         }
         $recent = (int)Model::scalar('SELECT COUNT(*) FROM chu_de_thao_luan WHERE tac_gia_nguoi_dung_id = :u AND ngay_tao > NOW() - INTERVAL 10 MINUTE', [':u' => $uid]);
         if ($recent >= self::TOPICS_PER_10_MIN) {
-            $this->fail('Bạn vừa mở nhiều chủ đề. Hãy chờ vài phút rồi thử lại.', $back);
+            $this->fail(t('forum.ban.vua.mo.nhieu.chu.de.hay.cho.vai.phut.roi.thu.lai'), $back);
         }
         Model::run('INSERT INTO chu_de_thao_luan (dien_dan_id, tac_gia_nguoi_dung_id, tieu_de, noi_dung_mo_dau) VALUES (:b, :u, :t, :c)', [
             ':b' => (int)$board['ma'], ':u' => $uid, ':t' => $title, ':c' => $body,
@@ -132,9 +132,9 @@ class ForumController extends Controller {
         audit('topic_create', 'chu_de_thao_luan', $topicId);
         if ($board['loai_dien_dan'] === 'game') {
             $authors = array_diff(GameModel::authorIds((int)$board['tro_choi_id']), [$uid]);
-            NotificationModel::notifyUsers($authors, $uid, 'forum_topic', 'Chủ đề mới về ' . $board['game_title'], $title, '/forums/' . (int)$board['ma'] . '/topics/' . $topicId);
+            NotificationModel::notifyUsers($authors, $uid, 'forum_topic',t('forum.chu.de.moi.ve', [$board['game_title']]), $title, '/forums/' . (int)$board['ma'] . '/topics/' . $topicId);
         }
-        flash('success', 'Đã đăng chủ đề.');
+        flash('success',t('forum.created'));
         $this->redirect('/forums/' . (int)$board['ma'] . '/topics/' . $topicId);
     }
 
@@ -169,26 +169,26 @@ class ForumController extends Controller {
         $uid = (int)$user['ma'];
         $self = '/forums/' . (int)$board['ma'] . '/topics/' . (int)$topic['ma'];
         if ((int)$topic['da_khoa'] && !$this->canManageBoard($board)) {
-            $this->fail('Chủ đề này đã khóa, không nhận thêm trả lời.', $self);
+            $this->fail(t('forum.chu.de.nay.da.khoa.khong.nhan.them.tra.loi'), $self);
         }
         if ($topic['trang_thai'] !== 'published') {
-            $this->fail('Chủ đề này đang bị ẩn.', $self);
+            $this->fail(t('forum.chu.de.nay.dang.bi.an'), $self);
         }
         $body = post_str('noi_dung', 20000);
         if ($body === null || $body === '') {
-            $this->fail('Nội dung trả lời cần 1–20.000 ký tự.', $self . '#reply');
+            $this->fail(t('forum.noi.dung.tra.loi.can.1.20.000.ky.tu'), $self . '#reply');
         }
         $parentId = (int)($_POST['parent_id'] ?? 0);
         $parent = null;
         if ($parentId) {
             $parent = Model::one("SELECT ma, tac_gia_nguoi_dung_id FROM bai_viet_thao_luan WHERE ma = :p AND chu_de_id = :t AND trang_thai = 'published'", [':p' => $parentId, ':t' => (int)$topic['ma']]);
             if (!$parent) {
-                $this->fail('Bài viết bạn trả lời không còn hiển thị.', $self);
+                $this->fail(t('forum.bai.viet.ban.tra.loi.khong.con.hien.thi'), $self);
             }
         }
         $recent = (int)Model::scalar('SELECT COUNT(*) FROM bai_viet_thao_luan WHERE tac_gia_nguoi_dung_id = :u AND ngay_tao > NOW() - INTERVAL 1 MINUTE', [':u' => $uid]);
         if ($recent >= self::POSTS_PER_MINUTE) {
-            $this->fail('Bạn đang gửi quá nhanh. Hãy chờ một phút.', $self . '#reply');
+            $this->fail(t('forum.ban.dang.gui.qua.nhanh.hay.cho.mot.phut'), $self . '#reply');
         }
         Model::run('INSERT INTO bai_viet_thao_luan (chu_de_id, tac_gia_nguoi_dung_id, bai_viet_cha_id, noi_dung) VALUES (:t, :u, :p, :c)', [
             ':t' => (int)$topic['ma'], ':u' => $uid, ':p' => $parent ? (int)$parent['ma'] : null, ':c' => $body,
@@ -202,8 +202,8 @@ class ForumController extends Controller {
         if ($parent) {
             $notify[] = (int)$parent['tac_gia_nguoi_dung_id'];
         }
-        NotificationModel::notifyUsers(array_unique($notify), $uid, 'forum_reply', $user['ten_hien_thi'] . ' đã trả lời trong "' . mb_substr($topic['tieu_de'], 0, 120) . '"', excerpt($body, 160), $url);
-        flash('success', 'Đã gửi trả lời.');
+        NotificationModel::notifyUsers(array_unique($notify), $uid, 'forum_reply',t('forum.da.tra.loi.trong', [$user['ten_hien_thi'], mb_substr($topic['tieu_de'], 0, 120)]), excerpt($body, 160), $url);
+        flash('success',t('comment.da.gui.tra.loi'));
         $this->redirect($url);
     }
 
@@ -218,7 +218,12 @@ class ForumController extends Controller {
         $isAuthor = (int)$topic['tac_gia_nguoi_dung_id'] === $uid;
         $manager = $this->canManageBoard($board);
         $reason = post_str('ly_do', 1000) ?? '';
-        $flags = ['pin' => ['da_ghim', 1, 'Đã ghim chủ đề.'], 'unpin' => ['da_ghim', 0, 'Đã bỏ ghim.'], 'lock' => ['da_khoa', 1, 'Đã khóa chủ đề.'], 'unlock' => ['da_khoa', 0, 'Đã mở khóa chủ đề.']];
+        $flags = [
+            'pin' => ['da_ghim', 1, t('forum.da.ghim.chu.de')],
+            'unpin' => ['da_ghim', 0, t('forum.da.bo.ghim')],
+            'lock' => ['da_khoa', 1, t('forum.da.khoa.chu.de')],
+            'unlock' => ['da_khoa', 0, t('forum.da.mo.khoa')],
+        ];
         if (isset($flags[$action])) {
             if (!$manager) {
                 $this->forbidden();
@@ -231,24 +236,24 @@ class ForumController extends Controller {
         }
         if ($action === 'edit') {
             if (!$isAuthor) {
-                $this->forbidden('Chỉ người mở chủ đề mới sửa được nội dung.');
+                $this->forbidden(t('forum.chi.nguoi.mo.chu.de.moi.sua.duoc.noi.dung'));
             }
             if ((int)$topic['da_khoa'] && !$manager) {
-                $this->fail('Chủ đề đã khóa nên không sửa được.', $self);
+                $this->fail(t('forum.chu.de.da.khoa.nen.khong.sua.duoc'), $self);
             }
             $title = post_str('tieu_de', 220);
             $body = post_str('noi_dung', 20000);
             if ($title === null || mb_strlen($title) < 3 || $body === null || $body === '') {
-                $this->fail('Tiêu đề cần 3–220 ký tự, nội dung cần 1–20.000 ký tự.', $self . '#edit-topic');
+                $this->fail(t('forum.tieu.de.can.3.220.ky.tu.noi.dung.can.1.20.000.ky.tu'), $self . '#edit-topic');
             }
             Model::run('UPDATE chu_de_thao_luan SET tieu_de = :t, noi_dung_mo_dau = :c WHERE ma = :id', [':t' => $title, ':c' => $body, ':id' => (int)$topic['ma']]);
             audit('topic_edit', 'chu_de_thao_luan', (int)$topic['ma']);
-            flash('success', 'Đã lưu chủ đề.');
+            flash('success',t('forum.da.luu.chu.de'));
             $this->redirect($self);
         }
         $status = ['hide' => 'hidden', 'restore' => 'published', 'remove' => 'removed'][$action] ?? null;
         if (!$status) {
-            $this->fail('Thao tác không hợp lệ.', $self);
+            $this->fail(t('forum.thao.tac.khong.hop.le'), $self);
         }
         $allowed = $action === 'remove' ? ($manager || $isAuthor) : is_staff();
         if (!$allowed) {
@@ -260,10 +265,10 @@ class ForumController extends Controller {
         }
         audit('topic_' . $action, 'chu_de_thao_luan', (int)$topic['ma']);
         if ($action === 'remove') {
-            flash('success', 'Đã gỡ chủ đề.');
+            flash('success',t('forum.da.go.chu.de'));
             $this->redirect('/forums/' . (int)$board['ma']);
         }
-        flash('success', $action === 'hide' ? 'Đã ẩn chủ đề khỏi người dùng thường.' : 'Đã khôi phục chủ đề.');
+        flash('success',($action === 'hide' ? t('forum.da.an.chu.de.khoi.nguoi.dung.thuong') : t('forum.da.khoi.phuc.chu.de')));
         $this->redirect($self);
     }
 
@@ -273,10 +278,10 @@ class ForumController extends Controller {
         $url = '/forums/' . (int)$post['dien_dan_id'] . '/topics/' . (int)$post['chu_de_id'];
         $reaction = (string)($_POST['reaction'] ?? '');
         if (!in_array($reaction, ForumModel::REACTIONS, true)) {
-            $this->fail('Kiểu tương tác không hợp lệ.', $url);
+            $this->fail(t('forum.kieu.tuong.tac.khong.hop.le'), $url);
         }
         if ((int)$post['tac_gia_nguoi_dung_id'] === (int)$user['ma']) {
-            $this->fail('Bạn không thể tương tác với bài của chính mình.', $url . '#post-' . (int)$post['ma']);
+            $this->fail(t('forum.ban.khong.the.tuong.tac.voi.bai.cua.chinh.minh'), $url . '#post-' . (int)$post['ma']);
         }
         ForumModel::toggleReaction((int)$post['ma'], (int)$user['ma'], $reaction);
         $this->back($url . '#post-' . (int)$post['ma']);
@@ -287,18 +292,18 @@ class ForumController extends Controller {
         $post = $this->postInVisibleTopic($params);
         $url = safe_return((string)($_POST['return_to'] ?? ''), '/forums/' . (int)$post['dien_dan_id'] . '/topics/' . (int)$post['chu_de_id']);
         if ((int)$post['tac_gia_nguoi_dung_id'] !== (int)$user['ma']) {
-            $this->forbidden('Bạn chỉ sửa được bài viết của mình.');
+            $this->forbidden(t('forum.ban.chi.sua.duoc.bai.viet.cua.minh'));
         }
         if ((int)$post['da_khoa'] && !is_staff()) {
-            $this->fail('Chủ đề đã khóa nên không sửa được.', $url);
+            $this->fail(t('forum.chu.de.da.khoa.nen.khong.sua.duoc'), $url);
         }
         $body = post_str('noi_dung', 20000);
         if ($body === null || $body === '') {
-            $this->fail('Nội dung cần 1–20.000 ký tự.', $url);
+            $this->fail(t('forum.noi.dung.can.1.20.000.ky.tu'), $url);
         }
         Model::run('UPDATE bai_viet_thao_luan SET noi_dung = :c, ngay_chinh_sua = NOW() WHERE ma = :p', [':c' => $body, ':p' => (int)$post['ma']]);
         audit('post_edit', 'bai_viet_thao_luan', (int)$post['ma']);
-        flash('success', 'Đã lưu bài viết.');
+        flash('success',t('dev.game.da.luu.bai.viet'));
         $this->redirect($url);
     }
 
@@ -315,7 +320,7 @@ class ForumController extends Controller {
             ModerationActionModel::log((int)$user['ma'], 'community_post', (int)$post['ma'], 'remove', post_str('ly_do', 1000) ?? '');
         }
         audit($isAuthor ? 'post_delete' : 'post_remove', 'bai_viet_thao_luan', (int)$post['ma']);
-        flash('success', 'Đã xóa bài viết.');
+        flash('success',t('forum.deleted'));
         $this->back('/forums/' . (int)$post['dien_dan_id'] . '/topics/' . (int)$post['chu_de_id']);
     }
 
@@ -356,7 +361,7 @@ class ForumController extends Controller {
     private function visibleBoard(array $params): array {
         $board = ForumModel::board((int)($params['id'] ?? 0));
         if (!$board || !$this->canSeeBoard($board)) {
-            $this->notFound('Không tìm thấy diễn đàn này.');
+            $this->notFound(t('forum.khong.tim.thay.dien.dan.nay'));
         }
         return $board;
     }
@@ -364,7 +369,7 @@ class ForumController extends Controller {
     private function visibleTopic(array $board, array $params): array {
         $topic = ForumModel::topic((int)$board['ma'], (int)($params['topic'] ?? 0));
         if (!$topic || $topic['trang_thai'] === 'removed' || ($topic['trang_thai'] === 'hidden' && !is_staff())) {
-            $this->notFound('Không tìm thấy chủ đề này.');
+            $this->notFound(t('forum.khong.tim.thay.chu.de.nay'));
         }
         return $topic;
     }
@@ -375,7 +380,7 @@ class ForumController extends Controller {
         if (!$post || $post['trang_thai'] === 'removed' || ($post['trang_thai'] === 'hidden' && !is_staff())
             || $post['topic_status'] === 'removed' || ($post['topic_status'] === 'hidden' && !is_staff())
             || !$board || !$this->canSeeBoard($board)) {
-            $this->notFound('Không tìm thấy bài viết này.');
+            $this->notFound(t('forum.khong.tim.thay.bai.viet.nay'));
         }
         return $post;
     }

@@ -3,33 +3,33 @@
 ?>
 <div class="title-row">
     <div>
-        <h1>Thư viện</h1>
-        <p class="sub"><?= fmt_int($total) ?> trò chơi<?= $q !== '' ? ' khớp "' . e($q) . '"' : '' ?></p>
+        <h1><?= te('library.title') ?></h1>
+        <p class="sub"><?= te('library.index.tro-choi', [ fmt_int($total) ,  $q !== '' ? t('library.index.khop', [$q]) : '' ]) ?></p>
     </div>
 </div>
 
-<nav class="tabs" aria-label="Thư viện">
-    <a href="<?= e(app_url('/library')) ?>" aria-selected="true">Đã sở hữu</a>
-    <a href="<?= e(app_url('/wishlist')) ?>" aria-selected="false">Mong muốn<span class="count"><?= fmt_int($wishCount) ?></span></a>
+<nav class="tabs" aria-label="<?= te('library.title') ?>">
+    <a href="<?= e(app_url('/library')) ?>" aria-selected="true"><?= te('game.owned') ?></a>
+    <a href="<?= e(app_url('/wishlist')) ?>" aria-selected="false"><?= te('library.wishlist_title') ?><span class="count"><?= fmt_int($wishCount) ?></span></a>
 </nav>
 
 <div class="grid">
-    <section class="panel span-8" aria-label="Trò chơi đã sở hữu">
+    <section class="panel span-8" aria-label="<?= te('library.index.tro_choi_da_so_huu') ?>">
         <form class="toolbar" method="get" action="<?= e(app_url('/library')) ?>" role="search">
-            <label class="sr-only" for="lib-q">Tìm trong thư viện</label>
-            <input class="input search" id="lib-q" type="search" name="q" value="<?= e($q) ?>" placeholder="Tìm trong thư viện" maxlength="100">
-            <label class="sr-only" for="lib-sort">Sắp xếp</label>
+            <label class="sr-only" for="lib-q"><?= te('library.index.tim_trong_thu_vien') ?></label>
+            <input class="input search" id="lib-q" type="search" name="q" value="<?= e($q) ?>" placeholder="<?= te('library.index.tim_trong_thu_vien') ?>" maxlength="100">
+            <label class="sr-only" for="lib-sort"><?= te('common.sort') ?></label>
             <select class="input" id="lib-sort" name="sort">
-                <option value="recent"<?= $sort === 'recent' ? ' selected' : '' ?>>Mới nhận gần đây</option>
-                <option value="title"<?= $sort === 'title' ? ' selected' : '' ?>>Tên A–Z</option>
+                <option value="recent"<?= $sort === 'recent' ? ' selected' : '' ?>><?= te('library.index.moi_nhan_gan_day') ?></option>
+                <option value="title"<?= $sort === 'title' ? ' selected' : '' ?>><?= te('library.index.ten_a_z') ?></option>
             </select>
-            <button class="btn" type="submit">Lọc</button>
+            <button class="btn" type="submit"><?= te('common.filter') ?></button>
         </form>
 
         <?php if (!$games): ?>
             <div class="empty">
-                <p><?= $q !== '' ? 'Không có trò chơi nào khớp.' : 'Thư viện còn trống. Trò chơi bạn mua, nhận miễn phí hoặc kích hoạt bằng mã sẽ hiện ở đây.' ?></p>
-                <a class="btn primary" href="<?= e(app_url('/games')) ?>">Khám phá trò chơi</a>
+                <p><?= $q !== '' ? te('library.index.khong.co.tro.choi.nao.khop') : te('library.index.thu.vien.con.trong') ?></p>
+                <a class="btn primary" href="<?= e(app_url('/games')) ?>"><?= te('bundle.index.kham_pha_tro_choi') ?></a>
             </div>
         <?php else: ?>
             <div class="rows">
@@ -40,17 +40,17 @@
                         </a>
                         <div class="grow">
                             <a class="link" href="<?= e(game_url($g)) ?>"><?= e($g['tieu_de']) ?></a>
-                            <span class="sub"><?= e(label('ownership', $g['loai_nhan_quyen'])) ?> · <?= e(fmt_date($g['ngay_nhan_quyen'])) ?><?= $g['phien_ban_moi'] ? ' · Bản mới nhất ' . e($g['phien_ban_moi']) : '' ?></span>
+                            <span class="sub"><?= e(label('ownership', $g['loai_nhan_quyen'])) ?> · <?= e(fmt_date($g['ngay_nhan_quyen'])) ?><?= $g['phien_ban_moi'] ? ' ' . te('library.index.dot_ban_moi_nhat') . ' ' . e($g['phien_ban_moi']) : '' ?></span>
                         </div>
                         <?php $playUrl = game_play_url($g); ?>
                         <div class="cluster">
                             <?php if ($playUrl): ?>
-                                <a class="btn sm primary" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer">Chơi</a>
+                                <a class="btn sm primary" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer"><?= te('game.play') ?></a>
                             <?php endif; ?>
                             <?php if ((int)$g['so_lien_tai'] > 0): ?>
-                                <a class="btn sm<?= $playUrl ? '' : ' primary' ?>" href="<?= e(app_url('/games/' . rawurlencode($g['duong_dan_rut_gon']) . '/downloads')) ?>">Tải về<?= (int)$g['so_lien_tai'] > 1 ? ' · ' . fmt_int((int)$g['so_lien_tai']) : '' ?></a>
+                                <a class="btn sm<?= $playUrl ? '' : ' primary' ?>" href="<?= e(app_url('/games/' . rawurlencode($g['duong_dan_rut_gon']) . '/downloads')) ?>"><?= te('library.index.tai-ve', [ (int)$g['so_lien_tai'] > 1 ? ' ' . te('common.dot') . ' ' . fmt_int((int)$g['so_lien_tai']) : '' ]) ?></a>
                             <?php elseif (!$playUrl): ?>
-                                <a class="btn sm" href="<?= e(game_url($g)) ?>#releases">Xem bản phát hành</a>
+                                <a class="btn sm" href="<?= e(game_url($g)) ?>#releases"><?= te('library.index.xem_ban_phat_hanh') ?></a>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -62,15 +62,15 @@
 
     <aside class="span-4">
         <section class="panel" aria-labelledby="redeem-h">
-            <header><h2 id="redeem-h">Kích hoạt mã</h2></header>
+            <header><h2 id="redeem-h"><?= te('library.index.kich_hoat_ma') ?></h2></header>
             <form class="form" method="post" action="<?= e(app_url('/keys/redeem')) ?>">
                 <?= csrf_field() ?>
                 <div class="field">
-                    <label for="key">Mã kích hoạt</label>
+                    <label for="key"><?= te('library.index.ma_kich_hoat') ?></label>
                     <input class="input" id="key" name="key" required maxlength="80" autocomplete="off" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX">
-                    <span class="hint">Nhà phát triển phát mã cho người thử nghiệm, báo chí hoặc người ủng hộ. Mỗi mã dùng một lần.</span>
+                    <span class="hint"><?= te('library.index.nha_phat_trien_phat_ma') ?></span>
                 </div>
-                <div class="form-actions"><button class="btn primary" type="submit">Kích hoạt</button></div>
+                <div class="form-actions"><button class="btn primary" type="submit"><?= te('admin.activate') ?></button></div>
             </form>
         </section>
     </aside>

@@ -1,8 +1,8 @@
 <div class="auth">
     <div class="auth-card">
         <div>
-            <h1>Kiểm tra tài khoản</h1>
-            <p class="muted lede">Đây là tài khoản đăng ký với email <strong><?= e($email) ?></strong>. Xác nhận đúng tài khoản của bạn trước khi tiếp tục.</p>
+            <h1><?= te('auth.forgot-password-account.kiem_tra_tai_khoan') ?></h1>
+            <p class="muted lede"><?= te('auth.forgot-password-account.day_la_tai_khoan_dang') ?> <strong><?= e($email) ?></strong><?= te('auth.forgot-password-account.xac_nhan_dung_tai_khoan') ?></p>
         </div>
         <div class="account-preview">
             <img class="avatar lg" src="<?= e(avatar_url($user)) ?>" alt="">
@@ -15,8 +15,8 @@
         <form method="post" action="<?= e(app_url('/auth/forgot-password/send')) ?>">
             <?= csrf_field() ?>
             <input type="hidden" name="email" value="<?= e($email) ?>">
-            <button class="btn primary block" type="submit">Tiếp tục quên mật khẩu</button>
+            <button class="btn primary block" type="submit"><?= te('auth.forgot-password-account.tiep_tuc_quen_mat_khau') ?></button>
         </form>
-        <p class="switch-line"><a href="<?= e(app_url('/auth/forgot-password')) ?>">Không phải tài khoản của tôi</a></p>
+        <p class="switch-line"><a href="<?= e(app_url('/auth/forgot-password')) ?>"><?= te('auth.forgot-password-account.khong_phai_tai_khoan_cua') ?></a></p>
     </div>
 </div>

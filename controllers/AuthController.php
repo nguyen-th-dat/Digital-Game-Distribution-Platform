@@ -17,37 +17,35 @@ class AuthController extends Controller {
         if ($return !== '') {
             $_SESSION['redirect_after_login'] = $return;
         }
-        $this->render('auth/login', ['pageTitle' => 'Đăng nhập']);
+        $this->render('auth/login', ['pageTitle' => t('nav.login')]);
     }
 
     public function showRegister(array $params = []) {
         if ($this->currentUser()) {
             $this->redirect('/library');
         }
-        $this->render('auth/register', ['pageTitle' => 'Tạo tài khoản']);
+        $this->render('auth/register', ['pageTitle' => t('nav.register')]);
     }
 
     public function login(array $params = []) {
         $login = trim((string)($_POST['login'] ?? ''));
         $password = (string)($_POST['password'] ?? '');
         if ($login === '' || $password === '' || mb_strlen($login) > 254) {
-            $this->fail('Hãy nhập email hoặc tên đăng nhập và mật khẩu.', '/auth/login');
+            $this->fail(t('auth.hay.nhap.email.hoac.ten.dang.nhap.va.mat.khau'), '/auth/login');
         }
 
         if ($this->tooManyAttempts($login)) {
-            $this->fail('Bạn đã đăng nhập sai quá nhiều lần. Hãy thử lại sau ' . self::WINDOW_MINUTES . ' phút.', '/auth/login');
+            $this->fail(t('auth.ban.da.dang.nhap.sai.qua.nhieu.lan.hay.thu.lai.sau.phut', [self::WINDOW_MINUTES]), '/auth/login');
         }
 
         $user = UserModel::findForLogin($login);
         if (!$user || !password_verify($password, $user['mat_khau_da_bam'])) {
             audit('login_failed', 'nguoi_dung', $user ? (int)$user['ma'] : null, ['login' => mb_substr($login, 0, 80)]);
-            $this->fail('Email/tên đăng nhập hoặc mật khẩu không đúng.', '/auth/login');
+            $this->fail(t('auth.email.ten.dang.nhap.hoac.mat.khau.khong.dung'), '/auth/login');
         }
         if ($user['trang_thai'] !== 'active') {
             audit('login_blocked', 'nguoi_dung', (int)$user['ma'], ['status' => $user['trang_thai']]);
-            $this->fail($user['trang_thai'] === 'suspended'
-                ? 'Tài khoản này đang bị đình chỉ. Hãy liên hệ quản trị viên nếu bạn cho rằng đây là nhầm lẫn.'
-                : 'Tài khoản này không còn hoạt động.', '/auth/login');
+            $this->fail(($user['trang_thai'] === 'suspended' ? t('auth.tai.khoan.nay.dang.bi.dinh.chi.hay.lien.he.quan.tri.vien.neu.ban.cho.rang.day.la.nham.lan') : t('auth.tai.khoan.nay.khong.con.hoat.dong')), '/auth/login');
         }
 
         if (password_needs_rehash($user['mat_khau_da_bam'], PASSWORD_DEFAULT)) {
@@ -56,7 +54,7 @@ class AuthController extends Controller {
 
         $this->startSession($user);
         audit('login', 'nguoi_dung', (int)$user['ma']);
-        flash('success', 'Chào mừng trở lại, ' . $user['ten_hien_thi'] . '.');
+        flash('success',t('auth.chao.mung.tro.lai', [$user['ten_hien_thi']]));
         $target = safe_return($_SESSION['redirect_after_login'] ?? '', '/library');
         unset($_SESSION['redirect_after_login']);
         $this->redirect($target);
@@ -71,26 +69,26 @@ class AuthController extends Controller {
 
         $errors = [];
         if (!preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
-            $errors[] = 'Tên đăng nhập gồm 3–30 ký tự: chữ không dấu, số hoặc dấu gạch dưới.';
+            $errors[] = t('auth.ten.dang.nhap.gom.3.30.ky.tu.chu.khong.dau.so.hoac.dau.gach.duoi');
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 254) {
-            $errors[] = 'Email không hợp lệ.';
+            $errors[] = t('auth.email.khong.hop.le');
         }
         if ($display === '' || mb_strlen($display) > 100) {
-            $errors[] = 'Tên hiển thị không được để trống và tối đa 100 ký tự.';
+            $errors[] = t('auth.ten.hien.thi.khong.duoc.de.trong.va.toi.da.100.ky.tu');
         }
         if (strlen($password) < 8 || strlen($password) > 72) {
-            $errors[] = 'Mật khẩu cần từ 8 đến 72 ký tự.';
+            $errors[] = t('auth.mat.khau.can.tu.8.den.72.ky.tu');
         }
         if ($password !== $confirm) {
-            $errors[] = 'Mật khẩu nhập lại không khớp.';
+            $errors[] = t('auth.mat.khau.nhap.lai.khong.khop');
         }
         if (!$errors) {
             if (UserModel::findBy('email', $email)) {
-                $errors[] = 'Email này đã được dùng cho một tài khoản khác.';
+                $errors[] = t('auth.email.nay.da.duoc.dung.cho.mot.tai.khoan.khac');
             }
             if (UserModel::findBy('ten_dang_nhap', $username)) {
-                $errors[] = 'Tên đăng nhập đã có người dùng.';
+                $errors[] = t('auth.username_taken');
             }
         }
         if ($errors) {
@@ -101,14 +99,14 @@ class AuthController extends Controller {
             $userId = UserModel::create($username, $email, $password, $display);
         } catch (PDOException $error) {
             if ($error->getCode() === '23000') {
-                $this->fail('Email hoặc tên đăng nhập đã được dùng.', '/auth/register');
+                $this->fail(t('auth.email.hoac.ten.dang.nhap.da.duoc.dung'), '/auth/register');
             }
             throw $error;
         }
         $user = UserModel::find($userId);
         $this->startSession($user);
         audit('register', 'nguoi_dung', $userId);
-        flash('success', 'Tài khoản đã được tạo. Chào mừng bạn!');
+        flash('success',t('auth.tai.khoan.da.duoc.tao.chao.mung.ban'));
         $this->redirect('/');
     }
 
@@ -126,7 +124,7 @@ class AuthController extends Controller {
         session_start();
         session_regenerate_id(true);
         unset($_SESSION['theme'], $_SESSION['theme_uid']);
-        flash('info', 'Bạn đã đăng xuất.');
+        flash('info',t('auth.ban.da.dang.xuat'));
         $this->redirect('/');
     }
 

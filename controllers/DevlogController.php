@@ -22,7 +22,7 @@ class DevlogController extends Controller {
             ':g' => $gid, ':l' => self::PER_PAGE, ':o' => ($page - 1) * self::PER_PAGE,
         ]);
         $this->render('devlog/index', [
-            'pageTitle' => 'Nhật ký phát triển · ' . $game['tieu_de'],
+            'pageTitle' => t('devlog.nhat.ky.phat.trien', [$game['tieu_de']]),
             'game' => $game,
             'posts' => $posts,
             'page' => $page,
@@ -51,7 +51,7 @@ class DevlogController extends Controller {
             ':g1' => (int)$game['ma'], ':d1' => $post['ngay_cong_bo'], ':g2' => (int)$game['ma'], ':d2' => $post['ngay_cong_bo'],
         ]);
         $this->render('devlog/show', [
-            'pageTitle' => $post['tieu_de'] . ' · ' . $game['tieu_de'],
+            'pageTitle' => t('devlog.message', [$post['tieu_de'], $game['tieu_de']]),
             'game' => $game,
             'post' => $post,
             'comments' => $top,
@@ -69,15 +69,15 @@ class DevlogController extends Controller {
         $uid = (int)$user['ma'];
         $base = '/games/' . rawurlencode($game['duong_dan_rut_gon']) . '/devlogs/' . rawurlencode($post['duong_dan_rut_gon']);
         if (!$this->commentsOn($game)) {
-            $this->fail('Bình luận đã bị tắt cho trò chơi này.', $base);
+            $this->fail(t('devlog.show.binh_luan_da_bi_tat'), $base);
         }
         $body = trim((string)($_POST['noi_dung'] ?? ''));
         if ($body === '' || mb_strlen($body) > 5000) {
-            $this->fail('Bình luận cần từ 1 đến 5.000 ký tự.', $base . '#comments');
+            $this->fail(t('comment.binh.luan.can.tu.1.den.5.000.ky.tu'), $base . '#comments');
         }
         $recent = (int)Model::scalar('SELECT COUNT(*) FROM binh_luan_nhat_ky WHERE nguoi_dung_id = :u AND ngay_tao > NOW() - INTERVAL 1 MINUTE', [':u' => $uid]);
         if ($recent >= self::COMMENTS_PER_MINUTE) {
-            $this->fail('Bạn đang bình luận quá nhanh. Hãy đợi một phút rồi thử lại.', $base . '#comments');
+            $this->fail(t('comment.ban.dang.binh.luan.qua.nhanh.hay.doi.mot.phut.roi.thu.lai'), $base . '#comments');
         }
         $parent = null;
         $parentId = (int)($_POST['parent_id'] ?? 0);
@@ -86,7 +86,7 @@ class DevlogController extends Controller {
                 ':p' => $parentId, ':d' => (int)$post['ma'],
             ]);
             if (!$parent) {
-                $this->fail('Bình luận bạn trả lời không còn tồn tại.', $base . '#comments');
+                $this->fail(t('comment.binh.luan.ban.tra.loi.khong.con.ton.tai'), $base . '#comments');
             }
         }
         Model::run('INSERT INTO binh_luan_nhat_ky (nhat_ky_phat_trien_id, nguoi_dung_id, binh_luan_cha_id, noi_dung) VALUES (:d, :u, :p, :b)', [
@@ -97,9 +97,9 @@ class DevlogController extends Controller {
         if ($parent) {
             $recipients[] = (int)$parent['nguoi_dung_id'];
         }
-        NotificationModel::notifyUsers($recipients, $uid, 'devlog_comment', ($parent ? 'Trả lời mới trong nhật ký "' : 'Bình luận mới cho nhật ký "') . $post['tieu_de'] . '"',
+        NotificationModel::notifyUsers($recipients, $uid, 'devlog_comment',($parent ? t('devlog.tra.loi.moi.trong.nhat.ky', [$post['tieu_de']]) : t('devlog.binh.luan.moi.cho.nhat.ky', [$post['tieu_de']])),
             $user['ten_hien_thi'] . ': ' . excerpt($body, 120), $base . '#dcomment-' . $id);
-        flash('success', $parent ? 'Đã gửi trả lời.' : 'Đã đăng bình luận.');
+        flash('success',($parent ? t('comment.da.gui.tra.loi') : t('comment.da.dang.binh.luan')));
         $this->redirect($base . '#dcomment-' . $id);
     }
 
@@ -109,16 +109,16 @@ class DevlogController extends Controller {
             FROM binh_luan_nhat_ky c JOIN nhat_ky_phat_trien d ON d.ma = c.nhat_ky_phat_trien_id JOIN tro_choi g ON g.ma = d.tro_choi_id
             WHERE c.ma = :id', [':id' => (int)($params['id'] ?? 0)]);
         if (!$comment || $comment['trang_thai'] === 'removed') {
-            $this->notFound('Không tìm thấy bình luận này.');
+            $this->notFound(t('comment.khong.tim.thay.binh.luan.nay'));
         }
         $mine = (int)$comment['nguoi_dung_id'] === (int)$user['ma'];
         $isAuthor = GameModel::isAuthor((int)$comment['tro_choi_id'], (int)$user['ma']);
         if (!$mine && !$isAuthor && !is_staff()) {
-            $this->forbidden('Bạn chỉ có thể xóa bình luận của chính mình.');
+            $this->forbidden(t('comment.ban.chi.co.the.xoa.binh.luan.cua.chinh.minh'));
         }
         Model::run("UPDATE binh_luan_nhat_ky SET trang_thai = 'removed' WHERE ma = :id", [':id' => (int)$comment['ma']]);
         audit($mine ? 'devlog_comment_delete' : 'devlog_comment_remove', 'binh_luan_nhat_ky', (int)$comment['ma']);
-        flash('success', 'Đã xóa bình luận.');
+        flash('success',t('comment.da.xoa.binh.luan'));
         $this->back('/games/' . rawurlencode($comment['game_slug']) . '/devlogs/' . rawurlencode($comment['post_slug']) . '#comments');
     }
 
@@ -126,7 +126,7 @@ class DevlogController extends Controller {
         $post = Model::one("SELECT d.*, u.ten_hien_thi, u.ten_dang_nhap, u.url_anh_dai_dien FROM nhat_ky_phat_trien d JOIN nguoi_dung u ON u.ma = d.tac_gia_nguoi_dung_id
             WHERE d.tro_choi_id = :g AND d.duong_dan_rut_gon = :s AND d.trang_thai = 'published'", [':g' => (int)$game['ma'], ':s' => $slug]);
         if (!$post) {
-            $this->notFound('Không tìm thấy bài nhật ký này.');
+            $this->notFound(t('devlog.khong.tim.thay.bai.nhat.ky.nay'));
         }
         return $post;
     }

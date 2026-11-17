@@ -2,40 +2,40 @@
 /** Staff overview. @var bool $isAdmin @var array $kpis @var array $reviewQueue @var array $reports @var array $actions @var array $newUsers */
 ?>
 <div class="title-row">
-    <div><h1>Tổng quan quản trị</h1><p class="sub">Hàng đợi cần xử lý và các thao tác kiểm duyệt gần nhất.</p></div>
+    <div><h1><?= te('admin.dashboard.tong_quan_quan_tri') ?></h1><p class="sub"><?= te('admin.dashboard.hang_doi_can_xu_ly') ?></p></div>
 </div>
 
-<section class="kpis" aria-label="Chỉ số chính">
-    <div class="kpi"><div class="kpi-label">Tài khoản hoạt động</div><div class="kpi-value"><?= fmt_int($kpis['users']) ?></div></div>
-    <div class="kpi"><div class="kpi-label">Trò chơi đã công bố</div><div class="kpi-value"><?= fmt_int($kpis['games']) ?></div></div>
-    <div class="kpi"><div class="kpi-label">Chờ duyệt</div><div class="kpi-value"><a class="link" href="<?= e(app_url('/admin/games?status=under_review')) ?>"><?= fmt_int($kpis['review']) ?></a></div></div>
-    <div class="kpi"><div class="kpi-label">Báo cáo chưa xử lý</div><div class="kpi-value"><a class="link" href="<?= e(app_url('/admin/reports')) ?>"><?= fmt_int($kpis['reports']) ?></a></div></div>
+<section class="kpis" aria-label="<?= te('admin.dashboard.chi_so_chinh') ?>">
+    <div class="kpi"><div class="kpi-label"><?= te('admin.dashboard.tai_khoan_hoat_dong') ?></div><div class="kpi-value"><?= fmt_int($kpis['users']) ?></div></div>
+    <div class="kpi"><div class="kpi-label"><?= te('admin.dashboard.tro_choi_da_cong_bo') ?></div><div class="kpi-value"><?= fmt_int($kpis['games']) ?></div></div>
+    <div class="kpi"><div class="kpi-label"><?= te('label.download_link_status.pending') ?></div><div class="kpi-value"><a class="link" href="<?= e(app_url('/admin/games?status=under_review')) ?>"><?= fmt_int($kpis['review']) ?></a></div></div>
+    <div class="kpi"><div class="kpi-label"><?= te('admin.dashboard.bao_cao_chua_xu_ly') ?></div><div class="kpi-value"><a class="link" href="<?= e(app_url('/admin/reports')) ?>"><?= fmt_int($kpis['reports']) ?></a></div></div>
     <?php if ($isAdmin): ?>
-        <div class="kpi"><div class="kpi-label">Yêu cầu hoàn tiền</div><div class="kpi-value"><a class="link" href="<?= e(app_url('/admin/refunds')) ?>"><?= fmt_int($kpis['refunds']) ?></a></div></div>
-        <div class="kpi"><div class="kpi-label">Yêu cầu chi trả</div><div class="kpi-value"><a class="link" href="<?= e(app_url('/admin/payouts')) ?>"><?= fmt_int($kpis['payouts']) ?></a></div></div>
+        <div class="kpi"><div class="kpi-label"><?= te('order.request_refund') ?></div><div class="kpi-value"><a class="link" href="<?= e(app_url('/admin/refunds')) ?>"><?= fmt_int($kpis['refunds']) ?></a></div></div>
+        <div class="kpi"><div class="kpi-label"><?= te('dev.request_payout') ?></div><div class="kpi-value"><a class="link" href="<?= e(app_url('/admin/payouts')) ?>"><?= fmt_int($kpis['payouts']) ?></a></div></div>
     <?php endif; ?>
 </section>
 
 <div class="grid top section">
     <section class="panel span-6" aria-labelledby="queue-h">
-        <header><h2 id="queue-h">Trò chơi chờ duyệt</h2><a class="link meta" href="<?= e(app_url('/admin/games?status=under_review')) ?>">Xem tất cả</a></header>
-        <?php if (!$reviewQueue): ?><p class="muted">Không có trò chơi nào đang chờ.</p><?php endif; ?>
+        <header><h2 id="queue-h"><?= te('admin.dashboard.tro_choi_cho_duyet') ?></h2><a class="link meta" href="<?= e(app_url('/admin/games?status=under_review')) ?>"><?= te('common.see_all') ?></a></header>
+        <?php if (!$reviewQueue): ?><p class="muted"><?= te('admin.dashboard.khong_co_tro_choi_nao') ?></p><?php endif; ?>
         <div class="rows">
             <?php foreach ($reviewQueue as $g): ?>
                 <div class="row">
-                    <div class="grow"><a class="link" href="<?= e(app_url('/admin/games?q=' . rawurlencode($g['duong_dan_rut_gon']))) ?>"><?= e($g['tieu_de']) ?></a><span class="sub"><?= e($g['ten_hien_thi']) ?> · cập nhật <?= e(fmt_datetime($g['ngay_cap_nhat'])) ?></span></div>
+                    <div class="grow"><a class="link" href="<?= e(app_url('/admin/games?q=' . rawurlencode($g['duong_dan_rut_gon']))) ?>"><?= e($g['tieu_de']) ?></a><span class="sub"><?= te('admin.dashboard.cap-nhat', [ e($g['ten_hien_thi']) ,  e(fmt_datetime($g['ngay_cap_nhat'])) ]) ?></span></div>
                 </div>
             <?php endforeach; ?>
         </div>
     </section>
 
     <section class="panel span-6" aria-labelledby="reports-h">
-        <header><h2 id="reports-h">Báo cáo chưa xử lý</h2><a class="link meta" href="<?= e(app_url('/admin/reports')) ?>">Mở hàng đợi</a></header>
-        <?php if (!$reports): ?><p class="muted">Không có báo cáo nào chưa xử lý.</p><?php endif; ?>
+        <header><h2 id="reports-h"><?= te('admin.dashboard.bao_cao_chua_xu_ly') ?></h2><a class="link meta" href="<?= e(app_url('/admin/reports')) ?>"><?= te('admin.dashboard.mo_hang_doi') ?></a></header>
+        <?php if (!$reports): ?><p class="muted"><?= te('admin.dashboard.khong_co_bao_cao_nao') ?></p><?php endif; ?>
         <div class="rows">
             <?php foreach ($reports as $r): ?>
                 <div class="row">
-                    <div class="grow"><a class="link" href="<?= e(app_url('/admin/reports/' . (int)$r['ma'])) ?>"><?= e(label('report_target', $r['loai_doi_tuong'])) ?> #<?= (int)$r['doi_tuong_id'] ?> · <?= e(label('report_reason', $r['ma_ly_do'])) ?></a><span class="sub"><?= e($r['ten_hien_thi'] ?? 'Tài khoản đã xóa') ?> · <?= e(fmt_datetime($r['ngay_tao'])) ?></span></div>
+                    <div class="grow"><a class="link" href="<?= e(app_url('/admin/reports/' . (int)$r['ma'])) ?>"><?= e(label('report_target', $r['loai_doi_tuong'])) ?> #<?= (int)$r['doi_tuong_id'] ?> · <?= e(label('report_reason', $r['ma_ly_do'])) ?></a><span class="sub"><?= e($r['ten_hien_thi'] ?? te('admin.dashboard.tai_khoan_da_xoa')) ?> · <?= e(fmt_datetime($r['ngay_tao'])) ?></span></div>
                     <?= status_pill('report_status', $r['trang_thai']) ?>
                 </div>
             <?php endforeach; ?>
@@ -43,8 +43,8 @@
     </section>
 
     <section class="panel <?= $isAdmin ? 'span-7' : 'span-12' ?>" aria-labelledby="actions-h">
-        <header><h2 id="actions-h">Thao tác kiểm duyệt gần đây</h2><a class="link meta" href="<?= e(app_url('/admin/moderation')) ?>">Toàn bộ nhật ký</a></header>
-        <?php if (!$actions): ?><p class="muted">Chưa có thao tác nào.</p><?php endif; ?>
+        <header><h2 id="actions-h"><?= te('admin.dashboard.thao_tac_kiem_duyet_gan') ?></h2><a class="link meta" href="<?= e(app_url('/admin/moderation')) ?>"><?= te('admin.dashboard.toan_bo_nhat_ky') ?></a></header>
+        <?php if (!$actions): ?><p class="muted"><?= te('admin.dashboard.chua_co_thao_tac_nao') ?></p><?php endif; ?>
         <div class="rows">
             <?php foreach ($actions as $a): ?>
                 <div class="row">
@@ -56,7 +56,7 @@
 
     <?php if ($isAdmin): ?>
     <section class="panel span-5" aria-labelledby="new-users-h">
-        <header><h2 id="new-users-h">Tài khoản mới</h2><a class="link meta" href="<?= e(app_url('/admin/users')) ?>">Quản lý người dùng</a></header>
+        <header><h2 id="new-users-h"><?= te('admin.dashboard.tai_khoan_moi') ?></h2><a class="link meta" href="<?= e(app_url('/admin/users')) ?>"><?= te('admin.dashboard.quan_ly_nguoi_dung') ?></a></header>
         <div class="rows">
             <?php foreach ($newUsers as $u): ?>
                 <div class="row">

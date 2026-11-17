@@ -37,7 +37,7 @@ class RevenueLedgerModel extends Model {
     public static function reverse(int $orderItemId): void {
         $locked = (int)self::scalar("SELECT COUNT(*) FROM so_ke_toan_tac_gia WHERE chi_tiet_don_hang_id = :oi AND trang_thai IN ('held','paid')", [':oi' => $orderItemId]);
         if ($locked > 0) {
-            throw new RuntimeException('Doanh thu của mục này đã được đưa vào đợt chi trả cho nhà phát triển, không thể hoàn tự động.');
+            throw new RuntimeException(t('revenueledgermodel.doanh.thu.cua.muc.nay.da.duoc.dua.vao.dot.chi.tra.cho.nha.phat.trien.khong.the.hoan.tu.dong'));
         }
         self::run("UPDATE so_ke_toan_tac_gia SET trang_thai = 'reversed' WHERE chi_tiet_don_hang_id = :oi AND trang_thai IN ('pending','available')", [':oi' => $orderItemId]);
     }
@@ -106,16 +106,16 @@ class RevenueLedgerModel extends Model {
             self::releaseDue($userId);
             $account = self::one("SELECT * FROM tai_khoan_nhan_tien_nguoi_dung WHERE nguoi_dung_id = :u AND trang_thai = 'active' ORDER BY mac_dinh DESC, ma LIMIT 1", [':u' => $userId]);
             if (!$account) {
-                throw new RuntimeException('Bạn cần một tài khoản nhận tiền đã được xác minh.');
+                throw new RuntimeException(t('revenueledgermodel.ban.can.mot.tai.khoan.nhan.tien.da.duoc.xac.minh'));
             }
             $open = (int)self::scalar("SELECT COUNT(*) FROM dot_chi_tra WHERE nguoi_dung_id = :u AND trang_thai IN ('requested','processing')", [':u' => $userId]);
             if ($open > 0) {
-                throw new RuntimeException('Bạn đang có một yêu cầu chi trả chưa xử lý xong.');
+                throw new RuntimeException(t('dev.payouts.ban_dang_co_mot_yeu'));
             }
             $rows = self::query("SELECT ma, so_tien_thuc_nhan FROM so_ke_toan_tac_gia WHERE nguoi_dung_id = :u AND trang_thai = 'available' FOR UPDATE", [':u' => $userId]);
             $total = round(array_sum(array_map('floatval', array_column($rows, 'so_tien_thuc_nhan'))), 2);
             if ($total <= 0) {
-                throw new RuntimeException('Chưa có khoản nào có thể rút.');
+                throw new RuntimeException(t('dev.payouts.chua_co_khoan_nao_co'));
             }
             self::run("INSERT INTO dot_chi_tra (nguoi_dung_id, tai_khoan_nhan_tien_id, so_tien, ma_tien_te, trang_thai) VALUES (:u, :a, :s, :c, 'requested')",
                 [':u' => $userId, ':a' => (int)$account['ma'], ':s' => $total, ':c' => APP_CURRENCY]);
@@ -133,7 +133,7 @@ class RevenueLedgerModel extends Model {
         self::transaction(function () use ($payoutId, $status, $reference, $reason) {
             $payout = self::one('SELECT * FROM dot_chi_tra WHERE ma = :id FOR UPDATE', [':id' => $payoutId]);
             if (!$payout || !in_array($payout['trang_thai'], ['requested', 'processing'], true)) {
-                throw new RuntimeException('Đợt chi trả này đã được xử lý.');
+                throw new RuntimeException(t('revenueledgermodel.dot.chi.tra.nay.da.duoc.xu.ly'));
             }
             $ledgerIds = 'SELECT so_ke_toan_id FROM chi_tiet_chi_tra WHERE dot_chi_tra_id = :id';
             if ($status === 'processing') {
@@ -147,9 +147,9 @@ class RevenueLedgerModel extends Model {
                 self::run('UPDATE dot_chi_tra SET trang_thai = :s, ly_do_that_bai = :r, ngay_xu_ly = NOW() WHERE ma = :id', [':s' => $status, ':r' => $reason ?: null, ':id' => $payoutId]);
                 self::run("UPDATE so_ke_toan_tac_gia SET trang_thai = 'available' WHERE ma IN ($ledgerIds) AND trang_thai = 'held'", [':id' => $payoutId]);
             } else {
-                throw new RuntimeException('Trạng thái không hợp lệ.');
+                throw new RuntimeException(t('admin.trang.thai.khong.hop.le'));
             }
-            NotificationModel::create((int)$payout['nguoi_dung_id'], 'payout', 'Đợt chi trả ' . money($payout['so_tien']) . ': ' . label('payout_status', $status),
+            NotificationModel::create((int)$payout['nguoi_dung_id'], 'payout',t('revenueledgermodel.dot.chi.tra', [money($payout['so_tien']), label('payout_status', $status)]),
                 $reason, '/dev/payouts');
         });
     }

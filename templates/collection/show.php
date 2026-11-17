@@ -4,25 +4,25 @@ $id = (int)$collection['ma'];
 $self = '/collections/' . $id;
 $asList = $collection['bo_cuc'] === 'list';
 ?>
-<nav class="crumbs" aria-label="Đường dẫn"><a href="<?= e(app_url('/collections')) ?>">Bộ sưu tập</a><span><?= e($collection['tieu_de']) ?></span></nav>
+<nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>"><a href="<?= e(app_url('/collections')) ?>"><?= te('collection.title') ?></a><span><?= e($collection['tieu_de']) ?></span></nav>
 
 <header class="object-head">
     <img class="avatar lg" src="<?= e(avatar_url(['ma' => $collection['nguoi_dung_so_huu_id'], 'url_anh_dai_dien' => $collection['url_anh_dai_dien']])) ?>" alt="">
     <div class="grow">
         <h1><?= e($collection['tieu_de']) ?></h1>
-        <p class="meta">Tuyển chọn bởi <a class="link" href="<?= e(profile_url($collection)) ?>"><?= e($collection['ten_hien_thi']) ?></a> · cập nhật <?= e(fmt_date($collection['ngay_cap_nhat'])) ?>
+        <p class="meta"><?= te('collection.show.tuyen_chon_boi') ?> <a class="link" href="<?= e(profile_url($collection)) ?>"><?= e($collection['ten_hien_thi']) ?></a> <?= te('collection.show.cap-nhat', [ e(fmt_date($collection['ngay_cap_nhat'])) ]) ?>
             <?php if ($collection['pham_vi_hien_thi'] !== 'public'): ?> · <?= e(label('visibility', $collection['pham_vi_hien_thi'])) ?><?php endif; ?></p>
-        <div class="stat-line"><span><strong><?= fmt_int(count($games)) ?></strong> trò chơi</span></div>
+        <div class="stat-line"><span><strong><?= fmt_int(count($games)) ?></strong> <?= te('bundle.show.tro_choi') ?></span></div>
     </div>
-    <?php if ($isOwner): ?><div class="actions"><a class="btn" href="#edit">Sửa bộ sưu tập</a></div><?php endif; ?>
+    <?php if ($isOwner): ?><div class="actions"><a class="btn" href="#edit"><?= te('collection.show.sua_bo_suu_tap') ?></a></div><?php endif; ?>
 </header>
 
 <?php if ($collection['mo_ta']): ?><div class="prose section collection-intro"><?= e_multiline($collection['mo_ta']) ?></div><?php endif; ?>
 
 <section class="section" aria-labelledby="games-h">
-    <h2 class="sr-only" id="games-h">Trò chơi</h2>
+    <h2 class="sr-only" id="games-h"><?= te('admin.games') ?></h2>
     <?php if (!$games): ?>
-        <div class="empty"><p><?= $isOwner ? 'Bộ sưu tập còn trống. Mở trang một trò chơi và chọn "Thêm vào bộ sưu tập".' : 'Bộ sưu tập này chưa có trò chơi nào.' ?></p><a class="btn" href="<?= e(app_url('/games')) ?>">Khám phá trò chơi</a></div>
+        <div class="empty"><p><?= $isOwner ? te('collection.show.bo_suu_tap_con_trong') : te('collection.empty_items') ?></p><a class="btn" href="<?= e(app_url('/games')) ?>"><?= te('bundle.index.kham_pha_tro_choi') ?></a></div>
     <?php elseif ($asList || $isOwner): ?>
         <section class="panel">
             <div class="rows">
@@ -33,24 +33,24 @@ $asList = $collection['bo_cuc'] === 'list';
                         </a>
                         <div class="grow">
                             <a class="link" href="<?= e(game_url($g)) ?>"><?= e($g['tieu_de']) ?></a>
-                            <span class="sub"><?= e($g['nha_phat_trien'] ?: label('release_status', $g['trang_thai_phat_hanh'])) ?><?= $g['the_loai'] ? ' · ' . e($g['the_loai']) : '' ?></span>
+                            <span class="sub"><?= e($g['nha_phat_trien'] ?: label('release_status', $g['trang_thai_phat_hanh'])) ?><?= $g['the_loai'] ? ' ' . te('common.dot') . ' ' . e($g['the_loai']) : '' ?></span>
                             <?php if ($g['ghi_chu'] && !$isOwner): ?><p class="curator-note"><?= e($g['ghi_chu']) ?></p><?php endif; ?>
                             <?php if ($isOwner): ?>
                                 <form class="form note-form" method="post" action="<?= e(app_url($self . '/items')) ?>">
                                     <?= csrf_field() ?><?= return_field($self) ?>
                                     <input type="hidden" name="game_id" value="<?= (int)$g['ma'] ?>">
-                                    <label class="sr-only" for="note-<?= (int)$g['ma'] ?>">Ghi chú cho <?= e($g['tieu_de']) ?></label>
-                                    <input class="input sm" id="note-<?= (int)$g['ma'] ?>" name="ghi_chu" maxlength="500" value="<?= e((string)$g['ghi_chu']) ?>" placeholder="Ghi chú vì sao bạn chọn trò chơi này">
-                                    <button class="btn sm" type="submit">Lưu ghi chú</button>
+                                    <label class="sr-only" for="note-<?= (int)$g['ma'] ?>"><?= te('collection.show.ghi-chu-cho', [ e($g['tieu_de']) ]) ?></label>
+                                    <input class="input sm" id="note-<?= (int)$g['ma'] ?>" name="ghi_chu" maxlength="500" value="<?= e((string)$g['ghi_chu']) ?>" placeholder="<?= te('collection.show.ghi_chu_vi_sao_ban') ?>">
+                                    <button class="btn sm" type="submit"><?= te('collection.show.luu_ghi_chu') ?></button>
                                 </form>
                             <?php endif; ?>
                         </div>
                         <div class="cluster">
                             <?= price_html($g, in_array((int)$g['ma'], $owned, true)) ?>
                             <?php if ($isOwner): ?>
-                                <form method="post" action="<?= e(app_url($self . '/items/' . (int)$g['ma'] . '/remove')) ?>" data-confirm="Bỏ <?= e($g['tieu_de']) ?> khỏi bộ sưu tập?">
+                                <form method="post" action="<?= e(app_url($self . '/items/' . (int)$g['ma'] . '/remove')) ?>" data-confirm="<?= te('collection.show.bo-e-g-tieu-de-khoi-bo-suu-tap') ?>">
                                     <?= csrf_field() ?><?= return_field($self) ?>
-                                    <button class="link-btn neg" type="submit">Bỏ</button>
+                                    <button class="link-btn neg" type="submit"><?= te('collection.show.bo') ?></button>
                                 </form>
                             <?php endif; ?>
                         </div>
@@ -73,43 +73,43 @@ $asList = $collection['bo_cuc'] === 'list';
 <?php if ($isOwner): ?>
 <div class="grid section">
     <section class="panel span-8" id="edit" aria-labelledby="edit-h">
-        <header><h2 id="edit-h">Sửa bộ sưu tập</h2></header>
+        <header><h2 id="edit-h"><?= te('collection.show.sua_bo_suu_tap') ?></h2></header>
         <form class="form form-grid" method="post" action="<?= e(app_url($self)) ?>">
             <?= csrf_field() ?>
             <div class="field full">
-                <label for="e-title">Tên</label>
+                <label for="e-title"><?= te('common.name') ?></label>
                 <input class="input" id="e-title" name="tieu_de" maxlength="180" required value="<?= e(old('tieu_de', $collection['tieu_de'])) ?>">
             </div>
             <div class="field full">
-                <label for="e-desc">Mô tả</label>
+                <label for="e-desc"><?= te('common.description') ?></label>
                 <textarea class="input" id="e-desc" name="mo_ta" maxlength="5000"><?= e(old('mo_ta', (string)$collection['mo_ta'])) ?></textarea>
             </div>
             <div class="field">
-                <label for="e-vis">Ai xem được</label>
+                <label for="e-vis"><?= te('collection.index.ai_xem_duoc') ?></label>
                 <select class="input" id="e-vis" name="pham_vi_hien_thi">
                     <?php foreach (labels('visibility') as $v => $t): ?><option value="<?= e($v) ?>"<?= old('pham_vi_hien_thi', $collection['pham_vi_hien_thi']) === $v ? ' selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?>
                 </select>
             </div>
             <div class="field">
-                <label for="e-layout">Bố cục cho người xem</label>
+                <label for="e-layout"><?= te('collection.show.bo_cuc_cho_nguoi_xem') ?></label>
                 <select class="input" id="e-layout" name="bo_cuc">
-                    <option value="grid"<?= old('bo_cuc', $collection['bo_cuc']) === 'grid' ? ' selected' : '' ?>>Lưới ảnh bìa</option>
-                    <option value="list"<?= old('bo_cuc', $collection['bo_cuc']) === 'list' ? ' selected' : '' ?>>Danh sách kèm ghi chú</option>
+                    <option value="grid"<?= old('bo_cuc', $collection['bo_cuc']) === 'grid' ? ' selected' : '' ?>><?= te('collection.show.luoi_anh_bia') ?></option>
+                    <option value="list"<?= old('bo_cuc', $collection['bo_cuc']) === 'list' ? ' selected' : '' ?>><?= te('collection.show.danh_sach_kem_ghi_chu') ?></option>
                 </select>
             </div>
-            <div class="form-actions full"><button class="btn primary" type="submit">Lưu thay đổi</button></div>
+            <div class="form-actions full"><button class="btn primary" type="submit"><?= te('collection.show.luu_thay_doi') ?></button></div>
         </form>
     </section>
     <section class="panel span-4" id="danger" aria-labelledby="del-h">
-        <header><h2 id="del-h">Xóa bộ sưu tập</h2></header>
-        <p class="small muted">Chỉ xóa danh sách này. Trò chơi và quyền sở hữu của bạn không bị ảnh hưởng.</p>
+        <header><h2 id="del-h"><?= te('collection.show.xoa_bo_suu_tap') ?></h2></header>
+        <p class="small muted"><?= te('collection.show.chi_xoa_danh_sach_nay') ?></p>
         <form class="form" method="post" action="<?= e(app_url($self . '/delete')) ?>">
             <?= csrf_field() ?>
             <div class="field">
-                <label for="del-confirm">Nhập XOA để xác nhận</label>
+                <label for="del-confirm"><?= te('collection.show.nhap_xoa_de_xac_nhan') ?></label>
                 <input class="input" id="del-confirm" name="confirm" autocomplete="off" required pattern="[Xx][Oo][Aa]">
             </div>
-            <div class="form-actions"><button class="btn danger" type="submit">Xóa bộ sưu tập</button></div>
+            <div class="form-actions"><button class="btn danger" type="submit"><?= te('collection.show.xoa_bo_suu_tap') ?></button></div>
         </form>
     </section>
 </div>

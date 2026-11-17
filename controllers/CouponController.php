@@ -40,7 +40,7 @@ class CouponController extends Controller {
     private function index(string $scope, ?int $creatorId) {
         [$coupons, $pager] = $this->paginate(CouponModel::listFor($creatorId), 20);
         $this->render('coupons/index', $pager + [
-            'pageTitle' => 'Mã giảm giá',
+            'pageTitle' => t('nav.coupons'),
             'scope' => $scope,
             'coupons' => $coupons,
             'gameCount' => $creatorId === null ? 0 : count(GameModel::listForAuthor($creatorId)),
@@ -56,7 +56,7 @@ class CouponController extends Controller {
         $data['dang_hoat_dong'] = 1;
         $id = CouponModel::insert($data);
         audit('coupon.create', 'ma_giam_gia', $id, ['code' => $data['ma_uu_dai']]);
-        flash('success', 'Đã tạo mã ' . $data['ma_uu_dai'] . '.');
+        flash('success',t('coupon.da.tao.ma', [$data['ma_uu_dai']]));
         $this->redirect($back);
     }
 
@@ -64,12 +64,12 @@ class CouponController extends Controller {
     private function toggle(int $id, string $back, ?int $ownerId) {
         $coupon = $id > 0 ? CouponModel::find($id) : null;
         if (!$coupon || ($ownerId !== null && (int)$coupon['nguoi_tao_id'] !== $ownerId)) {
-            $this->notFound('Không tìm thấy mã giảm giá.');
+            $this->notFound(t('coupon.khong.tim.thay.ma.giam.gia'));
         }
         $on = (int)$coupon['dang_hoat_dong'] ? 0 : 1;
         CouponModel::update($id, ['dang_hoat_dong' => $on]);
         audit($on ? 'coupon.enable' : 'coupon.disable', 'ma_giam_gia', $id, ['code' => $coupon['ma_uu_dai']]);
-        flash('success', ($on ? 'Đã bật mã ' : 'Đã tắt mã ') . $coupon['ma_uu_dai'] . '.');
+        flash('success',($on ? t('coupon.da.bat.ma', [$coupon['ma_uu_dai']]) : t('coupon.da.tat.ma', [$coupon['ma_uu_dai']])));
         $this->back($back);
     }
 }

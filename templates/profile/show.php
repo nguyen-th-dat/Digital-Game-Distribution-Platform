@@ -14,34 +14,34 @@ $cover = app_media_url((string)($profile['url_anh_bia'] ?? ''));
     <img class="avatar lg" src="<?= e(avatar_url($profile)) ?>" alt="">
     <div class="grow">
         <h1><?= e($profile['ten_hien_thi']) ?></h1>
-        <p class="meta">@<?= e($profile['ten_dang_nhap']) ?><?= $profile['ma_quoc_gia'] && $canSee ? ' · ' . e($profile['ma_quoc_gia']) : '' ?> · tham gia <?= e(fmt_date($profile['ngay_tao'])) ?><?= $profile['trang_thai'] === 'suspended' ? ' · ' . status_pill('user_status', 'suspended') : '' ?></p>
+        <p class="meta">@<?= e($profile['ten_dang_nhap']) ?><?= $profile['ma_quoc_gia'] && $canSee ? ' ' . te('common.dot') . ' ' . e($profile['ma_quoc_gia']) : '' ?> · tham gia <?= e(fmt_date($profile['ngay_tao'])) ?><?= $profile['trang_thai'] === 'suspended' ? ' ' . te('common.dot') . ' ' . status_pill('user_status', 'suspended') : '' ?></p>
         <div class="stat-line">
-            <span><strong><?= fmt_int($followers) ?></strong> người theo dõi</span>
-            <span><strong><?= fmt_int($following) ?></strong> đang theo dõi</span>
-            <?php if ($canSee): ?><span><strong><?= fmt_int(count($published)) ?></strong> trò chơi đã phát hành</span><?php endif; ?>
+            <span><strong><?= fmt_int($followers) ?></strong> <?= te('game.followers') ?></span>
+            <span><strong><?= fmt_int($following) ?></strong> <?= te('profile.show.dang_theo_doi') ?></span>
+            <?php if ($canSee): ?><span><strong><?= fmt_int(count($published)) ?></strong> <?= te('profile.show.tro_choi_da_phat_hanh_2') ?></span><?php endif; ?>
         </div>
     </div>
     <div class="actions">
         <?php if ($isSelf): ?>
-            <a class="btn" href="<?= e(app_url('/settings#profile')) ?>">Sửa hồ sơ</a>
+            <a class="btn" href="<?= e(app_url('/settings#profile')) ?>"><?= te('profile.show.sua_ho_so') ?></a>
         <?php elseif (current_user()): ?>
             <form method="post" action="<?= e(app_url('/u/' . rawurlencode($profile['ten_dang_nhap']) . '/follow')) ?>"><?= csrf_field() ?><?= return_field() ?>
-                <button class="btn<?= $isFollowing ? '' : ' primary' ?>" type="submit" aria-pressed="<?= $isFollowing ? 'true' : 'false' ?>"><?= $isFollowing ? 'Đang theo dõi' : 'Theo dõi' ?></button>
+                <button class="btn<?= $isFollowing ? '' : ' primary' ?>" type="submit" aria-pressed="<?= $isFollowing ? 'true' : 'false' ?>"><?= $isFollowing ? te('profile.following') : te('profile.follow') ?></button>
             </form>
         <?php else: ?>
-            <a class="btn primary" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode('/u/' . $profile['ten_dang_nhap']))) ?>">Đăng nhập để theo dõi</a>
+            <a class="btn primary" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode('/u/' . $profile['ten_dang_nhap']))) ?>"><?= te('profile.show.dang_nhap_de_theo_doi') ?></a>
         <?php endif; ?>
     </div>
 </header>
 
 <?php if (!$canSee): ?>
-    <div class="empty"><p>Hồ sơ này ở chế độ riêng tư.</p></div>
+    <div class="empty"><p><?= te('profile.show.ho_so_nay_o_che') ?></p></div>
 <?php else: ?>
 <div class="grid section">
     <div class="span-8 stack">
         <?php if ($published): ?>
             <section aria-labelledby="pub-h">
-                <div class="section-head"><h2 id="pub-h">Trò chơi đã phát hành</h2></div>
+                <div class="section-head"><h2 id="pub-h"><?= te('profile.show.tro_choi_da_phat_hanh') ?></h2></div>
                 <div class="games-grid">
                     <?php foreach ($published as $game) partial('game-card', ['game' => $game]); ?>
                 </div>
@@ -51,29 +51,29 @@ $cover = app_media_url((string)($profile['url_anh_bia'] ?? ''));
         <?php if ($showLibrary): ?>
             <section aria-labelledby="lib-h">
                 <div class="section-head">
-                    <h2 id="lib-h">Thư viện<?= $ownedTotal ? ' <span class="faint">' . fmt_int($ownedTotal) . '</span>' : '' ?></h2>
-                    <?php if ($isSelf): ?><a class="link" href="<?= e(app_url('/library')) ?>">Mở thư viện</a><?php endif; ?>
+                    <h2 id="lib-h"><?= te('profile.show.thu-vien', [ $ownedTotal ? ' <span class="faint">' . fmt_int($ownedTotal) . '</span>' : '' ]) ?></h2>
+                    <?php if ($isSelf): ?><a class="link" href="<?= e(app_url('/library')) ?>"><?= te('game.show.mo_thu_vien') ?></a><?php endif; ?>
                 </div>
                 <?php if ($owned): ?>
                     <div class="games-grid">
                         <?php foreach ($owned as $game) partial('game-card', ['game' => $game, 'owned' => $isSelf]); ?>
                     </div>
                 <?php else: ?>
-                    <p class="muted">Chưa có trò chơi nào.</p>
+                    <p class="muted"><?= te('profile.show.chua_co_tro_choi_nao') ?></p>
                 <?php endif; ?>
-                <?php if ($isSelf): ?><p class="small faint">Người khác <?= $libraryPublic ? 'thấy' : 'không thấy' ?> mục này. Đổi trong <a class="link" href="<?= e(app_url('/settings#privacy')) ?>">Cài đặt</a>.</p><?php endif; ?>
+                <?php if ($isSelf): ?><p class="small faint"><?= te('profile.show.nguoi-khac-muc-nay-doi-trong', [ $libraryPublic ? te('profile.show.thay') : te('profile.show.khong_thay') ]) ?> <a class="link" href="<?= e(app_url('/settings#privacy')) ?>"><?= te('nav.settings') ?></a>.</p><?php endif; ?>
             </section>
         <?php endif; ?>
 
         <?php if ($reviews): ?>
             <section class="panel" aria-labelledby="rev-h">
-                <header><h2 id="rev-h">Đánh giá gần đây</h2></header>
+                <header><h2 id="rev-h"><?= te('profile.show.danh_gia_gan_day') ?></h2></header>
                 <?php foreach ($reviews as $r): ?>
                     <article class="review">
                         <header>
                             <div class="who">
                                 <a class="link" href="<?= e(app_url('/games/' . rawurlencode($r['duong_dan_rut_gon']))) ?>#reviews"><?= e($r['game_title']) ?></a>
-                                <span><?= e(fmt_date($r['ngay_tao'])) ?><?= (int)$r['da_xac_minh_so_huu'] ? ' · Đã sở hữu' : '' ?></span>
+                                <span><?= e(fmt_date($r['ngay_tao'])) ?><?= (int)$r['da_xac_minh_so_huu'] ? ' ' . te('common.dot_da_so_huu') : '' ?></span>
                             </div>
                             <?= stars((float)$r['diem_danh_gia']) ?>
                         </header>
@@ -85,30 +85,30 @@ $cover = app_media_url((string)($profile['url_anh_bia'] ?? ''));
         <?php endif; ?>
 
         <?php if (!$published && !$showLibrary && !$reviews): ?>
-            <div class="empty"><p>Chưa có hoạt động công khai.</p></div>
+            <div class="empty"><p><?= te('profile.show.chua_co_hoat_dong_cong') ?></p></div>
         <?php endif; ?>
     </div>
 
     <aside class="span-4 stack">
         <section class="panel" aria-labelledby="about-h">
-            <header><h2 id="about-h">Giới thiệu</h2></header>
-            <?php if ($profile['gioi_thieu']): ?><p class="prose"><?= e_multiline($profile['gioi_thieu']) ?></p><?php else: ?><p class="muted">Chưa có giới thiệu.</p><?php endif; ?>
+            <header><h2 id="about-h"><?= te('game.about') ?></h2></header>
+            <?php if ($profile['gioi_thieu']): ?><p class="prose"><?= e_multiline($profile['gioi_thieu']) ?></p><?php else: ?><p class="muted"><?= te('profile.show.chua_co_gioi_thieu') ?></p><?php endif; ?>
             <?php if ($siteOk): ?><p class="small"><a class="link" href="<?= e($site) ?>" rel="nofollow noopener noreferrer ugc" target="_blank"><?= e(preg_replace('#^https?://#i', '', $site)) ?></a></p><?php endif; ?>
         </section>
         <?php if ($collections): ?>
             <section class="panel" aria-labelledby="col-h">
-                <header><h2 id="col-h">Bộ sưu tập</h2></header>
+                <header><h2 id="col-h"><?= te('collection.title') ?></h2></header>
                 <div class="rows">
                     <?php foreach ($collections as $c): ?>
                         <a class="row" href="<?= e(app_url('/collections/' . (int)$c['ma'])) ?>">
                             <span class="grow"><strong><?= e($c['tieu_de']) ?></strong><?php if ($c['mo_ta']): ?><span class="sub"><?= e(excerpt($c['mo_ta'], 90)) ?></span><?php endif; ?></span>
-                            <span class="small faint"><?= fmt_int((int)$c['so_muc']) ?> trò chơi</span>
+                            <span class="small faint"><?= te('profile.show.tro-choi', [ fmt_int((int)$c['so_muc']) ]) ?></span>
                         </a>
                     <?php endforeach; ?>
                 </div>
             </section>
         <?php endif; ?>
-        <?php if (!$isSelf) partial('report', ['type' => 'user', 'id' => (int)$profile['ma'], 'labelText' => 'Báo cáo người dùng này']); ?>
+        <?php if (!$isSelf) partial('report', ['type' => 'user', 'id' => (int)$profile['ma'], 'labelText' => te('profile.show.bao_cao_nguoi_dung_nay')]); ?>
     </aside>
 </div>
 <?php endif; ?>

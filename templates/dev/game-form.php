@@ -18,8 +18,8 @@ $checks = static function (string $name, array $items, string $text, array $sele
 };
 ?>
 <?php if ($isNew): ?>
-<nav class="crumbs" aria-label="Đường dẫn"><a href="<?= e(app_url('/dev/games')) ?>">Dự án</a><span>Tạo mới</span></nav>
-<div class="title-row"><div><h1>Tạo dự án</h1><p class="sub">Dự án mới bắt đầu ở trạng thái bản nháp, chỉ bạn và các đồng tác giả nhìn thấy.</p></div></div>
+<nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>"><a href="<?= e(app_url('/dev/games')) ?>"><?= te('dev.games') ?></a><span><?= te('dev.game-form.tao_moi') ?></span></nav>
+<div class="title-row"><div><h1><?= te('dev.create_game') ?></h1><p class="sub"><?= te('dev.game-form.du_an_moi_bat_dau') ?></p></div></div>
 <?php else: ?>
 <?php partial('dev-game-tabs', ['game' => $game, 'tab' => $tab]); ?>
 <?php endif; ?>
@@ -27,49 +27,49 @@ $checks = static function (string $name, array $items, string $text, array $sele
 <form method="post" action="<?= e(app_url($action)) ?>">
     <?= csrf_field() ?>
     <section class="settings-block" aria-labelledby="basic-h">
-        <div class="about"><h2 id="basic-h">Thông tin cơ bản</h2><p>Tên, đường dẫn và mô tả hiển thị trên cửa hàng và trang trò chơi.</p></div>
+        <div class="about"><h2 id="basic-h"><?= te('dev.game-form.thong_tin_co_ban') ?></h2><p><?= te('dev.game-form.ten_duong_dan_va_mo') ?></p></div>
         <div class="panel form">
             <div class="field">
-                <label for="g-title">Tên dự án</label>
+                <label for="g-title"><?= te('dev.game-form.ten_du_an') ?></label>
                 <input class="input" id="g-title" name="tieu_de" maxlength="200" required value="<?= e($v('tieu_de')) ?>">
             </div>
             <div class="field">
-                <label for="g-slug">Đường dẫn</label>
-                <input class="input" id="g-slug" name="duong_dan_rut_gon" maxlength="220" pattern="[a-z0-9]+(-[a-z0-9]+)*" value="<?= e($v('duong_dan_rut_gon')) ?>" placeholder="Tự tạo từ tên nếu bỏ trống">
-                <span class="hint">Chữ thường không dấu, số và dấu gạch ngang.<?= !$isNew && $game['ngay_cong_bo'] ? ' Đổi đường dẫn sau khi công bố sẽ làm hỏng các liên kết đã chia sẻ.' : '' ?></span>
+                <label for="g-slug"><?= te('admin.campaign-form.duong_dan') ?></label>
+                <input class="input" id="g-slug" name="duong_dan_rut_gon" maxlength="220" pattern="[a-z0-9]+(-[a-z0-9]+)*" value="<?= e($v('duong_dan_rut_gon')) ?>" placeholder="<?= te('admin.jam-form.tu_tao_tu_ten_neu') ?>">
+                <span class="hint"><?= te('dev.game-form.chu-thuong-khong-dau-so-va-dau-gach-ngang', [ !$isNew && $game['ngay_cong_bo'] ? ' ' . te('dev.game-form.doi_duong_dan_sau_khi') : '' ]) ?></span>
             </div>
             <div class="form-grid">
                 <div class="field">
-                    <label for="g-type">Loại dự án</label>
+                    <label for="g-type"><?= te('dev.game-form.loai_du_an') ?></label>
                     <select class="input" id="g-type" name="loai_du_an" required>
                         <?php foreach (GameModel::PROJECT_TYPES as $t): ?><option value="<?= e($t) ?>"<?= $v('loai_du_an', 'game') === $t ? ' selected' : '' ?>><?= e(label('project_type', $t)) ?></option><?php endforeach; ?>
                     </select>
                 </div>
                 <div class="field">
-                    <label for="g-release">Tình trạng phát triển</label>
+                    <label for="g-release"><?= te('dev.game-form.tinh_trang_phat_trien') ?></label>
                     <select class="input" id="g-release" name="trang_thai_phat_hanh" required>
                         <?php foreach (GameModel::RELEASE_STATUSES as $s): ?><option value="<?= e($s) ?>"<?= $v('trang_thai_phat_hanh', 'in_development') === $s ? ' selected' : '' ?>><?= e(label('release_status', $s)) ?></option><?php endforeach; ?>
                     </select>
                 </div>
             </div>
             <div class="field">
-                <label for="g-short">Mô tả ngắn</label>
+                <label for="g-short"><?= te('dev.game_summary') ?></label>
                 <textarea class="input" id="g-short" name="mo_ta_ngan" maxlength="500" rows="3"><?= e((string)$v('mo_ta_ngan')) ?></textarea>
-                <span class="hint">Tối đa 500 ký tự, hiển thị trên thẻ trò chơi. Bắt buộc trước khi công bố.</span>
+                <span class="hint"><?= te('dev.game-form.toi_da_500_ky_tu') ?></span>
             </div>
             <div class="field">
-                <label for="g-desc">Mô tả chi tiết</label>
+                <label for="g-desc"><?= te('dev.game-form.mo_ta_chi_tiet') ?></label>
                 <textarea class="input tall" id="g-desc" name="mo_ta" maxlength="20000"><?= e((string)$v('mo_ta')) ?></textarea>
-                <span class="hint">Văn bản thuần, xuống dòng được giữ nguyên.</span>
+                <span class="hint"><?= te('dev.game-form.van_ban_thuan_xuong_dong') ?></span>
             </div>
         </div>
     </section>
 
     <section class="settings-block" aria-labelledby="price-h">
-        <div class="about"><h2 id="price-h">Giá</h2><p>Giá tính bằng <?= e(APP_CURRENCY) ?>. Nền tảng thu phí <?= rtrim(rtrim(number_format(PLATFORM_FEE_RATE * 100, 1), '0'), '.') ?>% mỗi lượt bán; phần còn lại chia cho các tác giả theo tỷ lệ.</p></div>
+        <div class="about"><h2 id="price-h"><?= te('common.price') ?></h2><p><?= te('dev.game-form.gia-tinh-bang-nen-tang-thu-phi-moi-luot-ban-phan-con-lai-chia-cho-cac-tac-gia-theo-ty-le', [ e(APP_CURRENCY) ,  rtrim(rtrim(number_format(PLATFORM_FEE_RATE * 100, 1), '0'), '.') ]) ?></p></div>
         <div class="panel form">
             <fieldset class="field">
-                <legend>Mô hình giá</legend>
+                <legend><?= te('dev.price_model') ?></legend>
                 <div class="choice-grid">
                     <?php foreach (GameModel::PRICING as $p): ?>
                         <label class="check"><input type="radio" name="mo_hinh_gia" value="<?= e($p) ?>" required<?= $v('mo_hinh_gia', 'free') === $p ? ' checked' : '' ?>> <span><?= e(label('pricing', $p)) ?></span></label>
@@ -78,63 +78,63 @@ $checks = static function (string $name, array $items, string $text, array $sele
             </fieldset>
             <div class="form-grid">
                 <div class="field">
-                    <label for="g-min">Giá / giá tối thiểu</label>
+                    <label for="g-min"><?= te('dev.game-form.gia_gia_toi_thieu') ?></label>
                     <input class="input" id="g-min" name="gia_toi_thieu" inputmode="decimal" pattern="\d{1,9}([.,]\d{1,2})?" value="<?= e($money($v('gia_toi_thieu'))) ?>" placeholder="0">
-                    <span class="hint">Trả phí: giá bán, lớn hơn 0. Trả tùy ý: mức thấp nhất người mua có thể trả. Miễn phí và ủng hộ: bỏ qua.</span>
+                    <span class="hint"><?= te('dev.game-form.tra_phi_gia_ban_lon') ?></span>
                 </div>
                 <div class="field">
-                    <label for="g-sug">Giá đề xuất</label>
+                    <label for="g-sug"><?= te('dev.game-form.gia_de_xuat') ?></label>
                     <input class="input" id="g-sug" name="gia_de_xuat" inputmode="decimal" pattern="\d{1,9}([.,]\d{1,2})?" value="<?= e($money($v('gia_de_xuat'))) ?>">
-                    <span class="hint">Chỉ dùng cho trả tùy ý và ủng hộ.</span>
+                    <span class="hint"><?= te('dev.game-form.chi_dung_cho_tra_tuy') ?></span>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="settings-block" aria-labelledby="tax-h">
-        <div class="about"><h2 id="tax-h">Phân loại</h2><p>Giúp người chơi tìm thấy dự án khi lọc trên trang Khám phá.</p></div>
+        <div class="about"><h2 id="tax-h"><?= te('dev.game-form.phan_loai') ?></h2><p><?= te('dev.game-form.giup_nguoi_choi_tim_thay') ?></p></div>
         <div class="panel form">
             <fieldset class="field">
-                <legend>Thể loại <span class="muted">(tối đa 3)</span></legend>
+                <legend><?= te('common.categories') ?> <span class="muted"><?= te('dev.game-form.toi_da_3') ?></span></legend>
                 <div class="choice-grid"><?php $checks('the_loai', $categories, 'ten', $picked['the_loai']); ?></div>
             </fieldset>
             <fieldset class="field">
-                <legend>Nhãn <span class="muted">(tối đa 10)</span></legend>
+                <legend><?= te('dev.game-form.nhan') ?> <span class="muted"><?= te('dev.game-form.toi_da_10') ?></span></legend>
                 <div class="choice-grid"><?php $checks('nhan', $tags, 'ten', $picked['nhan']); ?></div>
             </fieldset>
             <fieldset class="field">
-                <legend>Nền tảng</legend>
+                <legend><?= te('common.platform') ?></legend>
                 <div class="choice-grid"><?php $checks('nen_tang', $platforms, 'ten_nen_tang', $picked['nen_tang']); ?></div>
             </fieldset>
             <div class="form-grid">
                 <div class="field">
-                    <label for="g-age">Phân loại độ tuổi</label>
-                    <input class="input" id="g-age" name="phan_loai_do_tuoi" maxlength="40" value="<?= e((string)$v('phan_loai_do_tuoi')) ?>" placeholder="Ví dụ: 12+">
+                    <label for="g-age"><?= te('dev.game-form.phan_loai_do_tuoi') ?></label>
+                    <input class="input" id="g-age" name="phan_loai_do_tuoi" maxlength="40" value="<?= e((string)$v('phan_loai_do_tuoi')) ?>" placeholder="<?= te('dev.game-form.vi_du_12') ?>">
                 </div>
                 <div class="field">
-                    <label for="g-license">Giấy phép</label>
-                    <input class="input" id="g-license" name="ten_giay_phep" maxlength="120" value="<?= e((string)$v('ten_giay_phep')) ?>" placeholder="Ví dụ: GPL-3.0, CC BY 4.0">
+                    <label for="g-license"><?= te('game.license') ?></label>
+                    <input class="input" id="g-license" name="ten_giay_phep" maxlength="120" value="<?= e((string)$v('ten_giay_phep')) ?>" placeholder="<?= te('dev.game-form.vi_du_gpl_3_cc') ?>">
                 </div>
             </div>
             <div class="field">
-                <label for="g-url">Liên kết chơi trên web</label>
+                <label for="g-url"><?= te('dev.game-form.lien_ket_choi_tren_web') ?></label>
                 <input class="input" id="g-url" type="url" name="url_choi_ngoai" maxlength="1000" value="<?= e((string)$v('url_choi_ngoai')) ?>" placeholder="https://">
-                <span class="hint">Trang chơi trên trình duyệt (game môi trường web) hoặc trang chủ dự án. Dùng cùng lúc với các liên kết tải về được.</span>
+                <span class="hint"><?= te('dev.game-form.trang_choi_tren_trinh_duyet') ?></span>
             </div>
         </div>
     </section>
 
     <section class="settings-block" aria-labelledby="vis-h">
-        <div class="about"><h2 id="vis-h">Hiển thị</h2><p>Bản nháp chỉ tác giả thấy. "Không liệt kê" mở được bằng đường dẫn nhưng không xuất hiện trên cửa hàng.</p></div>
+        <div class="about"><h2 id="vis-h"><?= te('label.content_status.published') ?></h2><p><?= te('dev.game-form.ban_nhap_chi_tac_gia') ?></p></div>
         <div class="panel form">
             <?php if ($isNew): ?>
-                <p class="hint">Dự án được tạo ở trạng thái bản nháp. Bạn có thể công bố sau khi lưu.</p>
+                <p class="hint"><?= te('dev.game-form.du_an_duoc_tao_o') ?></p>
             <?php elseif ($statusLocked): ?>
-                <p>Trạng thái hiện tại: <?= status_pill('game_status', $game['trang_thai']) ?></p>
-                <p class="hint">Trạng thái này do đội ngũ kiểm duyệt đặt. Bạn vẫn sửa được nội dung; liên hệ quản trị viên để được xem xét lại.</p>
+                <p><?= te('dev.game-form.trang-thai-hien-tai', [ status_pill('game_status', $game['trang_thai']) ]) ?></p>
+                <p class="hint"><?= te('dev.game-form.trang_thai_nay_do_doi') ?></p>
             <?php else: ?>
                 <fieldset class="field">
-                    <legend>Trạng thái</legend>
+                    <legend><?= te('common.status') ?></legend>
                     <div class="choice-grid">
                         <?php foreach (DevGameController::DEV_STATUSES as $s): ?>
                             <label class="check"><input type="radio" name="trang_thai" value="<?= e($s) ?>"<?= $v('trang_thai', 'draft') === $s ? ' checked' : '' ?>> <span><?= e(label('game_status', $s)) ?></span></label>
@@ -142,13 +142,13 @@ $checks = static function (string $name, array $items, string $text, array $sele
                     </div>
                 </fieldset>
             <?php endif; ?>
-            <label class="check"><input type="checkbox" name="cho_phep_binh_luan" value="1"<?= $flag('cho_phep_binh_luan') ? ' checked' : '' ?>> <span>Cho phép bình luận</span></label>
-            <label class="check"><input type="checkbox" name="cho_phep_danh_gia" value="1"<?= $flag('cho_phep_danh_gia') ? ' checked' : '' ?>> <span>Cho phép đánh giá</span></label>
+            <label class="check"><input type="checkbox" name="cho_phep_binh_luan" value="1"<?= $flag('cho_phep_binh_luan') ? ' checked' : '' ?>> <span><?= te('dev.game-form.cho_phep_binh_luan') ?></span></label>
+            <label class="check"><input type="checkbox" name="cho_phep_danh_gia" value="1"<?= $flag('cho_phep_danh_gia') ? ' checked' : '' ?>> <span><?= te('dev.game-form.cho_phep_danh_gia') ?></span></label>
         </div>
     </section>
 
     <div class="form-actions section">
-        <button class="btn primary" type="submit"><?= $isNew ? 'Tạo dự án' : 'Lưu thay đổi' ?></button>
-        <a class="btn ghost" href="<?= e(app_url($isNew ? '/dev/games' : '/dev/games/' . (int)$game['ma'])) ?>">Hủy</a>
+        <button class="btn primary" type="submit"><?= $isNew ? te('dev.create_game') : te('collection.show.luu_thay_doi') ?></button>
+        <a class="btn ghost" href="<?= e(app_url($isNew ? '/dev/games' : '/dev/games/' . (int)$game['ma'])) ?>"><?= te('common.cancel') ?></a>
     </div>
 </form>

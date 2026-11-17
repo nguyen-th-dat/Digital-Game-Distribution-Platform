@@ -123,14 +123,17 @@ class GameModel extends Model {
         return [implode(' AND ', $where), $params];
     }
 
-    public const SORTS = [
-        'popular' => 'Phổ biến',
-        'new' => 'Mới công bố',
-        'rating' => 'Đánh giá cao',
-        'price_asc' => 'Giá thấp đến cao',
-        'price_desc' => 'Giá cao đến thấp',
-        'title' => 'Tên A–Z',
-    ];
+    /** The sort options of the catalogue; the wording lives in the catalogues. */
+    public const SORTS = ['popular', 'new', 'rating', 'price_asc', 'price_desc', 'title'];
+
+    /** The sort options with their translated wording. */
+    public static function sortOptions(): array {
+        $out = [];
+        foreach (self::SORTS as $sort) {
+            $out[$sort] = t('label.game_sort.' . $sort);
+        }
+        return $out;
+    }
 
     private static function sortClause(string $sort): string {
         switch ($sort) {
@@ -233,16 +236,16 @@ class GameModel extends Model {
      */
     public static function staffSetStatus(array $game, string $status, int $moderatorId, string $reason): ?string {
         if (!in_array($status, self::STAFF_STATUSES, true)) {
-            return 'Trạng thái không hợp lệ.';
+            return t('admin.trang.thai.khong.hop.le');
         }
         if ($game['trang_thai'] === 'draft') {
-            return 'Bản nháp do nhà phát triển quản lý; chỉ xử lý sau khi được gửi công bố.';
+            return t('gamemodel.ban.nhap.do.nha.phat.trien.quan.ly.chi.xu.ly.sau.khi.duoc.gui.cong.bo');
         }
         if ($status === $game['trang_thai']) {
-            return 'Trò chơi đã ở trạng thái này.';
+            return t('gamemodel.tro.choi.da.o.trang.thai.nay');
         }
         if (in_array($status, ['hidden', 'suspended'], true) && $reason === '') {
-            return 'Hãy ghi lý do khi ẩn hoặc đình chỉ trò chơi.';
+            return t('gamemodel.hay.ghi.ly.do.khi.an.hoac.dinh.chi.tro.choi');
         }
         $id = (int)$game['ma'];
         $action = ['hidden' => 'hide', 'suspended' => 'suspend', 'under_review' => 'other'][$status] ?? 'restore';
@@ -252,8 +255,7 @@ class GameModel extends Model {
             ModerationActionModel::log($moderatorId, 'game', $id, $action, $change . ($reason !== '' ? '. ' . $reason : ''));
         });
         audit('game_status', 'tro_choi', $id, ['truoc' => $game['trang_thai'], 'sau' => $status]);
-        NotificationModel::notifyUsers(self::authorIds($id), $moderatorId, 'game_status', $game['tieu_de'] . ': ' . label('game_status', $status),
-            $reason !== '' ? $reason : 'Trạng thái trò chơi đã được điều hành viên cập nhật.', '/dev/games/' . $id);
+        NotificationModel::notifyUsers(self::authorIds($id), $moderatorId, 'game_status', $game['tieu_de'] . ': ' . label('game_status', $status),($reason !== '' ? $reason : t('gamemodel.trang.thai.tro.choi.da.duoc.dieu.hanh.vien.cap.nhat')), '/dev/games/' . $id);
         return null;
     }
 }

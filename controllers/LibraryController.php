@@ -13,7 +13,7 @@ class LibraryController extends Controller {
         $sort = ($_GET['sort'] ?? '') === 'title' ? 'title' : 'recent';
         [$games, $pager] = $this->paginate(OwnershipModel::library((int)$user['ma'], $q, $sort), 24);
         $this->render('library/index', $pager + [
-            'pageTitle' => 'Thư viện',
+            'pageTitle' => t('nav.library'),
             'games' => $games,
             'q' => $q,
             'sort' => $sort,
@@ -29,7 +29,7 @@ class LibraryController extends Controller {
             WHERE f.nguoi_dung_id = :u AND g.trang_thai IN ('published','unlisted') ORDER BY f.ngay_tao DESC", [':u' => $uid]);
         [$games, $pager] = $this->paginate($games, 24);
         $this->render('library/wishlist', $pager + [
-            'pageTitle' => 'Danh sách mong muốn',
+            'pageTitle' => t('library.wishlist.danh_sach_mong_muon'),
             'games' => $games,
             'owned' => OwnershipModel::ownedIds($uid, array_map('intval', array_column($games, 'ma'))),
             'inCart' => array_map('intval', Model::column("SELECT i.tro_choi_id FROM muc_gio_hang i JOIN gio_hang c ON c.ma = i.gio_hang_id
@@ -44,30 +44,30 @@ class LibraryController extends Controller {
         $uid = (int)$user['ma'];
         $raw = strtoupper(preg_replace('/\s+/', '', (string)($_POST['key'] ?? '')));
         if (!preg_match('/^[A-Z0-9-]{8,64}$/', $raw)) {
-            $this->fail('Mã kích hoạt chỉ gồm chữ, số và gạch ngang (8–64 ký tự).', '/library');
+            $this->fail(t('library.ma.kich.hoat.chi.gom.chu.so.va.gach.ngang.8.64.ky.tu'), '/library');
         }
         $attempts = (int)Model::scalar("SELECT COUNT(*) FROM nhat_ky_he_thong WHERE nguoi_dung_id = :u AND ma_hanh_dong = 'key_redeem_fail' AND ngay_tao > NOW() - INTERVAL 1 HOUR", [':u' => $uid]);
         if ($attempts >= self::REDEEM_PER_HOUR) {
-            $this->fail('Bạn đã nhập sai quá nhiều lần. Hãy thử lại sau một giờ.', '/library');
+            $this->fail(t('library.ban.da.nhap.sai.qua.nhieu.lan.hay.thu.lai.sau.mot.gio'), '/library');
         }
         try {
             $game = Model::transaction(function () use ($raw, $uid) {
                 $key = Model::one("SELECT k.*, g.tieu_de, g.duong_dan_rut_gon, g.trang_thai game_status FROM ma_truy_cap_tro_choi k JOIN tro_choi g ON g.ma = k.tro_choi_id
                     WHERE k.ma_bam = :h FOR UPDATE", [':h' => hash('sha256', $raw)]);
                 if (!$key) {
-                    throw new RuntimeException('Mã kích hoạt không đúng.');
+                    throw new RuntimeException(t('library.ma.kich.hoat.khong.dung'));
                 }
                 if ($key['trang_thai'] === 'claimed') {
-                    throw new RuntimeException('Mã này đã được sử dụng.');
+                    throw new RuntimeException(t('library.redeem_used'));
                 }
                 if ($key['trang_thai'] !== 'available' || ($key['ngay_het_han'] && strtotime($key['ngay_het_han']) < time())) {
-                    throw new RuntimeException('Mã này đã hết hạn hoặc bị thu hồi.');
+                    throw new RuntimeException(t('library.ma.nay.da.het.han.hoac.bi.thu.hoi'));
                 }
                 if (!in_array($key['game_status'], ['published', 'unlisted'], true)) {
-                    throw new RuntimeException('Trò chơi của mã này hiện không khả dụng.');
+                    throw new RuntimeException(t('library.tro.choi.cua.ma.nay.hien.khong.kha.dung'));
                 }
                 if (OwnershipModel::has($uid, (int)$key['tro_choi_id'])) {
-                    throw new RuntimeException('Bạn đã sở hữu "' . $key['tieu_de'] . '". Mã chưa bị dùng, bạn có thể tặng cho người khác.');
+                    throw new RuntimeException(t('library.ban.da.so.huu.ma.chua.bi.dung.ban.co.the.tang.cho.nguoi.khac', [$key['tieu_de']]));
                 }
                 Model::run("UPDATE ma_truy_cap_tro_choi SET trang_thai = 'claimed', nguoi_nhan_ma_id = :u, ngay_nhan_ma = NOW() WHERE ma = :id", [':u' => $uid, ':id' => (int)$key['ma']]);
                 OwnershipModel::grant($uid, (int)$key['tro_choi_id'], 'access_key');
@@ -78,7 +78,7 @@ class LibraryController extends Controller {
             $this->fail($error->getMessage(), '/library');
         }
         audit('key_redeem', 'ma_truy_cap_tro_choi', (int)$game['ma']);
-        flash('success', 'Đã kích hoạt "' . $game['tieu_de'] . '". Trò chơi đã có trong thư viện.');
+        flash('success',t('library.da.kich.hoat.tro.choi.da.co.trong.thu.vien', [$game['tieu_de']]));
         $this->redirect('/library');
     }
 }

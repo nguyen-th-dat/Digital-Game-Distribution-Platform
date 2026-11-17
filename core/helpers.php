@@ -202,13 +202,13 @@ function price_label(array $game): string {
     $model = $game['mo_hinh_gia'] ?? 'free';
     $min = (float)($game['gia_toi_thieu'] ?? 0);
     if ($model === 'free') {
-        return 'Miễn phí';
+        return t('price.free');
     }
     if ($model === 'donation') {
-        return 'Miễn phí · ủng hộ tùy ý';
+        return t('price.donation');
     }
     if ($model === 'pay_what_you_want') {
-        return $min > 0 ? 'Từ ' . money($min) : 'Trả tùy ý';
+        return $min > 0 ? t('price.from', ['amount' => money($min)]) : t('price.pay_what_you_want');
     }
     return money($min);
 }
@@ -238,10 +238,10 @@ function time_ago(?string $value): string {
         return '—';
     }
     $diff = time() - $ts;
-    if ($diff < 60) return 'vừa xong';
-    if ($diff < 3600) return floor($diff / 60) . ' phút trước';
-    if ($diff < 86400) return floor($diff / 3600) . ' giờ trước';
-    if ($diff < 86400 * 30) return floor($diff / 86400) . ' ngày trước';
+    if ($diff < 60) return t('time.now');
+    if ($diff < 3600) return t('time.minutes', ['count' => floor($diff / 60)]);
+    if ($diff < 86400) return t('time.hours', ['count' => floor($diff / 3600)]);
+    if ($diff < 86400 * 30) return t('time.days', ['count' => floor($diff / 86400)]);
     return date('d/m/Y', $ts);
 }
 
@@ -292,7 +292,7 @@ function media_credit(?string $credit): array {
 /** Escaped credit HTML: the text, then a "Nguồn ảnh" link when the credit ends in a URL. */
 function media_credit_html(?string $credit): string {
     [$text, $url] = media_credit($credit);
-    return e($text) . ($url !== '' ? ' · <a href="' . e($url) . '" target="_blank" rel="noopener noreferrer">Nguồn ảnh</a>' : '');
+    return e($text) . ($url !== '' ? ' · <a href="' . e($url) . '" target="_blank" rel="noopener noreferrer">' . e(t('common.image_source')) . '</a>' : '');
 }
 
 function excerpt(?string $text, int $length = 160): string {
@@ -412,56 +412,35 @@ function audit(string $action, ?string $entityType = null, ?int $entityId = null
     }
 }
 
-// ---------------------------------------------------------- labels (vi) -----
+// ---------------------------------------------------------- labels -----
 
-/** All [value => label] pairs of a group (for filters and selects). */
+/**
+ * All [value => label] pairs of a group (for filters and selects).
+ *
+ * The groups live in the translation catalogues under "label.{group}.{value}",
+ * so a group is translated with the rest of the interface. A value the
+ * catalogue does not have yet falls back to the default language before the
+ * raw value is shown.
+ */
 function labels(string $group): array {
-    static $labels = [
-        'game_status' => ['draft' => 'Bản nháp', 'published' => 'Đã công bố', 'unlisted' => 'Không liệt kê', 'hidden' => 'Đã ẩn', 'under_review' => 'Chờ duyệt', 'suspended' => 'Bị đình chỉ'],
-        'release_status' => ['prototype' => 'Bản mẫu', 'in_development' => 'Đang phát triển', 'early_access' => 'Truy cập sớm', 'released' => 'Đã phát hành', 'cancelled' => 'Đã hủy'],
-        'pricing' => ['free' => 'Miễn phí', 'paid' => 'Trả phí', 'pay_what_you_want' => 'Trả tùy ý', 'donation' => 'Ủng hộ'],
-        'project_type' => ['game' => 'Trò chơi', 'asset' => 'Tài nguyên', 'tool' => 'Công cụ', 'soundtrack' => 'Nhạc nền', 'comic' => 'Truyện tranh', 'book' => 'Sách', 'physical' => 'Sản phẩm vật lý', 'other' => 'Khác'],
-        'user_status' => ['active' => 'Hoạt động', 'suspended' => 'Bị đình chỉ', 'deleted' => 'Đã xóa'],
-        'order_status' => ['pending' => 'Chờ thanh toán', 'paid' => 'Đã thanh toán', 'partially_refunded' => 'Hoàn một phần', 'refunded' => 'Đã hoàn tiền', 'cancelled' => 'Đã hủy', 'failed' => 'Thất bại'],
-        'payment_status' => ['initiated' => 'Khởi tạo', 'pending' => 'Đang chờ', 'succeeded' => 'Thành công', 'failed' => 'Thất bại', 'cancelled' => 'Đã hủy'],
-        'refund_status' => ['requested' => 'Đã yêu cầu', 'approved' => 'Đã duyệt', 'rejected' => 'Từ chối', 'processing' => 'Đang xử lý', 'completed' => 'Hoàn tất', 'failed' => 'Thất bại'],
-        'ledger_status' => ['pending' => 'Đang giữ', 'available' => 'Có thể rút', 'held' => 'Đang chi trả', 'paid' => 'Đã chi trả', 'reversed' => 'Đã đảo'],
-        'payout_status' => ['requested' => 'Đã yêu cầu', 'processing' => 'Đang xử lý', 'paid' => 'Đã chi trả', 'failed' => 'Thất bại', 'cancelled' => 'Đã hủy'],
-        'payout_account_status' => ['pending_verification' => 'Chờ xác minh', 'active' => 'Hoạt động', 'disabled' => 'Vô hiệu'],
-        'payout_provider' => ['bank_transfer' => 'Chuyển khoản ngân hàng', 'paypal' => 'PayPal', 'stripe' => 'Stripe Connect'],
-        'report_status' => ['open' => 'Mới', 'investigating' => 'Đang xem xét', 'resolved' => 'Đã xử lý', 'rejected' => 'Bác bỏ'],
-        'report_reason' => ['spam' => 'Spam hoặc quảng cáo', 'abuse' => 'Quấy rối, xúc phạm', 'illegal' => 'Nội dung vi phạm pháp luật', 'copyright' => 'Vi phạm bản quyền', 'malware' => 'Tệp độc hại hoặc lừa đảo', 'other' => 'Lý do khác'],
-        'report_target' => ['user' => 'Người dùng', 'game' => 'Trò chơi', 'review' => 'Đánh giá', 'game_comment' => 'Bình luận trò chơi', 'devlog' => 'Nhật ký phát triển', 'devlog_comment' => 'Bình luận nhật ký', 'community_topic' => 'Chủ đề diễn đàn', 'community_post' => 'Bài viết diễn đàn'],
-        'mod_action' => ['warning' => 'Cảnh cáo', 'hide' => 'Ẩn', 'remove' => 'Gỡ bỏ', 'suspend' => 'Đình chỉ', 'restore' => 'Khôi phục', 'other' => 'Khác'],
-        'content_status' => ['published' => 'Hiển thị', 'hidden' => 'Đã ẩn', 'removed' => 'Đã gỡ', 'draft' => 'Bản nháp'],
-        'campaign_status' => ['draft' => 'Bản nháp', 'scheduled' => 'Đã lên lịch', 'active' => 'Đang chạy', 'ended' => 'Đã kết thúc', 'cancelled' => 'Đã hủy'],
-        'bundle_type' => ['creator_created' => 'Gói của nhà phát triển', 'platform_curated' => 'Gói do nền tảng tuyển chọn'],
-        'bundle_status' => ['draft' => 'Bản nháp', 'published' => 'Đang bán', 'hidden' => 'Đã ẩn', 'ended' => 'Đã kết thúc'],
-        'jam_status' => ['draft' => 'Bản nháp', 'published' => 'Sắp diễn ra', 'active' => 'Đang diễn ra', 'judging' => 'Đang chấm', 'completed' => 'Đã kết thúc', 'cancelled' => 'Đã hủy'],
-        'jam_role' => ['host' => 'Chủ trì', 'admin' => 'Quản trị', 'judge' => 'Giám khảo', 'moderator' => 'Điều hành'],
-        'entry_status' => ['submitted' => 'Đã nộp', 'withdrawn' => 'Đã rút', 'disqualified' => 'Bị loại'],
-        'channel' => ['stable' => 'Ổn định', 'beta' => 'Beta', 'alpha' => 'Alpha', 'preview' => 'Xem trước'],
-        'media_type' => ['cover' => 'Ảnh bìa', 'thumbnail' => 'Ảnh thu nhỏ', 'screenshot' => 'Ảnh chụp màn hình', 'trailer' => 'Video giới thiệu', 'external_link' => 'Liên kết ngoài', 'other' => 'Khác'],
-        'ownership' => ['purchase' => 'Đã mua', 'bundle' => 'Từ gói game', 'gift' => 'Quà tặng', 'free_claim' => 'Nhận miễn phí', 'access_key' => 'Mã truy cập', 'admin_grant' => 'Quản trị cấp'],
-        'key_status' => ['available' => 'Chưa dùng', 'claimed' => 'Đã dùng', 'revoked' => 'Đã thu hồi', 'expired' => 'Hết hạn'],
-        'role' => ['player' => 'Người chơi', 'developer' => 'Nhà phát triển', 'moderator' => 'Điều hành viên', 'admin' => 'Quản trị viên'],
-        'reaction' => ['like' => 'Thích', 'helpful' => 'Hữu ích', 'love' => 'Yêu thích', 'laugh' => 'Vui'],
-        'visibility' => ['public' => 'Công khai', 'unlisted' => 'Không liệt kê', 'private' => 'Riêng tư'],
-        'coupon_type' => ['percent' => 'Phần trăm', 'fixed_amount' => 'Số tiền cố định'],
-        'coupon_state' => ['active' => 'Đang dùng được', 'scheduled' => 'Chưa bắt đầu', 'expired' => 'Hết hạn', 'used_up' => 'Hết lượt', 'disabled' => 'Đã tắt'],
-        'download_provider' => ['google_drive' => 'Google Drive', 'onedrive' => 'OneDrive', 'dropbox' => 'Dropbox', 'mediafire' => 'MediaFire',
-            'mega' => 'MEGA', 'wetransfer' => 'WeTransfer', 'github' => 'GitHub', 'sourceforge' => 'SourceForge', 'itch_io' => 'itch.io', 'custom' => 'Liên kết khác'],
-        'download_platform' => ['any' => 'Mọi nền tảng', 'windows' => 'Windows', 'macos' => 'macOS', 'linux' => 'Linux', 'android' => 'Android'],
-        'download_link_status' => ['pending' => 'Chờ duyệt', 'active' => 'Đang hoạt động', 'rejected' => 'Bị từ chối', 'hidden' => 'Đã ẩn'],
-    ];
-    return $labels[$group] ?? [];
+    static $cache = [];
+    if (!isset($cache[$group])) {
+        $cache[$group] = Translator::section('label.' . $group);
+    }
+    return $cache[$group];
 }
 
 function label(string $group, ?string $value): string {
     if ($value === null || $value === '') {
         return '—';
     }
-    return labels($group)[$value] ?? $value;
+    $labels = labels($group);
+    if (isset($labels[$value])) {
+        return (string)$labels[$value];
+    }
+    return Translator::get('label.' . $group . '.' . $value) === 'label.' . $group . '.' . $value
+        ? $value
+        : Translator::get('label.' . $group . '.' . $value);
 }
 
 /** Pill tone for a status value. */
@@ -486,6 +465,39 @@ function mod_target_url(string $type, int $id): string {
 
 function status_pill(string $group, ?string $value): string {
     return '<span class="pill ' . status_tone($value) . '">' . e(label($group, $value)) . '</span>';
+}
+
+// ---------------------------------------------------------- language -----
+
+/** The text of a translation key in the language of this request. */
+function t(string $key, array $params = []): string {
+    return Translator::get($key, $params);
+}
+
+/** The escaped text of a translation key, ready for HTML output. */
+function te(string $key, array $params = []): string {
+    return e(Translator::get($key, $params));
+}
+
+/**
+ * The text of a translation key, or the given default when the key is unknown.
+ *
+ * The default is the language the interface falls back to, so a value that is
+ * not translated yet still shows the Vietnamese wording instead of a raw key.
+ */
+function t_or(string $key, string $default, array $params = []): string {
+    $text = Translator::get($key, $params);
+    return $text === $key ? $default : $text;
+}
+
+/** The language of this request ("vi" or "en"). */
+function current_locale(): string {
+    return Translator::locale();
+}
+
+/** The HTML language attribute of the current page. */
+function locale_html_lang(): string {
+    return current_locale();
 }
 
 // ---------------------------------------------------------- view bits -----
@@ -543,13 +555,13 @@ function stars(float $value): string {
     for ($i = 1; $i <= 5; $i++) {
         $out .= $i <= $full ? '★' : '<span class="off">★</span>';
     }
-    return $out . '</span><span class="sr-only">' . e(number_format($value, 1)) . ' trên 5</span>';
+    return $out . '</span><span class="sr-only">' . e(number_format($value, 1)) . ' ' . e(t('common.out_of_5')) . '</span>';
 }
 
 /** Price block for a game card or page; $discount is the active sale percent. */
 function price_html(array $game, bool $owned = false): string {
     if ($owned) {
-        return '<span class="owned">Đã sở hữu</span>';
+        return '<span class="owned">' . e(t('common.owned')) . '</span>';
     }
     $model = $game['mo_hinh_gia'] ?? 'free';
     $discount = (float)($game['giam_gia'] ?? 0);
@@ -560,7 +572,8 @@ function price_html(array $game, bool $owned = false): string {
             . e(money($base)) . '</span><span>' . e(money($now)) . '</span></span>';
     }
     $text = price_label($game);
-    return '<span class="price' . ($model === 'free' || $text === 'Miễn phí' ? ' free' : '') . '">' . e($text) . '</span>';
+    $free = label('pricing', 'free');
+    return '<span class="price' . ($model === 'free' || $text === $free ? ' free' : '') . '">' . e($text) . '</span>';
 }
 
 /** Is the game free to add to the library without checkout? */
@@ -590,24 +603,24 @@ function store_image_upload(?array $file, string $folder, int $maxBytes = 524288
         return null;
     }
     if ($file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
-        return ['error' => in_array($file['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 'Ảnh vượt quá dung lượng cho phép.' : 'Tải ảnh lên không thành công.'];
+        return ['error' => in_array($file['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? t('upload.image_exceeds_the_allowed_size') : t('upload.image_upload_failed')];
     }
     if ($file['size'] > $maxBytes) {
-        return ['error' => 'Ảnh tối đa ' . round($maxBytes / 1048576, 1) . ' MB.'];
+        return ['error' => t('upload.image_max_size', ['size' => round($maxBytes / 1048576, 1)])];
     }
     $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
     $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
     if (!isset($types[$mime]) || @getimagesize($file['tmp_name']) === false) {
-        return ['error' => 'Chỉ nhận ảnh JPG, PNG, WebP hoặc GIF.'];
+        return ['error' => t('upload.only_jpg_png_webp_or_gif')];
     }
     $folder = preg_replace('/[^a-z0-9-]/', '', $folder);
     $dir = APP_DIR . '/public/uploads/' . $folder;
     if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
-        return ['error' => 'Không tạo được thư mục lưu ảnh.'];
+        return ['error' => t('upload.could_not_create_the_image_folder')];
     }
     $name = bin2hex(random_bytes(16)) . '.' . $types[$mime];
     if (!move_uploaded_file($file['tmp_name'], $dir . '/' . $name)) {
-        return ['error' => 'Không lưu được ảnh.'];
+        return ['error' => t('upload.could_not_save_the_image')];
     }
     return ['path' => '/public/uploads/' . $folder . '/' . $name];
 }

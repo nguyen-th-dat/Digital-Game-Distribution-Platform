@@ -63,6 +63,28 @@ Installations that were set up before the theme was added need one extra stateme
 mysql -u root -p game_distribution_platform_db < database/migration_giao_dien.sql
 ```
 
+## Languages
+
+The interface is available in Vietnamese and English. The globe button in the top bar switches the language; the choice is saved to your account when you are signed in, and in a cookie for guests. You can also pick a language under `Settings → Privacy and preferences`.
+
+The wording lives in the `translation/` directory:
+
+- `translation/vi.json` — the Vietnamese catalogue, the default language of the interface.
+- `translation/en.json` — the English catalogue. An empty entry means "not translated yet", and the Vietnamese wording is shown instead, so a half-finished translation never blanks a page.
+- `translation/en.pending.json` — the list of the keys that still need an English translation, together with the Vietnamese source text. Copy the values into `translation/en.json` to finish them.
+
+The keys are namespaced by area (`nav.*`, `home.*`, `admin.*`, `label.*`, …). Inside the code they are read with the `t()` and `te()` helpers:
+
+```php
+flash('success', t('cart.da.cap.nhat.gio.hang'));
+```
+
+The label groups of the interface (`label.game_status.published`, `label.pricing.free`, …) are read with `label()` and `labels()`:
+
+```php
+echo e(label('game_status', $game['trang_thai']));
+```
+
 ## Demo accounts
 
 `database/du_lieu.sql` ships with a complete set of sample accounts. Every one of them uses the same password:

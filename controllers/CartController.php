@@ -13,7 +13,7 @@ class CartController extends Controller {
         $coupon = CartModel::appliedCoupon();
         $totals = CartModel::totals($lines, $coupon);
         $this->render('cart/index', [
-            'pageTitle' => 'Giỏ hàng',
+            'pageTitle' => t('nav.cart'),
             'lines' => $lines,
             'coupon' => $coupon,
             'totals' => $totals,
@@ -32,7 +32,7 @@ class CartController extends Controller {
                 $amount = parse_money($_POST['amount']);
                 $min = (float)$game['gia_toi_thieu'];
                 if ($amount === null || $amount < $min || $amount > self::PWYW_MAX) {
-                    flash('error', 'Số tiền phải từ ' . money($min) . ' đến ' . money(self::PWYW_MAX) . '.');
+                    flash('error',t('cart.so.tien.phai.tu.den', [money($min), money(self::PWYW_MAX)]));
                     $this->back('/cart');
                 }
                 $_SESSION['pwyw'][$id] = $amount;
@@ -41,19 +41,20 @@ class CartController extends Controller {
 
         $fromCart = ($_POST['from'] ?? '') === 'cart';
         $error = CartModel::add($uid, $type, $id);
-        if ($error === CartModel::ALREADY && !$fromCart) {
+        $already = CartModel::already();
+        if ($error === $already && !$fromCart) {
             flash('info', $error);
             $this->back('/cart');
         }
-        if ($error && $error !== CartModel::ALREADY) {
+        if ($error && $error !== $already) {
             flash('error', $error);
             $this->back('/cart');
         }
         if ($fromCart) {
-            flash('success', 'Đã cập nhật giỏ hàng.');
+            flash('success',t('cart.da.cap.nhat.gio.hang'));
             $this->redirect('/cart');
         }
-        flash('success', 'Đã thêm vào giỏ hàng.');
+        flash('success',t('cart.item_added'));
         $this->back('/cart');
     }
 
@@ -65,7 +66,7 @@ class CartController extends Controller {
             if ($gameId) {
                 unset($_SESSION['pwyw'][$gameId]);
             }
-            flash('success', 'Đã bỏ sản phẩm khỏi giỏ hàng.');
+            flash('success',t('cart.da.bo.san.pham.khoi.gio.hang'));
         }
         $this->redirect('/cart');
     }
@@ -74,11 +75,11 @@ class CartController extends Controller {
         $user = $this->requireAuth();
         $code = strtoupper(trim((string)($_POST['code'] ?? '')));
         if (!preg_match('/^[A-Z0-9_-]{4,40}$/', $code)) {
-            $this->fail('Mã giảm giá gồm 4–40 ký tự chữ, số, gạch ngang hoặc gạch dưới.', '/cart');
+            $this->fail(t('cart.ma.giam.gia.gom.4.40.ky.tu.chu.so.gach.ngang.hoac.gach.duoi'), '/cart');
         }
         $coupon = CouponModel::findByCode($code);
         if (!$coupon) {
-            $this->fail('Không tìm thấy mã giảm giá này.', '/cart');
+            $this->fail(t('cart.khong.tim.thay.ma.giam.gia.nay'), '/cart');
         }
         if ($problem = CouponModel::problem($coupon)) {
             $this->fail($problem, '/cart');
@@ -86,24 +87,24 @@ class CartController extends Controller {
         $lines = CartModel::lines((int)$user['ma']);
         $totals = CartModel::totals($lines, $coupon);
         if (!$totals['coupon_applies']) {
-            $this->fail('Mã này không áp dụng cho sản phẩm nào trong giỏ hàng.', '/cart');
+            $this->fail(t('cart.ma.nay.khong.ap.dung.cho.san.pham.nao.trong.gio.hang'), '/cart');
         }
         $_SESSION['cart_coupon'] = $code;
-        flash('success', 'Đã áp dụng mã ' . $code . ', giảm ' . money($totals['coupon']) . '.');
+        flash('success',t('cart.da.ap.dung.ma.giam', [$code, money($totals['coupon'])]));
         $this->redirect('/cart');
     }
 
     public function removeCoupon(array $params = []) {
         $this->requireAuth();
         unset($_SESSION['cart_coupon']);
-        flash('info', 'Đã gỡ mã giảm giá.');
+        flash('info',t('cart.da.go.ma.giam.gia'));
         $this->redirect('/cart');
     }
 
     public function checkout(array $params = []) {
         $user = $this->requireAuth();
         if (empty($_POST['confirm_sandbox'])) {
-            $this->fail('Hãy xác nhận bạn hiểu đây là thanh toán thử nghiệm.', '/cart');
+            $this->fail(t('cart.hay.xac.nhan.ban.hieu.day.la.thanh.toan.thu.nghiem'), '/cart');
         }
         try {
             $code = CartModel::checkout((int)$user['ma']);
@@ -111,7 +112,7 @@ class CartController extends Controller {
             $this->fail($error->getMessage(), '/cart');
         }
         audit('order_paid', 'don_hang', (int)Model::scalar('SELECT ma FROM don_hang WHERE ma_don_hang = :c', [':c' => $code]));
-        flash('success', 'Thanh toán thử nghiệm thành công. Trò chơi đã được thêm vào thư viện.');
+        flash('success',t('cart.thanh.toan.thu.nghiem.thanh.cong.tro.choi.da.duoc.them.vao.thu.vien'));
         $this->redirect('/orders/' . rawurlencode($code));
     }
 }

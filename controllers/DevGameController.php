@@ -28,7 +28,7 @@ class DevGameController extends Controller {
     public function index(array $params = []) {
         $user = $this->requireRole('developer');
         $this->render('dev/games', [
-            'pageTitle' => 'Dự án',
+            'pageTitle' => t('nav.projects'),
             'games' => GameModel::listForAuthor((int)$user['ma']),
             'uid' => (int)$user['ma'],
         ]);
@@ -36,7 +36,7 @@ class DevGameController extends Controller {
 
     public function create(array $params = []) {
         $this->requireRole('developer');
-        $this->render('dev/game-form', ['pageTitle' => 'Tạo dự án', 'game' => null, 'tab' => 'details', 'picked' => self::pickedFromOld()] + self::taxonomies());
+        $this->render('dev/game-form', ['pageTitle' => t('dev.create_game'), 'game' => null, 'tab' => 'details', 'picked' => self::pickedFromOld()] + self::taxonomies());
     }
 
     public function store(array $params = []) {
@@ -53,9 +53,9 @@ class DevGameController extends Controller {
                 return $id;
             });
         } catch (PDOException $error) {
-            $this->fail(self::isDuplicate($error) ? 'Đường dẫn này vừa được dự án khác sử dụng. Hãy chọn đường dẫn khác.' : 'Không lưu được dự án.', '/dev/games/new');
+            $this->fail((self::isDuplicate($error) ? t('dev.game.duong.dan.nay.vua.duoc.du.an.khac.su.dung.hay.chon.duong.dan.khac') : t('dev.game.khong.luu.duoc.du.an')), '/dev/games/new');
         }
-        flash('success', 'Đã tạo dự án ở trạng thái bản nháp. Thêm ảnh bìa và mô tả rồi công bố khi sẵn sàng.');
+        flash('success',t('dev.game.da.tao.du.an.o.trang.thai.ban.nhap.them.anh.bia.va.mo.ta.roi.cong.bo.khi.sẵn.sang'));
         $this->redirect('/dev/games/' . $id);
     }
 
@@ -85,13 +85,12 @@ class DevGameController extends Controller {
                 audit('game_updated', 'tro_choi', $gid, $data['trang_thai'] !== $game['trang_thai'] ? ['truoc' => $game['trang_thai'], 'sau' => $data['trang_thai']] : []);
             });
         } catch (PDOException $error) {
-            $this->fail(self::isDuplicate($error) ? 'Đường dẫn này vừa được dự án khác sử dụng. Hãy chọn đường dẫn khác.' : 'Không lưu được dự án.', '/dev/games/' . $gid);
+            $this->fail((self::isDuplicate($error) ? t('dev.game.duong.dan.nay.vua.duoc.du.an.khac.su.dung.hay.chon.duong.dan.khac') : t('dev.game.khong.luu.duoc.du.an')), '/dev/games/' . $gid);
         }
         if ($firstPublish && $data['trang_thai'] === 'published') {
-            NotificationModel::notifyUserFollowers((int)$game['nguoi_tao_id'], 'game_published', 'Dự án mới: ' . $data['tieu_de'],
-                $user['ten_hien_thi'] . ' vừa công bố ' . $data['tieu_de'] . '.', '/games/' . rawurlencode($data['duong_dan_rut_gon']));
+            NotificationModel::notifyUserFollowers((int)$game['nguoi_tao_id'], 'game_published',t('dev.game.du.an.moi', [$data['tieu_de']]),t('dev.game.vua.cong.bo', [$user['ten_hien_thi'], $data['tieu_de']]), '/games/' . rawurlencode($data['duong_dan_rut_gon']));
         }
-        flash('success', $data['trang_thai'] !== $game['trang_thai'] ? 'Đã lưu. Trạng thái: ' . label('game_status', $data['trang_thai']) . '.' : 'Đã lưu thay đổi.');
+        flash('success',($data['trang_thai'] !== $game['trang_thai'] ? t('dev.game.da.luu.trang.thai', [label('game_status', $data['trang_thai'])]) : t('dev.game.da.luu.thay.doi')));
         $this->redirect('/dev/games/' . $gid);
     }
 
@@ -108,20 +107,20 @@ class DevGameController extends Controller {
         $back = '/dev/games/' . $gid . '/media#add-media';
         $type = (string)($_POST['loai_media'] ?? '');
         if (!isset(labels('media_type')[$type])) {
-            $this->fail('Chọn loại tệp.', $back);
+            $this->fail(t('dev.game.chon.loai.tep'), $back);
         }
         $existing = GameMediaModel::listForGame($gid);
         if (count($existing) >= self::MAX_MEDIA) {
-            $this->fail('Mỗi dự án có tối đa ' . self::MAX_MEDIA . ' ảnh và liên kết.', $back);
+            $this->fail(t('dev.game.moi.du.an.co.toi.da.anh.va.lien.ket', [self::MAX_MEDIA]), $back);
         }
         if (in_array($type, self::SINGLE_MEDIA, true) && in_array($type, array_column($existing, 'loai_media'), true)) {
-            $this->fail('Dự án đã có ' . mb_strtolower(label('media_type', $type)) . '. Xóa ảnh cũ trước khi thêm ảnh mới.', $back);
+            $this->fail(t('dev.game.du.an.da.co.xoa.anh.cu.truoc.khi.them.anh.moi', [mb_strtolower(label('media_type', $type))]), $back);
         }
         [$caption, $alt, $order] = $this->readMediaText($type, $back);
         if (in_array($type, self::IMAGE_MEDIA, true)) {
             $upload = store_image_upload($_FILES['tep'] ?? null, 'games');
             if ($upload === null) {
-                $this->fail('Chọn một tệp ảnh để tải lên.', $back);
+                $this->fail(t('dev.game.chon.mot.tep.anh.de.tai.len'), $back);
             }
             if (isset($upload['error'])) {
                 $this->fail($upload['error'], $back);
@@ -140,7 +139,7 @@ class DevGameController extends Controller {
             delete_upload($url);
             throw $error;
         }
-        flash('success', 'Đã thêm ' . mb_strtolower(label('media_type', $type)) . '.');
+        flash('success',t('dev.game.da.them', [mb_strtolower(label('media_type', $type))]));
         $this->redirect('/dev/games/' . $gid . '/media#media-' . $id);
     }
 
@@ -158,7 +157,7 @@ class DevGameController extends Controller {
             GameMediaModel::update((int)$item['ma'], $data);
             audit('media_updated', 'media_tro_choi', (int)$item['ma']);
         });
-        flash('success', 'Đã lưu thông tin.');
+        flash('success',t('dev.game.da.luu.thong.tin'));
         $this->redirect($back);
     }
 
@@ -171,7 +170,7 @@ class DevGameController extends Controller {
             audit('media_deleted', 'media_tro_choi', (int)$item['ma'], ['tro_choi_id' => $gid, 'loai' => $item['loai_media']]);
         });
         delete_upload($item['url_media']);
-        flash('success', 'Đã xóa ' . mb_strtolower(label('media_type', $item['loai_media'])) . '.');
+        flash('success',t('dev.game.da.xoa', [mb_strtolower(label('media_type', $item['loai_media']))]));
         $this->redirect('/dev/games/' . $gid . '/media');
     }
 
@@ -188,7 +187,7 @@ class DevGameController extends Controller {
         $creator = (int)$game['nguoi_tao_id'];
         $back = '/dev/games/' . $gid . '/authors';
         if ((int)$user['ma'] !== $creator) {
-            $this->forbidden('Chỉ người tạo dự án được thay đổi danh sách tác giả và tỷ lệ chia doanh thu.');
+            $this->forbidden(t('dev.game.chi.nguoi.tao.du.an.duoc.thay.doi.danh.sach.tac.gia.va.ty.le.chia.doanh.thu'));
         }
         $current = self::authorRows($game);
         $shares = (array)($_POST['share'] ?? []);
@@ -200,44 +199,44 @@ class DevGameController extends Controller {
             $u = (int)$a['nguoi_dung_id'];
             if (!empty($remove[$u])) {
                 if ($u === $creator) {
-                    $this->fail('Không thể gỡ người tạo dự án khỏi danh sách tác giả.', $back);
+                    $this->fail(t('dev.game.khong.the.go.nguoi.tao.du.an.khoi.danh.sach.tac.gia'), $back);
                 }
                 $removed[] = $u;
                 continue;
             }
             $pct = self::parsePercent($shares[$u] ?? '');
             if ($pct === null) {
-                $this->fail('Tỷ lệ của ' . $a['ten_hien_thi'] . ' phải là số từ 0 đến 100, tối đa 2 chữ số thập phân.', $back);
+                $this->fail(t('dev.game.ty.le.cua.phai.la.so.tu.den.100.toi.da.2.chu.so.thap.phan', [$a['ten_hien_thi']]), $back);
             }
             $rows[$u] = ['share' => $pct, 'order' => max(0, min(99, (int)($orders[$u] ?? 0))), 'new' => !empty($a['chua_luu'])];
         }
         $newName = post_str('tac_gia_moi', 50);
         $newId = 0;
         if ($newName === null) {
-            $this->fail('Tên đăng nhập quá dài.', $back);
+            $this->fail(t('dev.game.ten.dang.nhap.qua.dai'), $back);
         }
         if ($newName !== '') {
             $newUser = Model::one("SELECT u.ma, u.ten_hien_thi FROM nguoi_dung u JOIN nguoi_dung_vai_tro r ON r.nguoi_dung_id = u.ma JOIN vai_tro v ON v.ma = r.vai_tro_id
                 WHERE u.ten_dang_nhap = :n AND u.trang_thai = 'active' AND v.ma_vai_tro = 'developer' LIMIT 1", [':n' => $newName]);
             if (!$newUser) {
-                $this->fail('Không tìm thấy nhà phát triển "' . $newName . '". Tác giả phải là tài khoản đang hoạt động có vai trò nhà phát triển.', $back);
+                $this->fail(t('dev.game.khong.tim.thay.nha.phat.trien.tac.gia.phai.la.tai.khoan.dang.hoat.dong.co.vai.tro.nha.phat.trien', [$newName]), $back);
             }
             $newId = (int)$newUser['ma'];
             if (isset($rows[$newId]) || in_array($newId, $removed, true)) {
-                $this->fail($newUser['ten_hien_thi'] . ' đã có trong danh sách tác giả.', $back);
+                $this->fail(t('dev.game.da.co.trong.danh.sach.tac.gia', [$newUser['ten_hien_thi']]), $back);
             }
             $pct = self::parsePercent((string)($_POST['share_moi'] ?? ''));
             if ($pct === null) {
-                $this->fail('Nhập tỷ lệ cho tác giả mới (0 đến 100).', $back);
+                $this->fail(t('dev.game.nhap.ty.le.cho.tac.gia.moi.den.100'), $back);
             }
             $rows[$newId] = ['share' => $pct, 'order' => count($rows), 'new' => true];
         }
         if (count($rows) > self::MAX_AUTHORS) {
-            $this->fail('Một dự án có tối đa ' . self::MAX_AUTHORS . ' tác giả.', $back);
+            $this->fail(t('dev.game.mot.du.an.co.toi.da.tac.gia', [self::MAX_AUTHORS]), $back);
         }
         $sum = round(array_sum(array_column($rows, 'share')), 2);
         if (abs($sum - 100) > 0.001) {
-            $this->fail('Tổng tỷ lệ chia doanh thu phải bằng 100%, hiện là ' . rtrim(rtrim(number_format($sum, 2, '.', ''), '0'), '.') . '%.', $back);
+            $this->fail(t('dev.game.tong.ty.le.chia.doanh.thu.phai.bang.100.hien.la', [rtrim(rtrim(number_format($sum, 2, '.', ''), '0'), '.')]), $back);
         }
         Model::transaction(function () use ($gid, $rows, $removed) {
             foreach ($removed as $u) {
@@ -254,14 +253,12 @@ class DevGameController extends Controller {
             audit('game_authors', 'tro_choi', $gid, ['tac_gia' => array_map(fn($r) => $r['share'], $rows), 'go' => $removed]);
         });
         if ($newId) {
-            NotificationModel::notifyUsers([$newId], (int)$user['ma'], 'game_author', 'Bạn được thêm làm tác giả',
-                $user['ten_hien_thi'] . ' đã thêm bạn vào dự án ' . $game['tieu_de'] . ' với tỷ lệ ' . $rows[$newId]['share'] . '% doanh thu.', '/dev/games/' . $gid);
+            NotificationModel::notifyUsers([$newId], (int)$user['ma'], 'game_author',t('dev.game.ban.duoc.them.lam.tac.gia'),t('dev.game.da.them.ban.vao.du.an.voi.ty.le.doanh.thu', [$user['ten_hien_thi'], $game['tieu_de'], $rows[$newId]['share']]), '/dev/games/' . $gid);
         }
         if ($removed) {
-            NotificationModel::notifyUsers($removed, (int)$user['ma'], 'game_author', 'Bạn không còn là tác giả',
-                'Bạn đã được gỡ khỏi danh sách tác giả của ' . $game['tieu_de'] . '. Doanh thu đã ghi sổ trước đó không thay đổi.', '/dev');
+            NotificationModel::notifyUsers($removed, (int)$user['ma'], 'game_author',t('dev.game.ban.khong.con.la.tac.gia'),t('dev.game.ban.da.duoc.go.khoi.danh.sach.tac.gia.cua.doanh.thu.da.ghi.so.truoc.do.khong.thay.doi', [$game['tieu_de']]), '/dev');
         }
-        flash('success', 'Đã lưu danh sách tác giả. Tỷ lệ mới áp dụng cho các lượt bán từ bây giờ.');
+        flash('success',t('dev.game.da.luu.danh.sach.tac.gia.ty.le.moi.ap.dung.cho.cac.luot.ban.tu.bay.gio'));
         $this->redirect($back);
     }
 
@@ -281,7 +278,7 @@ class DevGameController extends Controller {
             audit('release_added', 'phien_ban_phat_hanh', $id, ['tro_choi_id' => $gid, 'phien_ban' => $r['ten_phien_ban']]);
             return $id;
         });
-        flash('success', 'Đã thêm phiên bản ' . $r['ten_phien_ban'] . '.');
+        flash('success',t('dev.game.da.them.phien.ban', [$r['ten_phien_ban']]));
         $this->redirect('/dev/games/' . $gid . '/releases#release-' . $id);
     }
 
@@ -295,7 +292,7 @@ class DevGameController extends Controller {
             ReleaseModel::update($id, $r);
             audit('release_updated', 'phien_ban_phat_hanh', $id);
         });
-        flash('success', 'Đã lưu phiên bản ' . $r['ten_phien_ban'] . '.');
+        flash('success',t('dev.game.da.luu.phien.ban', [$r['ten_phien_ban']]));
         $this->redirect('/dev/games/' . $gid . '/releases#release-' . $id);
     }
 
@@ -307,7 +304,7 @@ class DevGameController extends Controller {
             ReleaseModel::delete((int)$release['ma']);
             audit('release_deleted', 'phien_ban_phat_hanh', (int)$release['ma'], ['tro_choi_id' => $gid, 'phien_ban' => $release['ten_phien_ban'], 'kenh' => $release['kenh_phat_hanh']]);
         });
-        flash('success', 'Đã xóa phiên bản ' . $release['ten_phien_ban'] . '.');
+        flash('success',t('dev.game.da.xoa.phien.ban', [$release['ten_phien_ban']]));
         $this->redirect('/dev/games/' . $gid . '/releases');
     }
 
@@ -336,7 +333,7 @@ class DevGameController extends Controller {
             audit('devlog_created', 'nhat_ky_phat_trien', $id, ['trang_thai' => $status]);
             return $id;
         });
-        flash('success', $status === 'published' ? 'Đã đăng bài. Người theo dõi trò chơi sẽ nhận được thông báo.' : 'Đã lưu bản nháp.');
+        flash('success',($status === 'published' ? t('dev.game.da.dang.bai.nguoi.theo.doi.tro.choi.se.nhan.duoc.thong.bao') : t('dev.game.da.luu.ban.nhap')));
         $this->redirect('/dev/games/' . $gid . '/devlogs/' . $id);
     }
 
@@ -363,7 +360,7 @@ class DevGameController extends Controller {
         if ($firstPublish) {
             DevlogModel::notifyPublished($gid, (int)$user['ma'], $title, $post['duong_dan_rut_gon']);
         }
-        flash('success', $firstPublish ? 'Đã đăng bài. Người theo dõi trò chơi sẽ nhận được thông báo.' : 'Đã lưu bài viết.');
+        flash('success',($firstPublish ? t('dev.game.da.dang.bai.nguoi.theo.doi.tro.choi.se.nhan.duoc.thong.bao') : t('dev.game.da.luu.bai.viet')));
         $this->redirect('/dev/games/' . $gid . '/devlogs/' . $id);
     }
 
@@ -379,16 +376,16 @@ class DevGameController extends Controller {
         $gid = (int)$game['ma'];
         $back = '/dev/games/' . $gid . '/page';
         $colors = [];
-        foreach (['mau_nen' => 'Màu nền', 'mau_chu' => 'Màu chữ', 'mau_lien_ket' => 'Màu liên kết'] as $key => $name) {
+        foreach (['mau_nen' => t('dev.game.mau.nen'), 'mau_chu' => t('dev.game.mau.chu'), 'mau_lien_ket' => t('dev.game.mau.lien.ket')] as $key => $name) {
             $value = strtolower(trim((string)($_POST[$key] ?? '')));
             if ($value !== '' && !preg_match('/^#[0-9a-f]{6}$/', $value)) {
-                $this->fail($name . ' phải có dạng #RRGGBB, ví dụ #1a1a2e, hoặc để trống để dùng màu mặc định.', $back);
+                $this->fail(t('dev.game.phai.co.dang.rrggbb.vi.du.1a1a2e.hoac.de.trong.de.dung.mau.mac.dinh', [$name]), $back);
             }
             $colors[$key] = $value !== '' ? $value : null;
         }
         $layout = (string)($_POST['bo_cuc_trang'] ?? '');
         if (!in_array($layout, ['default', 'wide', 'minimal'], true)) {
-            $this->fail('Chọn bố cục trang.', $back);
+            $this->fail(t('dev.game.chon.bo.cuc.trang'), $back);
         }
         // Defaults mirror .game-page.themed in app.css: the theme ground and its ink.
         $fallback = theme_page_colors();
@@ -396,10 +393,10 @@ class DevGameController extends Controller {
         $ink = $colors['mau_chu'] ?? $fallback['ink'];
         $link = $colors['mau_lien_ket'] ?? $ink;
         if (self::contrast($bg, $ink) < 4.5) {
-            $this->fail('Màu chữ và màu nền có độ tương phản ' . number_format(self::contrast($bg, $ink), 1) . ':1, cần ít nhất 4.5:1 để dễ đọc.', $back);
+            $this->fail(t('dev.game.mau.chu.va.mau.nen.co.do.tuong.phan.1.can.it.nhat.4.5.1.de.de.doc', [number_format(self::contrast($bg, $ink), 1)]), $back);
         }
         if (self::contrast($bg, $link) < 4.5) {
-            $this->fail('Màu liên kết và màu nền có độ tương phản ' . number_format(self::contrast($bg, $link), 1) . ':1, cần ít nhất 4.5:1.', $back);
+            $this->fail(t('dev.game.mau.lien.ket.va.mau.nen.co.do.tuong.phan.1.can.it.nhat.4.5.1', [number_format(self::contrast($bg, $link), 1)]), $back);
         }
         $row = $colors + ['bo_cuc_trang' => $layout, 'bat_cong_dong' => post_bool('bat_cong_dong'), 'hien_thi_nha_sang_tao' => post_bool('hien_thi_nha_sang_tao')];
         Model::transaction(function () use ($gid, $row) {
@@ -412,7 +409,7 @@ class DevGameController extends Controller {
             ]);
             audit('game_page_saved', 'tro_choi', $gid, $row);
         });
-        flash('success', 'Đã lưu giao diện trang.');
+        flash('success',t('dev.game.da.luu.giao.dien.trang'));
         $this->redirect($back);
     }
 
@@ -450,23 +447,23 @@ class DevGameController extends Controller {
         $back = '/dev/games/' . $gid . '/keys#generate';
         $count = post_int('so_luong');
         if ($count < 1 || $count > self::KEY_BATCH) {
-            $this->fail('Số lượng mã mỗi lần từ 1 đến ' . self::KEY_BATCH . '.', $back);
+            $this->fail(t('dev.game.so.luong.ma.moi.lan.tu.1.den', [self::KEY_BATCH]), $back);
         }
         $expires = null;
         $rawDate = trim((string)($_POST['ngay_het_han'] ?? ''));
         if ($rawDate !== '') {
             $date = DateTime::createFromFormat('!Y-m-d', $rawDate);
             if (!$date || $date->format('Y-m-d') !== $rawDate) {
-                $this->fail('Ngày hết hạn không hợp lệ.', $back);
+                $this->fail(t('dev.game.ngay.het.han.khong.hop.le'), $back);
             }
             if ($rawDate <= date('Y-m-d')) {
-                $this->fail('Ngày hết hạn phải sau hôm nay.', $back);
+                $this->fail(t('dev.game.ngay.het.han.phai.sau.hom.nay'), $back);
             }
             $expires = $rawDate . ' 23:59:59';
         }
         $open = (int)Model::scalar("SELECT COUNT(*) FROM ma_truy_cap_tro_choi WHERE tro_choi_id = :g AND trang_thai = 'available'", [':g' => $gid]);
         if ($open + $count > self::MAX_OPEN_KEYS) {
-            $this->fail('Mỗi dự án giữ tối đa ' . fmt_int(self::MAX_OPEN_KEYS) . ' mã chưa dùng; hiện có ' . fmt_int($open) . '.', $back);
+            $this->fail(t('dev.game.moi.du.an.giu.toi.da.ma.chua.dung.hien.co', [fmt_int(self::MAX_OPEN_KEYS), fmt_int($open)]), $back);
         }
         $raw = Model::transaction(function () use ($gid, $user, $count, $expires) {
             $out = [];
@@ -482,7 +479,7 @@ class DevGameController extends Controller {
             return array_keys($out);
         });
         $_SESSION['dev_new_keys'][$gid] = $raw;
-        flash('success', 'Đã tạo ' . fmt_int($count) . ' mã truy cập. Sao chép ngay: hệ thống chỉ lưu bản băm và không thể hiển thị lại mã.');
+        flash('success',t('dev.game.da.tao.ma.truy.cap.sao.chep.ngay.he.thong.chi.luu.ban.bam.va.khong.the.hien.thi.lai.ma', [fmt_int($count)]));
         $this->redirect('/dev/games/' . $gid . '/keys#fresh');
     }
 
@@ -491,17 +488,17 @@ class DevGameController extends Controller {
         $gid = (int)$game['ma'];
         $key = Model::one('SELECT * FROM ma_truy_cap_tro_choi WHERE ma = :k AND tro_choi_id = :g', [':k' => (int)($params['key'] ?? 0), ':g' => $gid]);
         if (!$key) {
-            $this->notFound('Không tìm thấy mã truy cập.');
+            $this->notFound(t('dev.game.khong.tim.thay.ma.truy.cap'));
         }
         $back = safe_return($_POST['return_to'] ?? null, '/dev/games/' . $gid . '/keys');
         if ($key['trang_thai'] !== 'available') {
-            $this->fail('Chỉ thu hồi được mã chưa sử dụng. Mã này: ' . mb_strtolower(label('key_status', $key['trang_thai'])) . '.', $back);
+            $this->fail(t('dev.game.chi.thu.hoi.duoc.ma.chua.su.dung.ma.nay', [mb_strtolower(label('key_status', $key['trang_thai']))]), $back);
         }
         Model::transaction(function () use ($key) {
             Model::run("UPDATE ma_truy_cap_tro_choi SET trang_thai = 'revoked' WHERE ma = :k AND trang_thai = 'available'", [':k' => (int)$key['ma']]);
             audit('key_revoked', 'ma_truy_cap_tro_choi', (int)$key['ma']);
         });
-        flash('success', 'Đã thu hồi mã #' . (int)$key['ma'] . '.');
+        flash('success',t('dev.game.da.thu.hoi.ma', [(int)$key['ma']]));
         $this->redirect($back);
     }
 
@@ -536,7 +533,7 @@ class DevGameController extends Controller {
         $user = $this->requireRole('developer');
         $game = GameModel::find((int)($params['id'] ?? 0));
         if (!$game || !GameModel::isAuthor((int)$game['ma'], (int)$user['ma'])) {
-            $this->notFound('Không tìm thấy dự án.');
+            $this->notFound(t('dev.game.khong.tim.thay.du.an'));
         }
         return [$user, $game];
     }
@@ -567,21 +564,21 @@ class DevGameController extends Controller {
     private function readGameForm(string $back, ?array $game): array {
         $title = post_str('tieu_de', 200);
         if ($title === null || $title === '') {
-            $this->fail('Nhập tên dự án (tối đa 200 ký tự).', $back);
+            $this->fail(t('dev.game.nhap.ten.du.an.toi.da.200.ky.tu'), $back);
         }
         $short = post_str('mo_ta_ngan', 500);
         if ($short === null) {
-            $this->fail('Mô tả ngắn tối đa 500 ký tự.', $back);
+            $this->fail(t('dev.game.mo.ta.ngan.toi.da.500.ky.tu'), $back);
         }
         $desc = post_str('mo_ta', 20000);
         if ($desc === null) {
-            $this->fail('Mô tả chi tiết tối đa 20.000 ký tự.', $back);
+            $this->fail(t('dev.game.mo.ta.chi.tiet.toi.da.20.000.ky.tu'), $back);
         }
         $type = (string)($_POST['loai_du_an'] ?? '');
         $release = (string)($_POST['trang_thai_phat_hanh'] ?? '');
         $pricing = (string)($_POST['mo_hinh_gia'] ?? '');
         if (!in_array($type, GameModel::PROJECT_TYPES, true) || !in_array($release, GameModel::RELEASE_STATUSES, true) || !in_array($pricing, GameModel::PRICING, true)) {
-            $this->fail('Chọn loại dự án, tình trạng phát triển và mô hình giá.', $back);
+            $this->fail(t('dev.game.chon.loai.du.an.tinh.trang.phat.trien.va.mo.hinh.gia'), $back);
         }
 
         $rawMin = trim((string)($_POST['gia_toi_thieu'] ?? ''));
@@ -589,7 +586,7 @@ class DevGameController extends Controller {
         $min = parse_money($rawMin);
         $sug = parse_money($rawSug);
         if (($rawMin !== '' && $min === null) || ($rawSug !== '' && $sug === null)) {
-            $this->fail('Giá phải là số không âm, tối đa 2 chữ số thập phân, ví dụ 4.99.', $back);
+            $this->fail(t('dev.game.gia.phai.la.so.khong.am.toi.da.2.chu.so.thap.phan.vi.du.4.99'), $back);
         }
         switch ($pricing) {
             case 'free':
@@ -597,14 +594,14 @@ class DevGameController extends Controller {
                 break;
             case 'paid':
                 if (!$min || $min <= 0) {
-                    $this->fail('Trò chơi trả phí cần giá lớn hơn 0.', $back);
+                    $this->fail(t('dev.game.tro.choi.tra.phi.can.gia.lon.hon'), $back);
                 }
                 $sug = null;
                 break;
             case 'pay_what_you_want':
                 $min = $min ?? 0.0;
                 if ($sug !== null && $sug < $min) {
-                    $this->fail('Giá đề xuất không được thấp hơn giá tối thiểu.', $back);
+                    $this->fail(t('dev.game.gia.de.xuat.khong.duoc.thap.hon.gia.toi.thieu'), $back);
                 }
                 break;
             case 'donation':
@@ -615,33 +612,33 @@ class DevGameController extends Controller {
                 break;
         }
         if ($min > self::MAX_PRICE || ($sug ?? 0) > self::MAX_PRICE) {
-            $this->fail('Giá tối đa ' . money(self::MAX_PRICE) . '.', $back);
+            $this->fail(t('dev.game.gia.toi.da', [money(self::MAX_PRICE)]), $back);
         }
 
         $age = post_str('phan_loai_do_tuoi', 40);
         $license = post_str('ten_giay_phep', 120);
         $url = post_str('url_choi_ngoai', 1000);
         if ($age === null || $license === null || $url === null) {
-            $this->fail('Phân loại độ tuổi tối đa 40 ký tự, giấy phép 120 ký tự, liên kết 1000 ký tự.', $back);
+            $this->fail(t('dev.game.phan.loai.do.tuoi.toi.da.40.ky.tu.giay.phep.120.ky.tu.lien.ket.1000.ky.tu'), $back);
         }
         if ($url !== '' && (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('#^https?://#i', $url))) {
-            $this->fail('Liên kết chơi trên web phải là địa chỉ http:// hoặc https:// hợp lệ.', $back);
+            $this->fail(t('dev.game.lien.ket.choi.tren.web.phai.la.dia.chi.http.hoac.https.hop.le'), $back);
         }
 
         $id = $game ? (int)$game['ma'] : 0;
         $slugInput = post_str('duong_dan_rut_gon', 220);
         if ($slugInput === null) {
-            $this->fail('Đường dẫn tối đa 220 ký tự.', $back);
+            $this->fail(t('dev.game.duong.dan.toi.da.220.ky.tu'), $back);
         }
         if ($slugInput === '') {
             $slug = self::uniqueGameSlug($title, $id);
         } else {
             $slug = strtolower($slugInput);
             if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug)) {
-                $this->fail('Đường dẫn chỉ gồm chữ thường không dấu, số và dấu gạch ngang, ví dụ ham-nguc-moi.', $back);
+                $this->fail(t('dev.game.duong.dan.chi.gom.chu.thuong.khong.dau.so.va.dau.gach.ngang.vi.du.ham.nguc.moi'), $back);
             }
             if (Model::scalar('SELECT 1 FROM tro_choi WHERE duong_dan_rut_gon = :s AND ma <> :i', [':s' => $slug, ':i' => $id])) {
-                $this->fail('Đường dẫn "' . $slug . '" đã được dự án khác sử dụng.', $back);
+                $this->fail(t('dev.game.duong.dan.da.duoc.du.an.khac.su.dung', [$slug]), $back);
             }
         }
 
@@ -649,10 +646,10 @@ class DevGameController extends Controller {
         if ($game && in_array($game['trang_thai'], self::DEV_STATUSES, true)) {
             $status = (string)($_POST['trang_thai'] ?? $game['trang_thai']);
             if (!in_array($status, self::DEV_STATUSES, true)) {
-                $this->fail('Trạng thái không hợp lệ.', $back);
+                $this->fail(t('admin.trang.thai.khong.hop.le'), $back);
             }
             if ($status !== 'draft' && $short === '') {
-                $this->fail('Thêm mô tả ngắn trước khi công bố: mô tả này hiển thị trên thẻ trò chơi ở cửa hàng.', $back);
+                $this->fail(t('dev.game.them.mo.ta.ngan.truoc.khi.cong.bo.mo.ta.nay.hien.thi.tren.the.tro.choi.o.cua.hang'), $back);
             }
         }
 
@@ -662,10 +659,10 @@ class DevGameController extends Controller {
             'nen_tang' => self::validIds('nen_tang', 'nen_tang'),
         ];
         if (count($taxonomy['the_loai']) > self::MAX_CATEGORIES) {
-            $this->fail('Chọn tối đa ' . self::MAX_CATEGORIES . ' thể loại.', $back);
+            $this->fail(t('dev.game.chon.toi.da.the.loai', [self::MAX_CATEGORIES]), $back);
         }
         if (count($taxonomy['nhan']) > self::MAX_TAGS) {
-            $this->fail('Chọn tối đa ' . self::MAX_TAGS . ' nhãn.', $back);
+            $this->fail(t('dev.game.chon.toi.da.nhan', [self::MAX_TAGS]), $back);
         }
 
         return [[
@@ -719,7 +716,7 @@ class DevGameController extends Controller {
     private function mediaItem(int $gameId, array $params): array {
         $item = Model::one('SELECT * FROM media_tro_choi WHERE ma = :m AND tro_choi_id = :g', [':m' => (int)($params['media'] ?? 0), ':g' => $gameId]);
         if (!$item) {
-            $this->notFound('Không tìm thấy tệp.');
+            $this->notFound(t('dev.game.khong.tim.thay.tep'));
         }
         return $item;
     }
@@ -729,10 +726,10 @@ class DevGameController extends Controller {
         $caption = post_str('chu_thich', 300);
         $alt = post_str('van_ban_thay_the', 300);
         if ($caption === null || $alt === null) {
-            $this->fail('Chú thích và văn bản thay thế tối đa 300 ký tự.', $back);
+            $this->fail(t('dev.game.chu.thich.va.van.ban.thay.the.toi.da.300.ky.tu'), $back);
         }
         if (in_array($type, self::IMAGE_MEDIA, true) && $alt === '') {
-            $this->fail('Mô tả ngắn nội dung ảnh (văn bản thay thế) cho người dùng trình đọc màn hình.', $back);
+            $this->fail(t('dev.game.mo.ta.ngan.noi.dung.anh.van.ban.thay.the.cho.nguoi.dung.trinh.doc.man.hinh'), $back);
         }
         return [$caption, $alt, max(0, min(1000, post_int('thu_tu_sap_xep')))];
     }
@@ -740,7 +737,7 @@ class DevGameController extends Controller {
     private function readLink(string $back): string {
         $url = post_str('url_media', 1500);
         if ($url === null || $url === '' || !filter_var($url, FILTER_VALIDATE_URL) || !preg_match('#^https?://#i', $url)) {
-            $this->fail('Nhập địa chỉ http:// hoặc https:// hợp lệ.', $back);
+            $this->fail(t('dev.game.nhap.dia.chi.http.hoac.https.hop.le'), $back);
         }
         return $url;
     }
@@ -764,7 +761,7 @@ class DevGameController extends Controller {
     private function release(int $gameId, array $params): array {
         $release = Model::one('SELECT * FROM phien_ban_phat_hanh WHERE ma = :r AND tro_choi_id = :g', [':r' => (int)($params['release'] ?? 0), ':g' => $gameId]);
         if (!$release) {
-            $this->notFound('Không tìm thấy phiên bản.');
+            $this->notFound(t('dev.game.khong.tim.thay.phien.ban'));
         }
         return $release;
     }
@@ -773,23 +770,23 @@ class DevGameController extends Controller {
     private function readRelease(int $gameId, int $exceptId, string $back): array {
         $version = post_str('ten_phien_ban', 60);
         if ($version === null || $version === '') {
-            $this->fail('Nhập tên phiên bản, ví dụ 1.2.0 (tối đa 60 ký tự).', $back);
+            $this->fail(t('dev.game.nhap.ten.phien.ban.vi.du.1.2.toi.da.60.ky.tu'), $back);
         }
         $channel = (string)($_POST['kenh_phat_hanh'] ?? '');
         if (!isset(labels('channel')[$channel])) {
-            $this->fail('Chọn kênh phát hành.', $back);
+            $this->fail(t('dev.game.chon.kenh.phat.hanh'), $back);
         }
         $notes = post_str('ghi_chu_phat_hanh', 20000);
         if ($notes === null) {
-            $this->fail('Ghi chú phát hành tối đa 20.000 ký tự.', $back);
+            $this->fail(t('dev.game.ghi.chu.phat.hanh.toi.da.20.000.ky.tu'), $back);
         }
         $rawDate = trim((string)($_POST['ngay_phat_hanh'] ?? ''));
         $date = $rawDate === '' ? date('Y-m-d H:i:s') : parse_datetime($rawDate);
         if ($date === null) {
-            $this->fail('Ngày phát hành không hợp lệ.', $back);
+            $this->fail(t('dev.game.ngay.phat.hanh.khong.hop.le'), $back);
         }
         if (ReleaseModel::versionTaken($gameId, $version, $channel, $exceptId)) {
-            $this->fail('Phiên bản ' . $version . ' đã có trên kênh ' . label('channel', $channel) . '.', $back);
+            $this->fail(t('dev.game.phien.ban.da.co.tren.kenh', [$version, label('channel', $channel)]), $back);
         }
         return ['ten_phien_ban' => $version, 'kenh_phat_hanh' => $channel, 'ghi_chu_phat_hanh' => $notes !== '' ? $notes : null, 'cong_khai' => post_bool('cong_khai'), 'ngay_phat_hanh' => $date];
     }
@@ -797,7 +794,7 @@ class DevGameController extends Controller {
     private function devlog(int $gameId, array $params): array {
         $post = Model::one('SELECT * FROM nhat_ky_phat_trien WHERE ma = :p AND tro_choi_id = :g', [':p' => (int)($params['post'] ?? 0), ':g' => $gameId]);
         if (!$post) {
-            $this->notFound('Không tìm thấy bài nhật ký.');
+            $this->notFound(t('dev.game.khong.tim.thay.bai.nhat.ky'));
         }
         return $post;
     }
@@ -806,18 +803,18 @@ class DevGameController extends Controller {
     private function readDevlog(?array $post, string $back): array {
         $title = post_str('tieu_de', 200);
         if ($title === null || $title === '') {
-            $this->fail('Nhập tiêu đề (tối đa 200 ký tự).', $back);
+            $this->fail(t('dev.game.nhap.tieu.de.toi.da.200.ky.tu'), $back);
         }
         $content = post_str('noi_dung', 50000);
         if ($content === null || $content === '') {
-            $this->fail('Nhập nội dung bài viết (tối đa 50.000 ký tự).', $back);
+            $this->fail(t('dev.game.nhap.noi.dung.bai.viet.toi.da.50.000.ky.tu'), $back);
         }
         if ($post && $post['trang_thai'] === 'hidden') {
             return [$title, $content, 'hidden'];
         }
         $status = (string)($_POST['trang_thai'] ?? 'draft');
         if (!in_array($status, ['draft', 'published'], true)) {
-            $this->fail('Trạng thái không hợp lệ.', $back);
+            $this->fail(t('admin.trang.thai.khong.hop.le'), $back);
         }
         return [$title, $content, $status];
     }
