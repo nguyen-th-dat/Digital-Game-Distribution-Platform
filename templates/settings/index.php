@@ -120,8 +120,8 @@ $val = static fn(string $key, $fallback) => old($key, $fallback);
             <div class="field">
                 <label for="giao_dien">Giao diện</label>
                 <select class="input" id="giao_dien" name="giao_dien">
-                    <option value="dark"<?= ($settings['giao_dien'] ?? THEME_DARK) !== THEME_LIGHT ? ' selected' : '' ?>>Tối</option>
-                    <option value="light"<?= ($settings['giao_dien'] ?? THEME_DARK) === THEME_LIGHT ? ' selected' : '' ?>>Sáng</option>
+                    <option value="light"<?= ($settings['giao_dien'] ?? THEME_DEFAULT) !== THEME_DARK ? ' selected' : '' ?>>Sáng</option>
+                    <option value="dark"<?= ($settings['giao_dien'] ?? THEME_DEFAULT) === THEME_DARK ? ' selected' : '' ?>>Tối</option>
                 </select>
                 <span class="hint">Nút trên thanh đầu cũng đổi nhanh giữa hai giao diện.</span>
             </div>

@@ -9,4 +9,4 @@
 -- =============================================================================
 
 ALTER TABLE `cai_dat_nguoi_dung`
-  ADD COLUMN `giao_dien` enum('dark','light') NOT NULL DEFAULT 'dark' AFTER `tien_te_uu_tien`;
+  ADD COLUMN `giao_dien` enum('dark','light') NOT NULL DEFAULT 'light' AFTER `tien_te_uu_tien`;

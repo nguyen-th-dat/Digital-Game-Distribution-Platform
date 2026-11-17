@@ -63,21 +63,24 @@ function old(string $key, $default = '') {
 
 // ---------------------------------------------------------------- theme -----
 
-/** The two supported themes. */
+/** The two supported themes. The light one is the default. */
 const THEME_DARK = 'dark';
 const THEME_LIGHT = 'light';
+
+/** The theme every visitor gets until they choose another one. */
+const THEME_DEFAULT = THEME_LIGHT;
 
 /** Cookie that remembers the theme for visitors who are not signed in. */
 const THEME_COOKIE = 'kgdl_theme';
 
-/** Normalise a theme value; anything unknown becomes the dark theme. */
+/** Normalise a theme value; anything unknown becomes the default theme. */
 function theme_normalize(?string $value): string {
-    return $value === THEME_LIGHT ? THEME_LIGHT : THEME_DARK;
+    return $value === THEME_DARK ? THEME_DARK : THEME_DEFAULT;
 }
 
 /**
  * The theme of this request: the account preference for a signed-in visitor,
- * the cookie for a guest, and the dark theme as the last resort.
+ * the cookie for a guest, and the default theme as the last resort.
  *
  * The result is cached in the session together with the account it belongs to,
  * so a page costs one query at most and switching accounts never shows the

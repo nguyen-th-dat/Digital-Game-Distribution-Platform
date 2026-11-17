@@ -55,7 +55,7 @@ Developed as part of the **Open Source Software Development** course.
 
 ## Appearance
 
-The site has a light and a dark theme. The button in the top bar switches between them; the choice is saved to your account when you are signed in, and in a cookie for guests. You can also pick a theme under `Settings → Privacy and preferences`.
+The site has a light and a dark theme, and light is the default. The button in the top bar switches between them; the choice is saved to your account when you are signed in, and in a cookie for guests. You can also pick a theme under `Settings → Privacy and preferences`.
 
 Installations that were set up before the theme was added need one extra statement, because `database/du_lieu.sql` already ships with the column:
 

@@ -115,7 +115,7 @@ class SettingsController extends Controller {
         $visibility = ($_POST['pham_vi_hien_thi_ho_so'] ?? '') === 'private' ? 'private' : 'public';
         $lang = in_array($_POST['ngon_ngu_uu_tien'] ?? '', ['vi', 'en'], true) ? $_POST['ngon_ngu_uu_tien'] : 'vi';
         $currency = in_array($_POST['tien_te_uu_tien'] ?? '', ['USD', 'VND'], true) ? $_POST['tien_te_uu_tien'] : APP_CURRENCY;
-        $theme = in_array($_POST['giao_dien'] ?? '', [THEME_DARK, THEME_LIGHT], true) ? $_POST['giao_dien'] : THEME_DARK;
+        $theme = in_array($_POST['giao_dien'] ?? '', [THEME_DARK, THEME_LIGHT], true) ? $_POST['giao_dien'] : THEME_DEFAULT;
         Model::run('INSERT INTO cai_dat_nguoi_dung (nguoi_dung_id, pham_vi_hien_thi_ho_so, hien_thi_game_so_huu, cho_phep_nhan_tin, email_cap_nhat_san_pham, email_cap_nhat_cong_dong, ngon_ngu_uu_tien, tien_te_uu_tien, giao_dien)
             VALUES (:u, :v, :o, :m, :p, :c, :l, :cur, :g)
             ON DUPLICATE KEY UPDATE pham_vi_hien_thi_ho_so = VALUES(pham_vi_hien_thi_ho_so), hien_thi_game_so_huu = VALUES(hien_thi_game_so_huu),
