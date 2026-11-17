@@ -17,17 +17,17 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
 ?>
 <div class="title-row">
     <div>
-        <h1>Cửa hàng</h1>
+        <h1><?= te('home.title') ?></h1>
         <p class="sub"><?= fmt_int($totalGames) ?> trò chơi độc lập đang được công bố.</p>
     </div>
     <div class="actions">
-        <a class="btn" href="<?= e(app_url('/games?sale=1')) ?>">Đang giảm giá</a>
-        <a class="btn primary" href="<?= e(app_url('/games')) ?>">Khám phá tất cả</a>
+        <a class="btn" href="<?= e(app_url('/games?sale=1')) ?>"><?= te('home.on_sale') ?></a>
+        <a class="btn primary" href="<?= e(app_url('/games')) ?>"><?= te('home.explore_all') ?></a>
     </div>
 </div>
 
 <?php if ($featured): $isOwned = in_array((int)$featured['ma'], $owned, true); $hero = $featuredShots[0]; ?>
-    <section class="feature" aria-label="Nổi bật">
+    <section class="feature" aria-label="<?= te('home.featured') ?>">
         <figure class="feature-art">
             <a href="<?= e(game_url($featured)) ?>"><img src="<?= e(app_media_url($hero['url_media'])) ?>" alt="<?= e($hero['van_ban_thay_the'] ?: $featured['tieu_de']) ?>" data-fallback="<?= e($featured['tieu_de']) ?>"></a>
             <?php if ($hero['chu_thich']): ?><figcaption><?= media_credit_html($hero['chu_thich']) ?></figcaption><?php endif; ?>
@@ -39,7 +39,7 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
             <?php if (count($featuredShots) > 1): ?>
                 <div class="feature-thumbs">
                     <?php foreach (array_slice($featuredShots, 1) as $shot): ?>
-                        <img src="<?= e(app_media_url($shot['url_media'])) ?>" alt="<?= e($shot['van_ban_thay_the'] ?: 'Ảnh chụp ' . $featured['tieu_de']) ?>" loading="lazy" data-fallback="">
+                        <img src="<?= e(app_media_url($shot['url_media'])) ?>" alt="<?= e($shot['van_ban_thay_the'] ?: te('home.index.anh_chup') . ' ' . $featured['tieu_de']) ?>" loading="lazy" data-fallback="">
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
@@ -50,18 +50,18 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
             </div>
             <div class="foot">
                 <?= price_html($featured, $isOwned) ?>
-                <a class="btn primary" href="<?= e(game_url($featured)) ?>"><?= $isOwned ? 'Mở trang trò chơi' : 'Xem chi tiết' ?></a>
+                <a class="btn primary" href="<?= e(game_url($featured)) ?>"><?= $isOwned ? te('home.open_game') : te('home.view_details') ?></a>
             </div>
         </div>
     </section>
 <?php endif; ?>
 
-<?php $shelf('Mới công bố', $newest, '/games?sort=new'); ?>
-<?php $shelf('Đang giảm giá', $onSale, '/games?sale=1'); ?>
+<?php $shelf(te('home.new_releases'), $newest, '/games?sort=new'); ?>
+<?php $shelf(te('home.on_sale'), $onSale, '/games?sale=1'); ?>
 
 <div class="grid top section">
     <section class="panel span-7">
-        <header><h2>Được sở hữu nhiều nhất</h2><a class="meta link" href="<?= e(app_url('/games?sort=popular')) ?>">Bảng xếp hạng</a></header>
+        <header><h2><?= te('home.most_owned') ?></h2><a class="meta link" href="<?= e(app_url('/games?sort=popular')) ?>"><?= te('home.ranking') ?></a></header>
         <?php if ($popular): ?>
             <div class="rank-list">
                 <?php foreach (array_slice($popular, 0, 6) as $i => $game): ?>
@@ -72,18 +72,18 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
                         <?php else: ?><span class="thumb"></span><?php endif; ?>
                         <span class="rank-text">
                             <span class="t"><?= e($game['tieu_de']) ?></span>
-                            <span class="sub"><?= fmt_int($game['so_huu']) ?> người sở hữu<?= $game['the_loai'] ? ' · ' . e($game['the_loai']) : '' ?></span>
+                            <span class="sub"><?= fmt_int($game['so_huu']) ?> người sở hữu<?= $game['the_loai'] ? ' ' . te('common.dot') . ' ' . e($game['the_loai']) : '' ?></span>
                         </span>
                         <?= price_html($game, in_array((int)$game['ma'], $owned, true)) ?>
                     </a>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <div class="empty">Chưa có trò chơi nào được công bố.</div>
+            <div class="empty"><?= te('home.no_games') ?></div>
         <?php endif; ?>
     </section>
     <section class="panel span-5">
-        <header><h2>Thể loại</h2></header>
+        <header><h2><?= te('common.categories') ?></h2></header>
         <div class="chips">
             <?php foreach ($categories as $cat): ?>
                 <a class="chip" href="<?= e(app_url('/games?category=' . rawurlencode($cat['duong_dan_rut_gon']))) ?>"><?= e($cat['ten']) ?> <span class="faint"><?= fmt_int($cat['so_game']) ?></span></a>
@@ -103,12 +103,12 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
     </section>
 </div>
 
-<?php $shelf('Đánh giá cao', $topRated, '/games?sort=rating'); ?>
-<?php $shelf('Miễn phí', $free, '/games?price=free'); ?>
+<?php $shelf(te('home.top_rated'), $topRated, '/games?sort=rating'); ?>
+<?php $shelf(te('price.free'), $free, '/games?price=free'); ?>
 
 <?php if ($bundles): ?>
     <section class="section">
-        <div class="section-head"><h2>Gói game</h2><a class="meta link" href="<?= e(app_url('/bundles')) ?>">Xem tất cả</a></div>
+        <div class="section-head"><h2><?= te('bundle.bundles') ?></h2><a class="meta link" href="<?= e(app_url('/bundles')) ?>"><?= te('common.see_all') ?></a></div>
         <div class="games-grid">
             <?php foreach ($bundles as $b): ?>
                 <a class="game-card" href="<?= e(app_url('/bundles/' . rawurlencode($b['duong_dan_rut_gon']))) ?>">
@@ -118,7 +118,7 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
                     <h3><?= e($b['tieu_de']) ?></h3>
                     <div class="meta-line">
                         <span class="by"><?= fmt_int($b['so_game']) ?> trò chơi</span>
-                        <span class="price"><?php if ((float)$b['tong_gia_le'] > (float)$b['gia']): ?><span class="was"><?= e(money($b['tong_gia_le'])) ?></span><?php endif; ?><span<?= (float)$b['gia'] <= 0 ? ' class="free"' : '' ?>><?= (float)$b['gia'] <= 0 ? 'Miễn phí' : e(money($b['gia'])) ?></span></span>
+                        <span class="price"><?php if ((float)$b['tong_gia_le'] > (float)$b['gia']): ?><span class="was"><?= e(money($b['tong_gia_le'])) ?></span><?php endif; ?><span<?= (float)$b['gia'] <= 0 ? ' class="free"' : '' ?>><?= (float)$b['gia'] <= 0 ? te('price.free') : e(money($b['gia'])) ?></span></span>
                     </div>
                 </a>
             <?php endforeach; ?>

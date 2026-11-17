@@ -3,21 +3,21 @@
 ?>
 <div class="title-row">
     <div>
-        <h1>Thông báo</h1>
-        <p class="sub"><?= $unread ? fmt_int($unread) . ' chưa đọc' : 'Bạn đã đọc hết' ?></p>
+        <h1><?= te('nav.notifications') ?></h1>
+        <p class="sub"><?= $unread ? fmt_int($unread) . ' ' . te('notification.index.chua_doc') : te('notification.index.ban_da_doc_het') ?></p>
     </div>
     <?php if ($unread): ?>
-        <form class="actions" method="post" action="<?= e(app_url('/notifications/read-all')) ?>"><?= csrf_field() ?><button class="btn" type="submit">Đánh dấu tất cả đã đọc</button></form>
+        <form class="actions" method="post" action="<?= e(app_url('/notifications/read-all')) ?>"><?= csrf_field() ?><button class="btn" type="submit"><?= te('notification.index.danh_dau_tat_ca_da') ?></button></form>
     <?php endif; ?>
 </div>
 
-<nav class="tabs" aria-label="Lọc thông báo">
-    <a href="<?= e(app_url('/notifications')) ?>" aria-selected="<?= $filter === 'all' ? 'true' : 'false' ?>">Tất cả</a>
+<nav class="tabs" aria-label="<?= te('notification.index.loc_thong_bao') ?>">
+    <a href="<?= e(app_url('/notifications')) ?>" aria-selected="<?= $filter === 'all' ? 'true' : 'false' ?>"><?= te('common.all') ?></a>
     <a href="<?= e(app_url('/notifications?filter=unread')) ?>" aria-selected="<?= $filter === 'unread' ? 'true' : 'false' ?>">Chưa đọc<?php if ($unread): ?><span class="count"><?= fmt_int($unread) ?></span><?php endif; ?></a>
 </nav>
 
 <?php if (!$notifications): ?>
-    <div class="empty"><p><?= $filter === 'unread' ? 'Không có thông báo chưa đọc.' : 'Khi có đơn hàng, đánh giá, bình luận hay cập nhật từ trò chơi bạn theo dõi, thông báo sẽ hiện ở đây.' ?></p></div>
+    <div class="empty"><p><?= $filter === 'unread' ? te('notification.index.khong_co_thong_bao_chua') : te('notification.index.khi_co_don_hang_danh') ?></p></div>
 <?php else: ?>
 <section class="panel">
     <div class="rows">
@@ -28,7 +28,7 @@
                     <?php if ($n['url_dich']): ?>
                         <form method="post" action="<?= e(app_url('/notifications/' . (int)$n['ma'] . '/read')) ?>" class="note-open">
                             <?= csrf_field() ?><input type="hidden" name="open" value="1">
-                            <button type="submit"><?= e($n['tieu_de']) ?><?= $isUnread ? '<span class="sr-only"> (chưa đọc)</span>' : '' ?></button>
+                            <button type="submit"><?= e($n['tieu_de']) ?><?= $isUnread ? '<span class="sr-only"> (' . te('notification.index.chua_doc') . ')</span>' : '' ?></button>
                         </form>
                     <?php else: ?>
                         <strong><?= e($n['tieu_de']) ?></strong>
@@ -37,7 +37,7 @@
                 </div>
                 <span class="small faint" title="<?= e(fmt_datetime($n['ngay_tao'])) ?>"><?= e(time_ago($n['ngay_tao'])) ?></span>
                 <?php if ($isUnread): ?>
-                    <form method="post" action="<?= e(app_url('/notifications/' . (int)$n['ma'] . '/read')) ?>"><?= csrf_field() ?><?= return_field() ?><button class="link-btn" type="submit">Đã đọc</button></form>
+                    <form method="post" action="<?= e(app_url('/notifications/' . (int)$n['ma'] . '/read')) ?>"><?= csrf_field() ?><?= return_field() ?><button class="link-btn" type="submit"><?= te('notification.index.da_doc') ?></button></form>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>

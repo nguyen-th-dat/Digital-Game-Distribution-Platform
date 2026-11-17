@@ -29,8 +29,8 @@ $style = implode(';', array_map(static fn($k, $c) => $k . ':' . $c, array_keys($
     <?= csrf_field() ?>
     <section class="settings-block" aria-labelledby="colors-h">
         <div class="about">
-            <h2 id="colors-h">Màu sắc</h2>
-            <p>Nhập mã màu dạng #RRGGBB. Chữ và liên kết phải có độ tương phản ít nhất 4.5:1 với nền để ai cũng đọc được; hệ thống kiểm tra khi lưu.</p>
+            <h2 id="colors-h"><?= te('dev.game-page.mau_sac') ?></h2>
+            <p><?= te('dev.game-page.nhap_ma_mau_dang_rrggbb') ?></p>
         </div>
         <div class="panel">
             <div class="form-grid">
@@ -42,21 +42,21 @@ $style = implode(';', array_map(static fn($k, $c) => $k . ':' . $c, array_keys($
                     </div>
                 <?php endforeach; ?>
             </div>
-            <div class="game-page themed has-bg page-preview"<?= $style ? ' style="' . e($style) . '"' : '' ?> aria-label="Xem trước màu đã lưu">
+            <div class="game-page themed has-bg page-preview"<?= $style ? ' style="' . e($style) . '"' : '' ?> aria-label="<?= te('dev.game-page.xem_truoc_mau_da_luu') ?>">
                 <strong><?= e($game['tieu_de']) ?></strong>
-                <p class="prose">Đoạn văn mẫu với <a href="#colors-h" tabindex="-1">một liên kết</a>. Xem trước dùng màu đã lưu.</p>
+                <p class="prose"><?= te('dev.game-page.doan_van_mau_voi') ?> <a href="#colors-h" tabindex="-1"><?= te('dev.game-page.mot_lien_ket') ?></a><?= te('dev.game-page.xem_truoc_dung_mau_da') ?></p>
             </div>
         </div>
     </section>
 
     <section class="settings-block" aria-labelledby="layout-h">
         <div class="about">
-            <h2 id="layout-h">Bố cục</h2>
-            <p>Cách sắp xếp trang trò chơi trên màn hình rộng. Trên điện thoại mọi bố cục đều hiển thị một cột.</p>
+            <h2 id="layout-h"><?= te('dev.game-page.bo_cuc') ?></h2>
+            <p><?= te('dev.game-page.cach_sap_xep_trang_tro') ?></p>
         </div>
         <div class="panel">
             <fieldset class="field">
-                <legend class="sr-only">Bố cục trang</legend>
+                <legend class="sr-only"><?= te('dev.game-page.bo_cuc_trang') ?></legend>
                 <div class="choice-grid">
                     <?php foreach ($layouts as $k => [$name, $hint]): ?>
                         <label class="check"><input type="radio" name="bo_cuc_trang" value="<?= e($k) ?>"<?= $pickedLayout === $k ? ' checked' : '' ?>> <span><?= e($name) ?><span class="sub"><?= e($hint) ?></span></span></label>
@@ -68,14 +68,14 @@ $style = implode(';', array_map(static fn($k, $c) => $k . ':' . $c, array_keys($
 
     <section class="settings-block" aria-labelledby="community-h">
         <div class="about">
-            <h2 id="community-h">Cộng đồng</h2>
-            <p>Bình luận chỉ hiện khi cả hai nơi đều bật: tùy chọn "Cho phép bình luận" ở tab Chi tiết và tùy chọn dưới đây.</p>
+            <h2 id="community-h"><?= te('nav.community') ?></h2>
+            <p><?= te('dev.game-page.binh_luan_chi_hien_khi') ?></p>
         </div>
         <div class="panel">
-            <label class="check"><input type="checkbox" name="bat_cong_dong" value="1"<?= $on('bat_cong_dong') ? ' checked' : '' ?>> <span>Bật bình luận cộng đồng<span class="sub">Áp dụng cho trang trò chơi và các bài nhật ký.</span></span></label>
-            <label class="check"><input type="checkbox" name="hien_thi_nha_sang_tao" value="1"<?= $on('hien_thi_nha_sang_tao') ? ' checked' : '' ?>> <span>Hiện danh sách tác giả<span class="sub">Tên các tác giả trên trang trò chơi.</span></span></label>
+            <label class="check"><input type="checkbox" name="bat_cong_dong" value="1"<?= $on('bat_cong_dong') ? ' checked' : '' ?>> <span><?= te('dev.game-page.bat_binh_luan_cong_dong') ?><span class="sub"><?= te('dev.game-page.ap_dung_cho_trang_tro') ?></span></span></label>
+            <label class="check"><input type="checkbox" name="hien_thi_nha_sang_tao" value="1"<?= $on('hien_thi_nha_sang_tao') ? ' checked' : '' ?>> <span><?= te('dev.game-page.hien_danh_sach_tac_gia') ?><span class="sub"><?= te('dev.game-page.ten_cac_tac_gia_tren') ?></span></span></label>
         </div>
     </section>
 
-    <div class="form-actions"><button class="btn primary" type="submit">Lưu giao diện</button></div>
+    <div class="form-actions"><button class="btn primary" type="submit"><?= te('dev.game-page.luu_giao_dien') ?></button></div>
 </form>

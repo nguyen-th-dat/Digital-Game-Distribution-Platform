@@ -3,8 +3,8 @@
 $cur = $order['ma_tien_te'];
 $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
 ?>
-<nav class="crumbs" aria-label="Đường dẫn">
-    <a href="<?= e(app_url('/orders')) ?>">Đơn hàng</a><span><?= e($order['ma_don_hang']) ?></span>
+<nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>">
+    <a href="<?= e(app_url('/orders')) ?>"><?= te('admin.orders') ?></a><span><?= e($order['ma_don_hang']) ?></span>
 </nav>
 
 <div class="object-head">
@@ -19,12 +19,12 @@ $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
 </div>
 
 <?php if ($isSandbox): ?>
-    <p class="notice neutral">Đơn hàng thử nghiệm (sandbox): không có tiền thật được trừ hay hoàn lại.</p>
+    <p class="notice neutral"><?= te('order.show.don_hang_thu_nghiem_sandbox') ?></p>
 <?php endif; ?>
 
 <div class="grid">
     <section class="panel span-8" aria-labelledby="items-h">
-        <header><h2 id="items-h">Sản phẩm</h2></header>
+        <header><h2 id="items-h"><?= te('order.items') ?></h2></header>
         <div class="rows">
             <?php foreach ($items as $item): ?>
                 <?php
@@ -34,7 +34,7 @@ $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
                     <div class="grow">
                         <?php if ($href): ?><a class="link" href="<?= e($href) ?>"><?= e($item['tieu_de_luc_mua']) ?></a><?php else: ?><?= e($item['tieu_de_luc_mua']) ?><?php endif; ?>
                         <span class="sub">
-                            <?= $item['loai_muc'] === 'bundle' ? 'Gói game' : 'Trò chơi' ?>
+                            <?= $item['loai_muc'] === 'bundle' ? te('nav.bundles') : te('profile.games') ?>
                             · Giá <?= e(money($item['don_gia'], $cur)) ?>
                             <?php if ((float)$item['so_tien_giam'] > 0): ?> · Giảm <?= e(money($item['so_tien_giam'], $cur)) ?><?php endif; ?>
                         </span>
@@ -42,14 +42,14 @@ $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
                             <span class="sub">Hoàn tiền <?= e(money($item['refund_amount'], $cur)) ?> · <?= status_pill('refund_status', $item['refund_status']) ?></span>
                         <?php elseif ($mine && !$item['refund_problem']): ?>
                             <details class="refund-form">
-                                <summary class="link-btn">Yêu cầu hoàn tiền</summary>
+                                <summary class="link-btn"><?= te('order.request_refund') ?></summary>
                                 <form method="post" action="<?= e(app_url('/orders/' . rawurlencode($order['ma_don_hang']) . '/refund')) ?>" class="form well">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="item_id" value="<?= (int)$item['ma'] ?>">
                                     <div class="field">
-                                        <label for="reason-<?= (int)$item['ma'] ?>">Lý do</label>
+                                        <label for="reason-<?= (int)$item['ma'] ?>"><?= te('admin.reason') ?></label>
                                         <textarea class="input" id="reason-<?= (int)$item['ma'] ?>" name="ly_do" rows="3" minlength="10" maxlength="2000" required><?= e(old('ly_do')) ?></textarea>
-                                        <span class="hint">Từ 10 đến 2.000 ký tự. Sau khi được duyệt, trò chơi sẽ bị gỡ khỏi thư viện của bạn.</span>
+                                        <span class="hint"><?= te('order.show.tu_10_den_2_000') ?></span>
                                     </div>
                                     <div class="form-actions"><button class="btn sm primary" type="submit">Gửi yêu cầu <?= e(money($item['thanh_tien_dong'], $cur)) ?></button></div>
                                 </form>
@@ -64,34 +64,34 @@ $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
 
     <aside class="span-4 stack">
         <section class="panel" aria-labelledby="sum-h">
-            <header><h2 id="sum-h">Thanh toán</h2></header>
+            <header><h2 id="sum-h"><?= te('cart.checkout') ?></h2></header>
             <dl class="summary">
-                <dt>Tiền hàng</dt><dd><?= e(money($order['tong_tien_hang'], $cur)) ?></dd>
-                <?php if ((float)$order['tong_tien_giam'] > 0): ?><dt>Giảm giá<?= $coupon ? ' (gồm mã ' . e($coupon['ma_uu_dai']) . ')' : '' ?></dt><dd>−<?= e(money($order['tong_tien_giam'], $cur)) ?></dd><?php endif; ?>
-                <dt>Thuế</dt><dd><?= e(money($order['tong_tien_thue'], $cur)) ?></dd>
-                <dt class="total">Tổng</dt><dd class="total"><?= e(money($order['tong_thanh_toan'], $cur)) ?></dd>
+                <dt><?= te('order.show.tien_hang') ?></dt><dd><?= e(money($order['tong_tien_hang'], $cur)) ?></dd>
+                <?php if ((float)$order['tong_tien_giam'] > 0): ?><dt>Giảm giá<?= $coupon ? ' ' . '(' . te('order.show.gom_ma') . ' ' . e($coupon['ma_uu_dai']) . ')' : '' ?></dt><dd>−<?= e(money($order['tong_tien_giam'], $cur)) ?></dd><?php endif; ?>
+                <dt><?= te('cart.index.thue') ?></dt><dd><?= e(money($order['tong_tien_thue'], $cur)) ?></dd>
+                <dt class="total"><?= te('common.total') ?></dt><dd class="total"><?= e(money($order['tong_thanh_toan'], $cur)) ?></dd>
             </dl>
             <?php if ($payments): ?>
                 <div class="rows">
                     <?php foreach ($payments as $p): ?>
                         <div class="row">
-                            <div class="grow"><?= e($p['nha_cung_cap'] === 'sandbox' ? 'Sandbox (thử nghiệm)' : $p['nha_cung_cap']) ?><span class="sub"><?= e($p['ma_giao_dich_nha_cung_cap'] ?? '—') ?> · <?= e(fmt_datetime($p['ngay_thanh_toan'] ?? $p['ngay_tao'])) ?></span></div>
+                            <div class="grow"><?= e($p['nha_cung_cap'] === 'sandbox' ? te('order.show.sandbox_thu_nghiem') : $p['nha_cung_cap']) ?><span class="sub"><?= e($p['ma_giao_dich_nha_cung_cap'] ?? te('common.emdash')) ?> · <?= e(fmt_datetime($p['ngay_thanh_toan'] ?? $p['ngay_tao'])) ?></span></div>
                             <?= status_pill('order_status', $p['trang_thai'] === 'succeeded' ? 'paid' : $p['trang_thai']) ?>
                         </div>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <p class="small faint">Không có giao dịch thanh toán (đơn miễn phí hoặc dữ liệu cũ).</p>
+                <p class="small faint"><?= te('order.show.khong_co_giao_dich_thanh') ?></p>
             <?php endif; ?>
         </section>
 
         <?php if ($refunds): ?>
         <section class="panel" aria-labelledby="ref-h">
-            <header><h2 id="ref-h">Hoàn tiền</h2></header>
+            <header><h2 id="ref-h"><?= te('admin.refunds') ?></h2></header>
             <div class="rows">
                 <?php foreach ($refunds as $r): ?>
                     <div class="row">
-                        <div class="grow"><?= e($r['tieu_de_luc_mua'] ?? 'Toàn đơn') ?><span class="sub"><?= e(fmt_datetime($r['ngay_tao'])) ?><?= $r['ngay_xu_ly'] ? ' · xử lý ' . e(fmt_datetime($r['ngay_xu_ly'])) : '' ?></span></div>
+                        <div class="grow"><?= e($r['tieu_de_luc_mua'] ?? te('order.show.toan_don')) ?><span class="sub"><?= e(fmt_datetime($r['ngay_tao'])) ?><?= $r['ngay_xu_ly'] ? ' ' . te('common.dot_xu_ly') . ' ' . e(fmt_datetime($r['ngay_xu_ly'])) : '' ?></span></div>
                         <div class="stack-tight"><span class="price"><?= e(money($r['so_tien'], $cur)) ?></span><?= status_pill('refund_status', $r['trang_thai']) ?></div>
                     </div>
                 <?php endforeach; ?>

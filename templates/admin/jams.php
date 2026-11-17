@@ -2,14 +2,14 @@
 /** Jam admin list. @var array $jams */
 ?>
 <div class="title-row">
-    <div><h1>Game jam</h1><p class="sub">Tạo cuộc thi, đặt lịch nộp bài và bình chọn, quản lý ban tổ chức và bài dự thi.</p></div>
-    <a class="btn primary" href="<?= e(app_url('/admin/jams/new')) ?>">Tạo cuộc thi</a>
+    <div><h1>Game jam</h1><p class="sub"><?= te('admin.jams.tao_cuoc_thi_dat_lich') ?></p></div>
+    <a class="btn primary" href="<?= e(app_url('/admin/jams/new')) ?>"><?= te('admin.jams.tao_cuoc_thi') ?></a>
 </div>
 
 <?php if ($jams): ?>
 <section class="panel">
     <div class="table-wrap"><table>
-        <thead><tr><th scope="col">Cuộc thi</th><th scope="col">Trạng thái</th><th scope="col">Giai đoạn hiện tại</th><th scope="col">Hạn nộp</th><th scope="col" class="num">Bài</th><th scope="col" class="num">Người chấm</th></tr></thead>
+        <thead><tr><th scope="col"><?= te('admin.jams.cuoc_thi') ?></th><th scope="col"><?= te('common.status') ?></th><th scope="col"><?= te('admin.jams.giai_doan_hien_tai') ?></th><th scope="col"><?= te('admin.jams.han_nop') ?></th><th scope="col" class="num"><?= te('admin.jams.bai') ?></th><th scope="col" class="num"><?= te('admin.jams.nguoi_cham') ?></th></tr></thead>
         <tbody>
         <?php foreach ($jams as $j): $phase = JamModel::phase($j); ?>
             <tr>
@@ -26,5 +26,5 @@
     <?php partial('pagination', ['page' => $page, 'pages' => $pages, 'total' => $total]); ?>
 </section>
 <?php else: ?>
-    <div class="empty"><p>Chưa có cuộc thi nào.</p><a class="btn primary" href="<?= e(app_url('/admin/jams/new')) ?>">Tạo cuộc thi đầu tiên</a></div>
+    <div class="empty"><p><?= te('admin.jams.chua_co_cuoc_thi_nao') ?></p><a class="btn primary" href="<?= e(app_url('/admin/jams/new')) ?>"><?= te('admin.jams.tao_cuoc_thi_dau_tien') ?></a></div>
 <?php endif; ?>

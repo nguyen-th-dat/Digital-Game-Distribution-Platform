@@ -15,17 +15,17 @@ $sections = [
 ];
 $isPublic = in_array($game['trang_thai'], ['published', 'unlisted'], true);
 ?>
-<nav class="crumbs" aria-label="Đường dẫn"><a href="<?= e(app_url('/dev/games')) ?>">Dự án</a><span><?= e($sections[$tab][1] ?? '') ?></span></nav>
+<nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>"><a href="<?= e(app_url('/dev/games')) ?>"><?= te('dev.games') ?></a><span><?= e($sections[$tab][1] ?? '') ?></span></nav>
 <div class="title-row">
     <div>
         <h1><?= e($game['tieu_de']) ?></h1>
         <p class="sub"><?= status_pill('game_status', $game['trang_thai']) ?> <?= e(label('project_type', $game['loai_du_an'])) ?> · <?= e(label('pricing', $game['mo_hinh_gia'])) ?><?= (float)$game['gia_toi_thieu'] > 0 ? ' ' . e(money($game['gia_toi_thieu'])) : '' ?></p>
     </div>
     <?php if ($isPublic): ?>
-        <a class="btn" href="<?= e(game_url($game)) ?>">Xem trang công khai</a>
+        <a class="btn" href="<?= e(game_url($game)) ?>"><?= te('admin.jam-form.xem_trang_cong_khai') ?></a>
     <?php endif; ?>
 </div>
-<nav class="tabs" aria-label="Quản lý dự án">
+<nav class="tabs" aria-label="<?= te('partials.dev-game-tabs.quan_ly_du_an') ?>">
     <?php foreach ($sections as $key => [$path, $text]): ?>
         <a href="<?= e(app_url($base . $path)) ?>"<?= $tab === $key ? ' aria-selected="true"' : '' ?>><?= e($text) ?></a>
     <?php endforeach; ?>

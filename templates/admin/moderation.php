@@ -2,18 +2,18 @@
 /** Moderation action log. @var array $filters @var array $rows @var int $total @var int $page @var int $pages */
 ?>
 <div class="title-row">
-    <div><h1>Nhật ký kiểm duyệt</h1><p class="sub">Mọi thao tác ẩn, gỡ, đình chỉ, cảnh cáo và khôi phục của đội ngũ điều hành.</p></div>
+    <div><h1><?= te('admin.moderation.nhat_ky_kiem_duyet') ?></h1><p class="sub"><?= te('admin.moderation.moi_thao_tac_an_go') ?></p></div>
 </div>
 
 <form class="toolbar" method="get" action="<?= e(app_url('/admin/moderation')) ?>">
-    <label class="sr-only" for="m-target">Loại đối tượng</label>
+    <label class="sr-only" for="m-target"><?= te('admin.moderation.loai_doi_tuong') ?></label>
     <select class="input" id="m-target" name="target" data-autosubmit>
-        <option value="">Mọi đối tượng</option>
+        <option value=""><?= te('admin.moderation.moi_doi_tuong') ?></option>
         <?php foreach (labels('report_target') as $k => $t): ?><option value="<?= e($k) ?>"<?= $filters['target'] === $k ? ' selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?>
     </select>
-    <label class="sr-only" for="m-action">Thao tác</label>
+    <label class="sr-only" for="m-action"><?= te('common.actions') ?></label>
     <select class="input" id="m-action" name="action" data-autosubmit>
-        <option value="">Mọi thao tác</option>
+        <option value=""><?= te('admin.moderation.moi_thao_tac') ?></option>
         <?php foreach (labels('mod_action') as $k => $t): ?><option value="<?= e($k) ?>"<?= $filters['action'] === $k ? ' selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?>
     </select>
     <span class="spacer"></span>
@@ -23,7 +23,7 @@
 <?php if ($rows): ?>
 <section class="panel flush">
     <table>
-        <thead><tr><th scope="col">Thời gian</th><th scope="col">Điều hành viên</th><th scope="col">Thao tác</th><th scope="col">Đối tượng</th><th scope="col">Lý do</th></tr></thead>
+        <thead><tr><th scope="col"><?= te('admin.campaigns.thoi_gian') ?></th><th scope="col"><?= te('label.role.moderator') ?></th><th scope="col"><?= te('common.actions') ?></th><th scope="col"><?= te('admin.audit.doi_tuong') ?></th><th scope="col"><?= te('admin.reason') ?></th></tr></thead>
         <tbody>
         <?php foreach ($rows as $h): ?>
             <tr>
@@ -39,5 +39,5 @@
 </section>
 <?php partial('pagination', ['page' => $page, 'pages' => $pages, 'total' => $total]); ?>
 <?php else: ?>
-    <div class="empty"><p>Không có thao tác nào khớp bộ lọc.</p><?php if ($filters['target'] !== '' || $filters['action'] !== ''): ?><a class="btn" href="<?= e(app_url('/admin/moderation')) ?>">Xóa bộ lọc</a><?php endif; ?></div>
+    <div class="empty"><p><?= te('admin.moderation.khong_co_thao_tac_nao') ?></p><?php if ($filters['target'] !== '' || $filters['action'] !== ''): ?><a class="btn" href="<?= e(app_url('/admin/moderation')) ?>"><?= te('game.clear_filters') ?></a><?php endif; ?></div>
 <?php endif; ?>

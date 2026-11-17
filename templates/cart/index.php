@@ -3,20 +3,20 @@
 ?>
 <div class="title-row">
     <div>
-        <h1>Giỏ hàng</h1>
-        <p class="sub"><?= $lines ? fmt_int(count($lines)) . ' sản phẩm' : 'Chưa có sản phẩm nào' ?></p>
+        <h1><?= te('cart.title') ?></h1>
+        <p class="sub"><?= $lines ? fmt_int(count($lines)) . ' ' . te('cart.index.san_pham') : te('cart.index.chua_co_san_pham_nao') ?></p>
     </div>
-    <div class="actions"><a class="btn" href="<?= e(app_url('/games')) ?>">Tiếp tục mua sắm</a></div>
+    <div class="actions"><a class="btn" href="<?= e(app_url('/games')) ?>"><?= te('cart.continue_shopping') ?></a></div>
 </div>
 
 <?php if (!$lines): ?>
     <div class="empty">
-        <p>Giỏ hàng của bạn đang trống.</p>
-        <a class="btn primary" href="<?= e(app_url('/games')) ?>">Khám phá trò chơi</a>
+        <p><?= te('cart.empty') ?></p>
+        <a class="btn primary" href="<?= e(app_url('/games')) ?>"><?= te('bundle.index.kham_pha_tro_choi') ?></a>
     </div>
 <?php else: ?>
 <div class="grid">
-    <section class="panel span-8" aria-label="Sản phẩm trong giỏ">
+    <section class="panel span-8" aria-label="<?= te('cart.index.san_pham_trong_gio') ?>">
         <div class="cart-lines">
             <?php foreach ($lines as $line): ?>
                 <article class="cart-line<?= $line['problem'] ? ' is-blocked' : '' ?>">
@@ -27,9 +27,9 @@
                         <h2><a href="<?= e($line['url']) ?>"><?= e($line['title']) ?></a></h2>
                         <p class="small muted">
                             <?php if ($line['type'] === 'bundle'): ?>
-                                Gói <?= fmt_int($line['game_count']) ?> trò chơi<?= $line['new_games'] < $line['game_count'] ? ' · bạn đã có ' . fmt_int($line['game_count'] - $line['new_games']) : '' ?>
+                                Gói <?= fmt_int($line['game_count']) ?> trò chơi<?= $line['new_games'] < $line['game_count'] ? ' ' . te('cart.index.dot_ban_da_co') . ' ' . fmt_int($line['game_count'] - $line['new_games']) : '' ?>
                             <?php else: ?>
-                                <?= e(label('pricing', $line['pricing'])) ?><?= $line['sale_percent'] > 0 ? ' · đang giảm ' . e(rtrim(rtrim(number_format($line['sale_percent'], 2), '0'), '.')) . '%' : '' ?>
+                                <?= e(label('pricing', $line['pricing'])) ?><?= $line['sale_percent'] > 0 ? ' ' . te('cart.index.dot_dang_giam') . ' ' . e(rtrim(rtrim(number_format($line['sale_percent'], 2), '0'), '.')) . '%' : '' ?>
                             <?php endif; ?>
                         </p>
                         <?php if ($line['problem']): ?><p class="notice small"><?= e($line['problem']) ?></p><?php endif; ?>
@@ -39,9 +39,9 @@
                                 <input type="hidden" name="type" value="game">
                                 <input type="hidden" name="id" value="<?= (int)$line['id'] ?>">
                                 <input type="hidden" name="from" value="cart">
-                                <label class="small faint" for="amount-<?= (int)$line['id'] ?>">Số tiền bạn trả</label>
+                                <label class="small faint" for="amount-<?= (int)$line['id'] ?>"><?= te('cart.index.so_tien_ban_tra') ?></label>
                                 <input class="input sm" id="amount-<?= (int)$line['id'] ?>" name="amount" type="number" step="0.01" min="<?= e(number_format($line['min'], 2, '.', '')) ?>" max="1000" value="<?= e(number_format($line['price'], 2, '.', '')) ?>" required>
-                                <button class="btn sm" type="submit">Cập nhật</button>
+                                <button class="btn sm" type="submit"><?= te('admin.games.cap_nhat') ?></button>
                             </form>
                         <?php endif; ?>
                     </div>
@@ -53,7 +53,7 @@
                         <?php if ($line['coupon'] > 0): ?><span class="small faint">Mã giảm −<?= e(money($line['coupon'])) ?></span><?php endif; ?>
                         <form method="post" action="<?= e(app_url('/cart/items/' . (int)$line['item_id'] . '/remove')) ?>">
                             <?= csrf_field() ?>
-                            <button class="link-btn" type="submit">Bỏ khỏi giỏ</button>
+                            <button class="link-btn" type="submit"><?= te('cart.index.bo_khoi_gio') ?></button>
                         </form>
                     </div>
                 </article>
@@ -63,27 +63,27 @@
 
     <aside class="span-4 stack">
         <section class="panel" aria-labelledby="summary-h">
-            <header><h2 id="summary-h">Tóm tắt đơn hàng</h2></header>
+            <header><h2 id="summary-h"><?= te('cart.index.tom_tat_don_hang') ?></h2></header>
             <dl class="summary">
-                <dt>Giá gốc</dt><dd><?= e(money($totals['list'])) ?></dd>
-                <?php if ($totals['sale'] > 0): ?><dt>Giảm giá chiến dịch</dt><dd>−<?= e(money($totals['sale'])) ?></dd><?php endif; ?>
+                <dt><?= te('bundle.original_price') ?></dt><dd><?= e(money($totals['list'])) ?></dd>
+                <?php if ($totals['sale'] > 0): ?><dt><?= te('cart.index.giam_gia_chien_dich') ?></dt><dd>−<?= e(money($totals['sale'])) ?></dd><?php endif; ?>
                 <?php if ($totals['coupon'] > 0): ?><dt>Mã <?= e($coupon['ma_uu_dai']) ?></dt><dd>−<?= e(money($totals['coupon'])) ?></dd><?php endif; ?>
-                <dt>Thuế</dt><dd><?= e(money(0)) ?></dd>
-                <dt class="total">Tổng thanh toán</dt><dd class="total"><?= e(money($totals['total'])) ?></dd>
+                <dt><?= te('cart.index.thue') ?></dt><dd><?= e(money(0)) ?></dd>
+                <dt class="total"><?= te('admin.orders.tong_thanh_toan') ?></dt><dd class="total"><?= e(money($totals['total'])) ?></dd>
             </dl>
 
             <?php if ($coupon): ?>
                 <form method="post" action="<?= e(app_url('/cart/coupon/remove')) ?>" class="split coupon-on">
                     <?= csrf_field() ?>
-                    <span class="small">Đang dùng mã <strong><?= e($coupon['ma_uu_dai']) ?></strong><?= $totals['coupon_applies'] ? '' : ' (không áp dụng cho sản phẩm hiện tại)' ?></span>
-                    <button class="link-btn" type="submit">Gỡ mã</button>
+                    <span class="small"><?= te('cart.index.dang_dung_ma') ?> <strong><?= e($coupon['ma_uu_dai']) ?></strong><?= $totals['coupon_applies'] ? '' : ' (không áp dụng cho sản phẩm hiện tại)' ?></span>
+                    <button class="link-btn" type="submit"><?= te('cart.index.go_ma') ?></button>
                 </form>
             <?php else: ?>
                 <form method="post" action="<?= e(app_url('/cart/coupon')) ?>" class="coupon-form">
                     <?= csrf_field() ?>
-                    <label class="sr-only" for="coupon-code">Mã giảm giá</label>
-                    <input class="input" id="coupon-code" name="code" maxlength="40" placeholder="Mã giảm giá" value="<?= e(old('code')) ?>" autocomplete="off">
-                    <button class="btn" type="submit">Áp dụng</button>
+                    <label class="sr-only" for="coupon-code"><?= te('cart.coupon') ?></label>
+                    <input class="input" id="coupon-code" name="code" maxlength="40" placeholder="<?= te('cart.coupon') ?>" value="<?= e(old('code')) ?>" autocomplete="off">
+                    <button class="btn" type="submit"><?= te('cart.apply') ?></button>
                 </form>
             <?php endif; ?>
 
@@ -94,7 +94,7 @@
                     <?= csrf_field() ?>
                     <label class="check">
                         <input type="checkbox" name="confirm_sandbox" value="1" required>
-                        <span>Tôi hiểu đây là <strong>thanh toán thử nghiệm (sandbox)</strong><span class="sub">Không có tiền thật được trừ. Đơn hàng được đánh dấu TEST- và chỉ dùng để kiểm thử hệ thống.</span></span>
+                        <span><?= te('cart.index.toi_hieu_day_la') ?> <strong><?= te('cart.index.thanh_toan_thu_nghiem_sandbox') ?></strong><span class="sub"><?= te('cart.index.khong_co_tien_that_duoc') ?></span></span>
                     </label>
                     <button class="btn primary block" type="submit">Thanh toán thử <?= e(money($totals['total'])) ?></button>
                 </form>

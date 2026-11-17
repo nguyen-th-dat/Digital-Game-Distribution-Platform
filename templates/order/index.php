@@ -4,12 +4,12 @@ $tabs = ['' => 'Tất cả', 'paid' => labels('order_status')['paid'], 'partiall
 ?>
 <div class="title-row">
     <div>
-        <h1>Đơn hàng</h1>
-        <p class="sub">Lịch sử mua hàng. Mọi thanh toán trên hệ thống này là thanh toán thử nghiệm (sandbox).</p>
+        <h1><?= te('admin.orders') ?></h1>
+        <p class="sub"><?= te('order.index.lich_su_mua_hang_moi') ?></p>
     </div>
 </div>
 
-<nav class="tabs" aria-label="Lọc theo trạng thái">
+<nav class="tabs" aria-label="<?= te('admin.games.loc_theo_trang_thai') ?>">
     <?php foreach ($tabs as $value => $text): ?>
         <a href="<?= e(app_url('/orders' . ($value !== '' ? '?status=' . $value : ''))) ?>" aria-selected="<?= $status === $value ? 'true' : 'false' ?>"><?= e($text) ?></a>
     <?php endforeach; ?>
@@ -18,18 +18,18 @@ $tabs = ['' => 'Tất cả', 'paid' => labels('order_status')['paid'], 'partiall
 <?php if (!$orders): ?>
     <div class="empty">
         <p><?= $status === '' ? 'Bạn chưa có đơn hàng nào.' : 'Không có đơn hàng ở trạng thái này.' ?></p>
-        <a class="btn primary" href="<?= e(app_url('/games')) ?>">Khám phá trò chơi</a>
+        <a class="btn primary" href="<?= e(app_url('/games')) ?>"><?= te('bundle.index.kham_pha_tro_choi') ?></a>
     </div>
 <?php else: ?>
 <section class="panel flush">
     <div class="table-wrap">
         <table class="stack-sm">
-            <thead><tr><th>Mã đơn</th><th>Sản phẩm</th><th>Ngày đặt</th><th>Trạng thái</th><th class="n">Tổng</th></tr></thead>
+            <thead><tr><th><?= te('order.code') ?></th><th><?= te('order.items') ?></th><th><?= te('order.date') ?></th><th><?= te('common.status') ?></th><th class="n"><?= te('common.total') ?></th></tr></thead>
             <tbody>
             <?php foreach ($orders as $order): ?>
                 <tr>
                     <td><a class="link" href="<?= e(app_url('/orders/' . rawurlencode($order['ma_don_hang']))) ?>"><?= e($order['ma_don_hang']) ?></a></td>
-                    <td data-label="Sản phẩm"><span class="truncate"><?= e($order['titles'] ?: '—') ?></span></td>
+                    <td data-label="Sản phẩm"><span class="truncate"><?= e($order['titles'] ?: te('common.emdash')) ?></span></td>
                     <td data-label="Ngày" class="hide-sm"><?= e(fmt_datetime($order['ngay_dat_hang'])) ?></td>
                     <td data-label="Trạng thái"><?= status_pill('order_status', $order['trang_thai']) ?></td>
                     <td class="n"><?= e(money($order['tong_thanh_toan'], $order['ma_tien_te'])) ?></td>
