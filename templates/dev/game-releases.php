@@ -15,13 +15,13 @@ $channelSelect = static function (string $id, string $selected): void {
 
 <div class="grid top">
     <section class="panel span-8" aria-labelledby="rel-h">
-        <header><h2 id="rel-h"><?= te('dev.game-releases.lich_su_phien_ban') ?></h2><span class="meta"><?= count($releases) ?> phiên bản</span></header>
+        <header><h2 id="rel-h"><?= te('dev.game-releases.lich_su_phien_ban') ?></h2><span class="meta"><?= te('dev.game-releases.phien-ban', [ count($releases) ]) ?></span></header>
         <?php if (!$releases): ?><div class="empty"><p><?= te('dev.game-releases.chua_co_phien_ban_nao') ?></p></div><?php endif; ?>
         <div class="rows">
             <?php foreach ($releases as $r): $rid = (int)$r['ma']; ?>
                 <div class="row" id="release-<?= $rid ?>">
                     <div class="grow">
-                        <strong><?= e($r['ten_phien_ban']) ?></strong> <?= status_pill('channel', $r['kenh_phat_hanh']) ?><?= (int)$r['cong_khai'] ? '' : ' <span class="pill">Ẩn</span>' ?>
+                        <strong><?= e($r['ten_phien_ban']) ?></strong> <?= status_pill('channel', $r['kenh_phat_hanh']) ?><?= (int)$r['cong_khai'] ? '' : ' <span class="pill">' . e(t('dev.game-releases.an')) . '</span>' ?>
                         <span class="sub"><?= e(fmt_datetime($r['ngay_phat_hanh'])) ?><?= strtotime($r['ngay_phat_hanh']) > time() ? ' ' . '(' . te('dev.game-releases.da_len_lich') . ')' : '' ?> · <?= e($r['ten_hien_thi']) ?></span>
                         <?php if ($r['ghi_chu_phat_hanh']): ?><div class="prose small"><?= e_multiline(excerpt($r['ghi_chu_phat_hanh'], 280)) ?></div><?php endif; ?>
                     </div>
@@ -38,7 +38,7 @@ $channelSelect = static function (string $id, string $selected): void {
                                 <button class="btn sm primary" type="submit"><?= te('common.save') ?></button>
                             </form>
                         </details>
-                        <form method="post" action="<?= e(app_url($base . '/' . $rid . '/delete')) ?>" data-confirm="Xóa phiên bản <?= e($r['ten_phien_ban']) ?>?"><?= csrf_field() ?><button class="link-btn neg" type="submit"><?= te('admin.delete') ?></button></form>
+                        <form method="post" action="<?= e(app_url($base . '/' . $rid . '/delete')) ?>" data-confirm="<?= te('dev.game-releases.xoa-phien-ban-e-r-ten-phien-ban') ?>"><?= csrf_field() ?><button class="link-btn neg" type="submit"><?= te('admin.delete') ?></button></form>
                     </div>
                 </div>
             <?php endforeach; ?>

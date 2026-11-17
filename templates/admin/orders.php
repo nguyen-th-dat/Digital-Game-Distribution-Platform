@@ -27,7 +27,7 @@ $all = array_sum(array_map('intval', $counts));
         <input class="input" id="o-q" type="search" name="q" value="<?= e($filters['q']) ?>" placeholder="<?= te('admin.orders.ma_don_ten_dang_nhap') ?>" maxlength="100">
     </div>
     <span class="spacer"></span>
-    <span class="count"><?= fmt_int($total) ?> đơn</span>
+    <span class="count"><?= te('admin.orders.don', [ fmt_int($total) ]) ?></span>
 </form>
 
 <?php if ($orders): ?>
@@ -51,15 +51,15 @@ $all = array_sum(array_map('intval', $counts));
                                 <?php endforeach; ?>
                             </div>
                             <?php foreach ($o['payments'] as $p): ?>
-                                <p class="small muted">Thanh toán #<?= (int)$p['ma'] ?> qua <?= e($p['nha_cung_cap']) ?> · <?= e(money($p['so_tien'])) ?> · <?= e(label('payment_status', $p['trang_thai'])) ?><?= $p['ngay_thanh_toan'] ? ' ' . te('common.dot') . ' ' . e(fmt_datetime($p['ngay_thanh_toan'])) : '' ?></p>
+                                <p class="small muted"><?= te('admin.orders.thanh-toan-qua', [ (int)$p['ma'] ,  e($p['nha_cung_cap']) ,  e(money($p['so_tien'])) ,  e(label('payment_status', $p['trang_thai'])) ,  $p['ngay_thanh_toan'] ? ' ' . te('common.dot') . ' ' . e(fmt_datetime($p['ngay_thanh_toan'])) : '' ]) ?></p>
                             <?php endforeach; ?>
                         </div>
                     </details>
-                    <span class="sub"><?= fmt_int((int)$o['item_count']) ?> mục</span>
+                    <span class="sub"><?= te('admin.orders.muc', [ fmt_int((int)$o['item_count']) ]) ?></span>
                 </td>
                 <td><a class="link" href="<?= e(app_url('/admin/users/' . (int)$o['nguoi_mua_id'])) ?>"><?= e($o['buyer_name']) ?></a><span class="sub">@<?= e($o['buyer_username']) ?></span></td>
                 <td><?= status_pill('order_status', $o['trang_thai']) ?></td>
-                <td class="num"><?= e(money($o['tong_thanh_toan'])) ?><?php if ((float)$o['tong_tien_giam'] > 0): ?><span class="sub">giảm <?= e(money($o['tong_tien_giam'])) ?></span><?php endif; ?></td>
+                <td class="num"><?= e(money($o['tong_thanh_toan'])) ?><?php if ((float)$o['tong_tien_giam'] > 0): ?><span class="sub"><?= te('admin.orders.giam', [ e(money($o['tong_tien_giam'])) ]) ?></span><?php endif; ?></td>
                 <td><?= e(fmt_datetime($o['ngay_dat_hang'])) ?></td>
             </tr>
         <?php endforeach; ?>

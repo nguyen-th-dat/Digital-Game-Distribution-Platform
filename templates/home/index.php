@@ -6,7 +6,7 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
     <section class="section">
         <div class="section-head">
             <h2><?= e($title) ?></h2>
-            <a class="meta link" href="<?= e(app_url($more)) ?>">Xem tất cả<?= $meta !== '' ? ' · ' . e($meta) : '' ?></a>
+            <a class="meta link" href="<?= e(app_url($more)) ?>"><?= te('home.index.xem-tat-ca', [ $meta !== '' ? ' · ' . e($meta) : '' ]) ?></a>
         </div>
         <div class="shelf">
             <?php foreach ($games as $game) partial('game-card', ['game' => $game, 'owned' => in_array((int)$game['ma'], $owned, true)]); ?>
@@ -18,7 +18,7 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
 <div class="title-row">
     <div>
         <h1><?= te('home.title') ?></h1>
-        <p class="sub"><?= fmt_int($totalGames) ?> trò chơi độc lập đang được công bố.</p>
+        <p class="sub"><?= te('home.index.tro-choi-doc-lap-dang-duoc-cong-bo', [ fmt_int($totalGames) ]) ?></p>
     </div>
     <div class="actions">
         <a class="btn" href="<?= e(app_url('/games?sale=1')) ?>"><?= te('home.on_sale') ?></a>
@@ -46,7 +46,7 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
             <div class="cluster small muted">
                 <span><?= e(label('release_status', $featured['trang_thai_phat_hanh'])) ?></span>
                 <?php if ($featured['the_loai']): ?><span><?= e($featured['the_loai']) ?></span><?php endif; ?>
-                <?php if ($featured['so_danh_gia']): ?><span><?= stars((float)$featured['diem_tb']) ?> <?= fmt_int($featured['so_danh_gia']) ?> đánh giá</span><?php endif; ?>
+                <?php if ($featured['so_danh_gia']): ?><span><?= te('home.index.danh-gia', [ stars((float)$featured['diem_tb']) ,  fmt_int($featured['so_danh_gia']) ]) ?></span><?php endif; ?>
             </div>
             <div class="foot">
                 <?= price_html($featured, $isOwned) ?>
@@ -72,7 +72,7 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
                         <?php else: ?><span class="thumb"></span><?php endif; ?>
                         <span class="rank-text">
                             <span class="t"><?= e($game['tieu_de']) ?></span>
-                            <span class="sub"><?= fmt_int($game['so_huu']) ?> người sở hữu<?= $game['the_loai'] ? ' ' . te('common.dot') . ' ' . e($game['the_loai']) : '' ?></span>
+                            <span class="sub"><?= te('home.index.nguoi-so-huu', [ fmt_int($game['so_huu']) ,  $game['the_loai'] ? ' ' . te('common.dot') . ' ' . e($game['the_loai']) : '' ]) ?></span>
                         </span>
                         <?= price_html($game, in_array((int)$game['ma'], $owned, true)) ?>
                     </a>
@@ -94,7 +94,7 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
             <div class="rows">
                 <?php foreach ($jams as $jam): ?>
                     <a class="row row-link" href="<?= e(app_url('/jams/' . rawurlencode($jam['duong_dan_rut_gon']))) ?>">
-                        <span class="grow"><?= e($jam['tieu_de']) ?><span class="sub">Hạn nộp <?= e(fmt_datetime($jam['han_nop_bai'])) ?> · <?= fmt_int($jam['so_bai']) ?> bài dự thi</span></span>
+                        <span class="grow"><?= e($jam['tieu_de']) ?><span class="sub"><?= te('home.index.han-nop-bai-du-thi', [ e(fmt_datetime($jam['han_nop_bai'])) ,  fmt_int($jam['so_bai']) ]) ?></span></span>
                         <?= status_pill('jam_status', $jam['trang_thai']) ?>
                     </a>
                 <?php endforeach; ?>
@@ -117,7 +117,7 @@ $shelf = function (string $title, array $games, string $more, string $meta = '')
                     </div>
                     <h3><?= e($b['tieu_de']) ?></h3>
                     <div class="meta-line">
-                        <span class="by"><?= fmt_int($b['so_game']) ?> trò chơi</span>
+                        <span class="by"><?= te('home.index.tro-choi', [ fmt_int($b['so_game']) ]) ?></span>
                         <span class="price"><?php if ((float)$b['tong_gia_le'] > (float)$b['gia']): ?><span class="was"><?= e(money($b['tong_gia_le'])) ?></span><?php endif; ?><span<?= (float)$b['gia'] <= 0 ? ' class="free"' : '' ?>><?= (float)$b['gia'] <= 0 ? te('price.free') : e(money($b['gia'])) ?></span></span>
                     </div>
                 </a>

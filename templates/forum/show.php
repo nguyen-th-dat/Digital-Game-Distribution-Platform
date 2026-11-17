@@ -10,10 +10,10 @@ $user = current_user();
     <div class="grow">
         <h1><?= e($board['tieu_de']) ?></h1>
         <p class="meta">
-            <?php if ($board['loai_dien_dan'] === 'game'): ?>Diễn đàn của <a class="link" href="<?= e(app_url('/games/' . rawurlencode($board['game_slug']))) ?>"><?= e($board['game_title']) ?></a>
-            <?php elseif ($board['loai_dien_dan'] === 'jam'): ?>Diễn đàn của cuộc thi <a class="link" href="<?= e(app_url('/jams/' . rawurlencode($board['jam_slug']))) ?>"><?= e($board['jam_title']) ?></a>
-            <?php else: ?>Diễn đàn chung của nền tảng<?php endif; ?>
-            <?php if (!(int)$board['cong_khai']): ?> · Riêng tư<?php endif; ?>
+            <?php if ($board['loai_dien_dan'] === 'game'): ?><?= te('forum.show.dien-dan-cua') ?> <a class="link" href="<?= e(app_url('/games/' . rawurlencode($board['game_slug']))) ?>"><?= e($board['game_title']) ?></a>
+            <?php elseif ($board['loai_dien_dan'] === 'jam'): ?><?= te('forum.show.dien-dan-cua-cuoc-thi') ?> <a class="link" href="<?= e(app_url('/jams/' . rawurlencode($board['jam_slug']))) ?>"><?= e($board['jam_title']) ?></a>
+            <?php else: ?><?= te('forum.show.dien-dan-chung-cua-nen-tang') ?><?php endif; ?>
+            <?php if (!(int)$board['cong_khai']): ?> <?= te('forum.show.rieng-tu') ?><?php endif; ?>
         </p>
         <div class="stat-line"><span><strong><?= fmt_int((int)$board['so_chu_de']) ?></strong> <?= te('forum.index.chu_de') ?></span><span><strong><?= fmt_int((int)$board['so_bai']) ?></strong> <?= te('forum.index.tra_loi') ?></span></div>
     </div>
@@ -60,7 +60,7 @@ $user = current_user();
         </div>
         <?php partial('pagination', ['page' => $page, 'pages' => $pages, 'total' => $total]); ?>
     <?php elseif ($q !== ''): ?>
-        <div class="empty"><p>Không có chủ đề nào khớp với "<?= e($q) ?>".</p><a class="btn" href="<?= e(app_url($self)) ?>"><?= te('forum.show.xem_tat_ca_chu_de') ?></a></div>
+        <div class="empty"><p><?= te('forum.show.khong-co-chu-de-nao-khop-voi', [ e($q) ]) ?></p><a class="btn" href="<?= e(app_url($self)) ?>"><?= te('forum.show.xem_tat_ca_chu_de') ?></a></div>
     <?php else: ?>
         <div class="empty"><p><?= te('forum.show.chua_co_chu_de_nao') ?></p></div>
     <?php endif; ?>

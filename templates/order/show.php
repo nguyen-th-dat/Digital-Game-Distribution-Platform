@@ -11,8 +11,8 @@ $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
     <div class="grow">
         <h1><?= e($order['ma_don_hang']) ?></h1>
         <p class="meta">
-            Đặt lúc <?= e(fmt_datetime($order['ngay_dat_hang'])) ?>
-            <?php if (!$mine): ?> · Người mua <a class="link" href="<?= e(app_url('/admin/users/' . (int)$order['nguoi_mua_id'])) ?>"><?= e($order['buyer_name']) ?></a><?php endif; ?>
+            <?= te('order.show.dat-luc', [ e(fmt_datetime($order['ngay_dat_hang'])) ]) ?>
+            <?php if (!$mine): ?> <?= te('order.show.nguoi-mua') ?> <a class="link" href="<?= e(app_url('/admin/users/' . (int)$order['nguoi_mua_id'])) ?>"><?= e($order['buyer_name']) ?></a><?php endif; ?>
         </p>
     </div>
     <?= status_pill('order_status', $order['trang_thai']) ?>
@@ -34,12 +34,11 @@ $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
                     <div class="grow">
                         <?php if ($href): ?><a class="link" href="<?= e($href) ?>"><?= e($item['tieu_de_luc_mua']) ?></a><?php else: ?><?= e($item['tieu_de_luc_mua']) ?><?php endif; ?>
                         <span class="sub">
-                            <?= $item['loai_muc'] === 'bundle' ? te('nav.bundles') : te('profile.games') ?>
-                            · Giá <?= e(money($item['don_gia'], $cur)) ?>
-                            <?php if ((float)$item['so_tien_giam'] > 0): ?> · Giảm <?= e(money($item['so_tien_giam'], $cur)) ?><?php endif; ?>
+                            <?= te('order.show.gia', [ $item['loai_muc'] === 'bundle' ? te('nav.bundles') : te('profile.games') ,  e(money($item['don_gia'], $cur)) ]) ?>
+                            <?php if ((float)$item['so_tien_giam'] > 0): ?> <?= te('order.show.giam', [ e(money($item['so_tien_giam'], $cur)) ]) ?><?php endif; ?>
                         </span>
                         <?php if ($item['refund_status']): ?>
-                            <span class="sub">Hoàn tiền <?= e(money($item['refund_amount'], $cur)) ?> · <?= status_pill('refund_status', $item['refund_status']) ?></span>
+                            <span class="sub"><?= te('order.show.hoan-tien', [ e(money($item['refund_amount'], $cur)) ,  status_pill('refund_status', $item['refund_status']) ]) ?></span>
                         <?php elseif ($mine && !$item['refund_problem']): ?>
                             <details class="refund-form">
                                 <summary class="link-btn"><?= te('order.request_refund') ?></summary>
@@ -51,7 +50,7 @@ $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
                                         <textarea class="input" id="reason-<?= (int)$item['ma'] ?>" name="ly_do" rows="3" minlength="10" maxlength="2000" required><?= e(old('ly_do')) ?></textarea>
                                         <span class="hint"><?= te('order.show.tu_10_den_2_000') ?></span>
                                     </div>
-                                    <div class="form-actions"><button class="btn sm primary" type="submit">Gửi yêu cầu <?= e(money($item['thanh_tien_dong'], $cur)) ?></button></div>
+                                    <div class="form-actions"><button class="btn sm primary" type="submit"><?= te('order.show.gui-yeu-cau', [ e(money($item['thanh_tien_dong'], $cur)) ]) ?></button></div>
                                 </form>
                             </details>
                         <?php endif; ?>
@@ -67,7 +66,7 @@ $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
             <header><h2 id="sum-h"><?= te('cart.checkout') ?></h2></header>
             <dl class="summary">
                 <dt><?= te('order.show.tien_hang') ?></dt><dd><?= e(money($order['tong_tien_hang'], $cur)) ?></dd>
-                <?php if ((float)$order['tong_tien_giam'] > 0): ?><dt>Giảm giá<?= $coupon ? ' ' . '(' . te('order.show.gom_ma') . ' ' . e($coupon['ma_uu_dai']) . ')' : '' ?></dt><dd>−<?= e(money($order['tong_tien_giam'], $cur)) ?></dd><?php endif; ?>
+                <?php if ((float)$order['tong_tien_giam'] > 0): ?><dt><?= te('order.show.giam-gia', [ $coupon ? ' ' . '(' . te('order.show.gom_ma') . ' ' . e($coupon['ma_uu_dai']) . ')' : '' ]) ?></dt><dd>−<?= e(money($order['tong_tien_giam'], $cur)) ?></dd><?php endif; ?>
                 <dt><?= te('cart.index.thue') ?></dt><dd><?= e(money($order['tong_tien_thue'], $cur)) ?></dd>
                 <dt class="total"><?= te('common.total') ?></dt><dd class="total"><?= e(money($order['tong_thanh_toan'], $cur)) ?></dd>
             </dl>
@@ -98,6 +97,6 @@ $isSandbox = str_starts_with($order['ma_don_hang'], 'TEST-');
             </div>
         </section>
         <?php endif; ?>
-        <p class="small faint">Hoàn tiền được chấp nhận trong <?= (int)REFUND_WINDOW_DAYS ?> ngày kể từ khi thanh toán, cho từng sản phẩm có giá trên $0.</p>
+        <p class="small faint"><?= te('order.show.hoan-tien-duoc-chap-nhan-trong-ngay-ke-tu-khi-thanh-toan-cho-tung-san-pham-co-gia-tren-0', [ (int)REFUND_WINDOW_DAYS ]) ?></p>
     </aside>
 </div>

@@ -3,7 +3,7 @@
 $all = array_sum(array_map('intval', $counts));
 ?>
 <div class="title-row">
-    <div><h1>Doanh thu</h1><p class="sub">Mỗi lượt bán tạo một dòng sổ cho từng tác giả theo tỷ lệ chia doanh thu. Nền tảng thu phí <?= rtrim(rtrim(number_format(PLATFORM_FEE_RATE * 100, 1), '0'), '.') ?>%.</p></div>
+    <div><h1>Doanh thu</h1><p class="sub"><?= te('dev.sales.moi-luot-ban-tao-mot-dong-so-cho-tung-tac-gia-theo-ty-le-chia-doanh-thu-nen-tang-thu-phi', [ rtrim(rtrim(number_format(PLATFORM_FEE_RATE * 100, 1), '0'), '.') ]) ?></p></div>
     <a class="btn" href="<?= e(app_url('/dev/payouts')) ?>"><?= te('admin.payouts') ?></a>
 </div>
 
@@ -44,12 +44,12 @@ $all = array_sum(array_map('intval', $counts));
         <?php foreach ($rows as $r): ?>
             <tr>
                 <td><?= e(fmt_date($r['ngay_dat_hang'])) ?></td>
-                <td><?= e($r['tieu_de_luc_mua']) ?><span class="sub">Đơn <?= e($r['ma_don_hang']) ?></span></td>
+                <td><?= e($r['tieu_de_luc_mua']) ?><span class="sub"><?= te('dev.sales.don', [ e($r['ma_don_hang']) ]) ?></span></td>
                 <td class="num"><?= e(rtrim(rtrim((string)$r['phan_tram_huong_doanh_thu'], '0'), '.')) ?>%</td>
                 <td class="num"><?= e(money($r['doanh_thu_truoc_phi'])) ?></td>
                 <td class="num"><?= e(money($r['phi_nen_tang'])) ?></td>
                 <td class="num"><?= e(money($r['so_tien_thuc_nhan'])) ?></td>
-                <td><?= status_pill('ledger_status', $r['trang_thai']) ?><?php if ($r['trang_thai'] === 'pending'): ?><span class="sub">từ <?= e(fmt_date($r['ngay_co_the_chi_tra'])) ?></span><?php endif; ?></td>
+                <td><?= status_pill('ledger_status', $r['trang_thai']) ?><?php if ($r['trang_thai'] === 'pending'): ?><span class="sub"><?= te('dev.sales.tu', [ e(fmt_date($r['ngay_co_the_chi_tra'])) ]) ?></span><?php endif; ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
@@ -57,5 +57,5 @@ $all = array_sum(array_map('intval', $counts));
 </section>
 <?php partial('pagination', ['page' => $page, 'pages' => $pages, 'total' => $total]); ?>
 <?php else: ?>
-    <div class="empty"><p><?= $status === '' ? 'Chưa có lượt bán nào. Doanh thu sẽ xuất hiện ở đây khi người chơi mua sản phẩm của bạn.' : 'Không có dòng nào ở trạng thái này.' ?></p></div>
+            <div class="empty"><p><?= $status === '' ? te('dev.sales.chua.co.luot.ban.nao') : te('dev.sales.khong.co.dong.nao.o.trang.thai.nay') ?></p></div>
 <?php endif; ?>

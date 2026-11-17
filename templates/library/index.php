@@ -4,7 +4,7 @@
 <div class="title-row">
     <div>
         <h1><?= te('library.title') ?></h1>
-        <p class="sub"><?= fmt_int($total) ?> trò chơi<?= $q !== '' ? ' khớp "' . e($q) . '"' : '' ?></p>
+        <p class="sub"><?= te('library.index.tro-choi', [ fmt_int($total) ,  $q !== '' ? ' khớp "' . e($q) . '"' : '' ]) ?></p>
     </div>
 </div>
 
@@ -28,7 +28,7 @@
 
         <?php if (!$games): ?>
             <div class="empty">
-                <p><?= $q !== '' ? 'Không có trò chơi nào khớp.' : 'Thư viện còn trống. Trò chơi bạn mua, nhận miễn phí hoặc kích hoạt bằng mã sẽ hiện ở đây.' ?></p>
+                <p><?= $q !== '' ? te('library.index.khong.co.tro.choi.nao.khop') : te('library.index.thu.vien.con.trong') ?></p>
                 <a class="btn primary" href="<?= e(app_url('/games')) ?>"><?= te('bundle.index.kham_pha_tro_choi') ?></a>
             </div>
         <?php else: ?>
@@ -48,7 +48,7 @@
                                 <a class="btn sm primary" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer"><?= te('game.play') ?></a>
                             <?php endif; ?>
                             <?php if ((int)$g['so_lien_tai'] > 0): ?>
-                                <a class="btn sm<?= $playUrl ? '' : ' primary' ?>" href="<?= e(app_url('/games/' . rawurlencode($g['duong_dan_rut_gon']) . '/downloads')) ?>">Tải về<?= (int)$g['so_lien_tai'] > 1 ? ' ' . te('common.dot') . ' ' . fmt_int((int)$g['so_lien_tai']) : '' ?></a>
+                                <a class="btn sm<?= $playUrl ? '' : ' primary' ?>" href="<?= e(app_url('/games/' . rawurlencode($g['duong_dan_rut_gon']) . '/downloads')) ?>"><?= te('library.index.tai-ve', [ (int)$g['so_lien_tai'] > 1 ? ' ' . te('common.dot') . ' ' . fmt_int((int)$g['so_lien_tai']) : '' ]) ?></a>
                             <?php elseif (!$playUrl): ?>
                                 <a class="btn sm" href="<?= e(game_url($g)) ?>#releases"><?= te('library.index.xem_ban_phat_hanh') ?></a>
                             <?php endif; ?>

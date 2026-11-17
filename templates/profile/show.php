@@ -51,7 +51,7 @@ $cover = app_media_url((string)($profile['url_anh_bia'] ?? ''));
         <?php if ($showLibrary): ?>
             <section aria-labelledby="lib-h">
                 <div class="section-head">
-                    <h2 id="lib-h">Thư viện<?= $ownedTotal ? ' <span class="faint">' . fmt_int($ownedTotal) . '</span>' : '' ?></h2>
+                    <h2 id="lib-h"><?= te('profile.show.thu-vien', [ $ownedTotal ? ' <span class="faint">' . fmt_int($ownedTotal) . '</span>' : '' ]) ?></h2>
                     <?php if ($isSelf): ?><a class="link" href="<?= e(app_url('/library')) ?>"><?= te('game.show.mo_thu_vien') ?></a><?php endif; ?>
                 </div>
                 <?php if ($owned): ?>
@@ -61,7 +61,7 @@ $cover = app_media_url((string)($profile['url_anh_bia'] ?? ''));
                 <?php else: ?>
                     <p class="muted"><?= te('profile.show.chua_co_tro_choi_nao') ?></p>
                 <?php endif; ?>
-                <?php if ($isSelf): ?><p class="small faint">Người khác <?= $libraryPublic ? te('profile.show.thay') : te('profile.show.khong_thay') ?> mục này. Đổi trong <a class="link" href="<?= e(app_url('/settings#privacy')) ?>"><?= te('nav.settings') ?></a>.</p><?php endif; ?>
+                <?php if ($isSelf): ?><p class="small faint"><?= te('profile.show.nguoi-khac-muc-nay-doi-trong', [ $libraryPublic ? te('profile.show.thay') : te('profile.show.khong_thay') ]) ?> <a class="link" href="<?= e(app_url('/settings#privacy')) ?>"><?= te('nav.settings') ?></a>.</p><?php endif; ?>
             </section>
         <?php endif; ?>
 
@@ -102,7 +102,7 @@ $cover = app_media_url((string)($profile['url_anh_bia'] ?? ''));
                     <?php foreach ($collections as $c): ?>
                         <a class="row" href="<?= e(app_url('/collections/' . (int)$c['ma'])) ?>">
                             <span class="grow"><strong><?= e($c['tieu_de']) ?></strong><?php if ($c['mo_ta']): ?><span class="sub"><?= e(excerpt($c['mo_ta'], 90)) ?></span><?php endif; ?></span>
-                            <span class="small faint"><?= fmt_int((int)$c['so_muc']) ?> trò chơi</span>
+                            <span class="small faint"><?= te('profile.show.tro-choi', [ fmt_int((int)$c['so_muc']) ]) ?></span>
                         </a>
                     <?php endforeach; ?>
                 </div>

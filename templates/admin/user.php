@@ -30,7 +30,7 @@ $base = '/admin/users/' . $id;
                 <dt><?= te('admin.games.cap_nhat') ?></dt><dd><?= e(fmt_datetime($account['ngay_cap_nhat'])) ?></dd>
                 <dt><?= te('admin.user.xac_minh_email') ?></dt><dd><?= $account['ngay_xac_minh_email'] ? e(fmt_datetime($account['ngay_xac_minh_email'])) : te('admin.user.chua_xac_minh') ?></dd>
                 <dt>Website</dt><dd><?= $account['url_website'] ? '<a class="link" href="' . e($account['url_website']) . '" target="_blank" rel="noopener noreferrer nofollow">' . e($account['url_website']) . '</a>' : te('common.emdash') ?></dd>
-                <dt><?= te('admin.user.da_bao_cao') ?></dt><dd><?= fmt_int((int)$stats['da_bao_cao']) ?> nội dung</dd>
+                <dt><?= te('admin.user.da_bao_cao') ?></dt><dd><?= te('admin.user.noi-dung', [ fmt_int((int)$stats['da_bao_cao']) ]) ?></dd>
             </dl>
         </section>
 
@@ -52,7 +52,7 @@ $base = '/admin/users/' . $id;
                 <p class="muted"><?= te('admin.user.tai_khoan_da_bi_xoa') ?></p>
             <?php elseif ($account['trang_thai'] === 'active'): ?>
                 <?php if ($isSelf): ?><p class="muted"><?= te('admin.user.ban_khong_the_tu_dinh') ?></p><?php else: ?>
-                <form class="form" method="post" action="<?= e(app_url($base . '/status')) ?>" data-confirm="Đình chỉ <?= e($account['ten_hien_thi']) ?>? Người này sẽ không đăng nhập được.">
+                <form class="form" method="post" action="<?= e(app_url($base . '/status')) ?>" data-confirm="<?= te('admin.user.dinh-chi-e-account-ten-hien-thi-nguoi-nay-se-khong-dang-nhap-duoc') ?>">
                     <?= csrf_field() ?><input type="hidden" name="trang_thai" value="suspended">
                     <div class="field"><label for="s-reason"><?= te('admin.user.ly_do_dinh_chi') ?></label><textarea class="input" id="s-reason" name="ly_do" maxlength="1000" required><?= e(old('ly_do')) ?></textarea><span class="hint"><?= te('admin.user.luu_vao_nhat_ky_kiem') ?></span></div>
                     <div class="form-actions"><button class="btn danger" type="submit"><?= te('admin.user.dinh_chi_tai_khoan') ?></button></div>
@@ -70,7 +70,7 @@ $base = '/admin/users/' . $id;
 
     <div class="span-7 stack">
         <section class="panel" id="library" aria-labelledby="lib-h">
-            <header><h2 id="lib-h"><?= te('library.title') ?></h2><span class="meta"><?= fmt_int(count($owned)) ?> mục</span></header>
+            <header><h2 id="lib-h"><?= te('library.title') ?></h2><span class="meta"><?= te('admin.user.muc', [ fmt_int(count($owned)) ]) ?></span></header>
             <?php if ($account['trang_thai'] === 'active' && $grantable): ?>
                 <form class="form inline-add" method="post" action="<?= e(app_url($base . '/grant')) ?>">
                     <?= csrf_field() ?>
@@ -96,7 +96,7 @@ $base = '/admin/users/' . $id;
 
         <?php if ($created): ?>
         <section class="panel" aria-labelledby="created-h">
-            <header><h2 id="created-h"><?= te('admin.user.du_an_da_tao') ?></h2><span class="meta"><?= fmt_int(count($created)) ?> dự án</span></header>
+            <header><h2 id="created-h"><?= te('admin.user.du_an_da_tao') ?></h2><span class="meta"><?= te('admin.user.du-an', [ fmt_int(count($created)) ]) ?></span></header>
             <div class="rows">
                 <?php foreach ($created as $g): ?>
                     <div class="row">

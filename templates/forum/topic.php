@@ -24,7 +24,7 @@ $here = $self . ($page > 1 ? '?page=' . $page : '');
             <?php if ((int)$topic['da_ghim']): ?><span class="pill"><?= te('forum.show.da_ghim') ?></span> <?php endif; ?>
             <?php if ($locked): ?><span class="pill"><?= te('forum.locked') ?></span> <?php endif; ?>
             <?php if ($topic['trang_thai'] !== 'published'): ?><span class="pill warn"><?= e(label('content_status', $topic['trang_thai'])) ?></span> <?php endif; ?>
-            <?= fmt_int($total) ?> trả lời
+            <?= te('forum.topic.tra-loi', [ fmt_int($total) ]) ?>
         </p>
     </div>
 </div>
@@ -50,7 +50,7 @@ $here = $self . ($page > 1 ? '?page=' . $page : '');
                     </details>
                 <?php endif; ?>
                 <?php if ($isAuthor || $canManage): ?>
-                    <form method="post" action="<?= e(app_url($self . '/moderate')) ?>" data-confirm="Gỡ chủ đề này cùng toàn bộ trả lời khỏi diễn đàn?">
+                    <form method="post" action="<?= e(app_url($self . '/moderate')) ?>" data-confirm="<?= te('forum.topic.go-chu-de-nay-cung-toan-bo-tra-loi-khoi-dien-dan') ?>">
                         <?= csrf_field() ?><input type="hidden" name="action" value="remove">
                         <button class="link-btn neg" type="submit"><?= te('forum.topic.go_chu_de') ?></button>
                     </form>
@@ -75,8 +75,8 @@ $here = $self . ($page > 1 ? '?page=' . $page : '');
                 <div>
                     <div class="meta">
                         <a class="link" href="<?= e(profile_url($p)) ?>"><?= e($p['ten_hien_thi']) ?></a> <?= te('admin.payouts.text') ?> <a href="#post-<?= $pid ?>"><?= e(time_ago($p['ngay_tao'])) ?></a>
-                        <?php if ($p['ngay_chinh_sua']): ?> · đã sửa<?php endif; ?>
-                        <?php if ($p['bai_viet_cha_id']): ?> · trả lời <a class="link" href="#post-<?= (int)$p['bai_viet_cha_id'] ?>"><?= $p['cha_trang_thai'] === 'published' ? e($p['cha_ten']) : te('forum.topic.bai_da_go') ?></a><?php endif; ?>
+                        <?php if ($p['ngay_chinh_sua']): ?> <?= te('forum.topic.da-sua') ?><?php endif; ?>
+                        <?php if ($p['bai_viet_cha_id']): ?> <?= te('forum.topic.tra-loi.2') ?> <a class="link" href="#post-<?= (int)$p['bai_viet_cha_id'] ?>"><?= $p['cha_trang_thai'] === 'published' ? e($p['cha_ten']) : te('forum.topic.bai_da_go') ?></a><?php endif; ?>
                         <?php if ($p['trang_thai'] !== 'published'): ?> <span class="pill warn"><?= e(label('content_status', $p['trang_thai'])) ?></span><?php endif; ?>
                     </div>
                     <div class="prose"><?= e_multiline($p['noi_dung']) ?></div>
@@ -101,7 +101,7 @@ $here = $self . ($page > 1 ? '?page=' . $page : '');
                                 <form method="post" action="<?= e(app_url($self . '/posts')) ?>" class="form reply-form">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="parent_id" value="<?= $pid ?>">
-                                    <label class="sr-only" for="r-<?= $pid ?>">Trả lời <?= e($p['ten_hien_thi']) ?></label>
+                                    <label class="sr-only" for="r-<?= $pid ?>"><?= te('forum.topic.tra-loi.3', [ e($p['ten_hien_thi']) ]) ?></label>
                                     <textarea class="input" id="r-<?= $pid ?>" name="noi_dung" maxlength="20000" required></textarea>
                                     <div class="form-actions"><button class="btn sm primary" type="submit"><?= te('devlog.show.gui_tra_loi') ?></button></div>
                                 </form>
@@ -119,7 +119,7 @@ $here = $self . ($page > 1 ? '?page=' . $page : '');
                             </details>
                         <?php endif; ?>
                         <?php if ($mine || $canManage): ?>
-                            <form method="post" action="<?= e(app_url('/posts/' . $pid . '/delete')) ?>" data-confirm="Xóa bài viết này?">
+                            <form method="post" action="<?= e(app_url('/posts/' . $pid . '/delete')) ?>" data-confirm="<?= te('forum.topic.xoa-bai-viet-nay') ?>">
                                 <?= csrf_field() ?><?= return_field($here) ?>
                                 <button class="link-btn neg" type="submit"><?= te('admin.delete') ?></button>
                             </form>
@@ -157,7 +157,7 @@ $here = $self . ($page > 1 ? '?page=' . $page : '');
         <header><h2><?= te('forum.forums') ?></h2></header>
         <p><a class="link" href="<?= e(app_url($boardUrl)) ?>"><?= e($board['tieu_de']) ?></a></p>
         <?php if ($board['loai_dien_dan'] === 'game'): ?><p class="small muted"><?= te('forum.topic.ve_tro_choi') ?> <a class="link" href="<?= e(app_url('/games/' . rawurlencode($board['game_slug']))) ?>"><?= e($board['game_title']) ?></a></p><?php endif; ?>
-        <p class="small faint">Mở lúc <?= e(fmt_datetime($topic['ngay_tao'])) ?></p>
+        <p class="small faint"><?= te('forum.topic.mo-luc', [ e(fmt_datetime($topic['ngay_tao'])) ]) ?></p>
     </section>
     <?php if ($canManage): ?>
     <section class="panel">

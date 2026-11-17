@@ -14,7 +14,7 @@ $base = $isAdmin ? '/admin/bundles' : '/dev/bundles';
 </div>
 
 <?php if (!$isAdmin && $gameCount < 2): ?>
-    <p class="hint">Cần ít nhất 2 trò chơi đã công bố mà bạn là tác giả để tạo gói. Hiện bạn có <?= fmt_int($gameCount) ?>.</p>
+    <p class="hint"><?= te('bundle.manage.can-it-nhat-2-tro-choi-da-cong-bo-ma-ban-la-tac-gia-de-tao-goi-hien-ban-co', [ fmt_int($gameCount) ]) ?></p>
 <?php endif; ?>
 
 <?php if (!$bundles): ?>

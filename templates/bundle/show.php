@@ -12,7 +12,7 @@ $editUrl = has_role('admin') && (int)$bundle['nguoi_tao_id'] !== current_user_id
 <header class="object-head">
     <div class="grow">
         <h1><?= e($bundle['tieu_de']) ?></h1>
-        <p class="meta"><?= e(label('bundle_type', $bundle['loai_goi_game'])) ?> · tạo bởi <a class="link" href="<?= e(profile_url($bundle)) ?>"><?= e($bundle['nguoi_tao']) ?></a>
+        <p class="meta"><?= te('bundle.show.tao-boi', [ e(label('bundle_type', $bundle['loai_goi_game'])) ]) ?> <a class="link" href="<?= e(profile_url($bundle)) ?>"><?= e($bundle['nguoi_tao']) ?></a>
             <?php if ($bundle['trang_thai'] !== 'published'): ?> · <?= status_pill('bundle_status', $bundle['trang_thai']) ?><?php endif; ?></p>
         <div class="stat-line">
             <span><strong><?= fmt_int(count($games)) ?></strong> <?= te('bundle.show.tro_choi') ?></span>
@@ -51,7 +51,7 @@ $editUrl = has_role('admin') && (int)$bundle['nguoi_tao_id'] !== current_user_id
                 <?php if ($saving > 0): ?><dt><?= te('bundle.show.tiet_kiem') ?></dt><dd><?= e(money($saving)) ?></dd><?php endif; ?>
                 <dt class="total"><?= te('bundle.bundle_price') ?></dt><dd class="total"><?= e($price > 0 ? money($price) : te('price.free')) ?></dd>
             </dl>
-            <?php if ($ownedCount): ?><p class="small faint">Bạn đã có <?= fmt_int($ownedCount) ?>/<?= fmt_int(count($games)) ?> trò chơi trong gói. Giá gói không đổi; bạn nhận thêm <?= fmt_int($newCount) ?> trò chơi mới.</p><?php endif; ?>
+            <?php if ($ownedCount): ?><p class="small faint"><?= te('bundle.show.ban-da-co-tro-choi-trong-goi-gia-goi-khong-doi-ban-nhan-them-tro-choi-moi', [ fmt_int($ownedCount) ,  fmt_int(count($games)) ,  fmt_int($newCount) ]) ?></p><?php endif; ?>
             <?php if (!$onSale): ?>
                 <div class="notice neutral"><?= $bundle['trang_thai'] === 'ended' || ($bundle['ngay_ket_thuc'] && strtotime($bundle['ngay_ket_thuc']) <= time()) ? te('bundle.show.goi_nay_da_ket_thuc') : te('bundle.show.goi_nay_chua_mo_ban') ?></div>
             <?php elseif (!$games || $newCount === 0): ?>

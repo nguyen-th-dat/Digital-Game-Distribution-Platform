@@ -28,7 +28,7 @@ $val = static fn(string $key, $fallback) => old($key, $fallback);
         <div class="field">
             <label for="cover"><?= te('settings.index.anh_bia_ho_so') ?></label>
             <input class="input" id="cover" type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/gif">
-            <span class="hint">Tối đa 5 MB, tỉ lệ khoảng 4:1.<?= $me['url_anh_bia'] ? ' ' . te('settings.index.dang_co_anh_bia') : '' ?></span>
+            <span class="hint"><?= te('settings.index.toi-da-5-mb-ti-le-khoang-4-1', [ $me['url_anh_bia'] ? ' ' . te('settings.index.dang_co_anh_bia') : '' ]) ?></span>
             <?php if ($me['url_anh_bia']): ?><label class="check"><input type="checkbox" name="remove_cover" value="1"> <?= te('settings.index.go_anh_bia') ?></label><?php endif; ?>
         </div>
         <div class="form-grid">
@@ -133,7 +133,7 @@ $val = static fn(string $key, $fallback) => old($key, $fallback);
 <section class="settings-block" id="developer" aria-labelledby="developer-h">
     <div class="about">
         <h2 id="developer-h"><?= te('settings.index.phat_hanh_tro_choi') ?></h2>
-        <p>Nhà phát triển tạo trang trò chơi, tải bản phát hành, phát mã kích hoạt và nhận doanh thu sau phí nền tảng <?= e((string)round(PLATFORM_FEE_RATE * 100)) ?>%.</p>
+        <p><?= te('settings.index.nha-phat-trien-tao-trang-tro-choi-tai-ban-phat-hanh-phat-ma-kich-hoat-va-nhan-doanh-thu-sau-phi-nen-tang', [ e((string)round(PLATFORM_FEE_RATE * 100)) ]) ?></p>
     </div>
     <?php if ($isDeveloper): ?>
         <div class="panel form">
@@ -143,7 +143,7 @@ $val = static fn(string $key, $fallback) => old($key, $fallback);
     <?php else: ?>
         <form class="panel form" method="post" action="<?= e(app_url('/settings/developer')) ?>">
             <?= csrf_field() ?>
-            <label class="check"><input type="checkbox" name="agree" value="1" required><span><?= te('settings.index.toi_co_quyen_phat_hanh') ?><span class="sub">Doanh thu được giữ <?= (int)PAYOUT_HOLD_DAYS ?> ngày trước khi có thể rút; người mua được hoàn tiền trong <?= (int)REFUND_WINDOW_DAYS ?> ngày.</span></span></label>
+            <label class="check"><input type="checkbox" name="agree" value="1" required><span><?= te('settings.index.toi_co_quyen_phat_hanh') ?><span class="sub"><?= te('settings.index.doanh-thu-duoc-giu-ngay-truoc-khi-co-the-rut-nguoi-mua-duoc-hoan-tien-trong-ngay', [ (int)PAYOUT_HOLD_DAYS ,  (int)REFUND_WINDOW_DAYS ]) ?></span></span></label>
             <div class="form-actions"><button class="btn primary" type="submit"><?= te('settings.index.tro_thanh_nha_phat_trien') ?></button></div>
         </form>
     <?php endif; ?>

@@ -23,9 +23,9 @@ $sum = array_sum(array_map(static fn($a) => (float)$a['phan_tram_huong_doanh_thu
                 <?php foreach ($authors as $a): $u = (int)$a['nguoi_dung_id']; ?>
                     <tr>
                         <td><?= e($a['ten_hien_thi'] ?? '') ?><span class="sub">@<?= e($a['ten_dang_nhap'] ?? '') ?><?= $u === $creator ? ' ' . te('dev.game-authors.dot_nguoi_tao') : '' ?><?= !empty($a['chua_luu']) ? ' ' . te('dev.game-authors.dot_chua_luu') : '' ?></span></td>
-                        <td class="num"><label class="sr-only" for="sh-<?= $u ?>">Tỷ lệ của <?= e($a['ten_hien_thi'] ?? '') ?></label><input class="input sm num" id="sh-<?= $u ?>" name="share[<?= $u ?>]" inputmode="decimal" pattern="\d{1,3}([.,]\d{1,2})?" required value="<?= e(old('share', [])[$u] ?? $pct($a['phan_tram_huong_doanh_thu'])) ?>"></td>
-                        <td class="num"><label class="sr-only" for="or-<?= $u ?>">Thứ tự của <?= e($a['ten_hien_thi'] ?? '') ?></label><input class="input sm num" id="or-<?= $u ?>" type="number" name="order[<?= $u ?>]" min="0" max="99" value="<?= (int)(old('order', [])[$u] ?? $a['thu_tu_hien_thi']) ?>"></td>
-                        <td><?php if ($u !== $creator): ?><label class="check"><input type="checkbox" name="remove[<?= $u ?>]" value="1"<?= !empty(old('remove', [])[$u]) ? ' checked' : '' ?>> <span class="sr-only">Gỡ <?= e($a['ten_hien_thi'] ?? '') ?></span></label><?php endif; ?></td>
+                        <td class="num"><label class="sr-only" for="sh-<?= $u ?>"><?= te('dev.game-authors.ty-le-cua', [ e($a['ten_hien_thi'] ?? '') ]) ?></label><input class="input sm num" id="sh-<?= $u ?>" name="share[<?= $u ?>]" inputmode="decimal" pattern="\d{1,3}([.,]\d{1,2})?" required value="<?= e(old('share', [])[$u] ?? $pct($a['phan_tram_huong_doanh_thu'])) ?>"></td>
+                        <td class="num"><label class="sr-only" for="or-<?= $u ?>"><?= te('dev.game-authors.thu-tu-cua', [ e($a['ten_hien_thi'] ?? '') ]) ?></label><input class="input sm num" id="or-<?= $u ?>" type="number" name="order[<?= $u ?>]" min="0" max="99" value="<?= (int)(old('order', [])[$u] ?? $a['thu_tu_hien_thi']) ?>"></td>
+                        <td><?php if ($u !== $creator): ?><label class="check"><input type="checkbox" name="remove[<?= $u ?>]" value="1"<?= !empty(old('remove', [])[$u]) ? ' checked' : '' ?>> <span class="sr-only"><?= te('dev.game-authors.go', [ e($a['ten_hien_thi'] ?? '') ]) ?></span></label><?php endif; ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -45,7 +45,7 @@ $sum = array_sum(array_map(static fn($a) => (float)$a['phan_tram_huong_doanh_thu
             </div>
         </div>
         <?php endif; ?>
-        <p class="hint">Tổng hiện tại: <?= e($pct($sum)) ?>%. Tối đa <?= (int)$maxAuthors ?> tác giả.</p>
+        <p class="hint"><?= te('dev.game-authors.tong-hien-tai-toi-da-tac-gia', [ e($pct($sum)) ,  (int)$maxAuthors ]) ?></p>
         <div class="form-actions"><button class="btn primary" type="submit"><?= te('common.save') ?></button></div>
     </form>
     <?php else: ?>

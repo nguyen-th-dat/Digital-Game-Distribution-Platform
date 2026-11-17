@@ -27,7 +27,7 @@
                         <h2><a href="<?= e($line['url']) ?>"><?= e($line['title']) ?></a></h2>
                         <p class="small muted">
                             <?php if ($line['type'] === 'bundle'): ?>
-                                Gói <?= fmt_int($line['game_count']) ?> trò chơi<?= $line['new_games'] < $line['game_count'] ? ' ' . te('cart.index.dot_ban_da_co') . ' ' . fmt_int($line['game_count'] - $line['new_games']) : '' ?>
+                                <?= te('cart.index.goi-tro-choi', [ fmt_int($line['game_count']) ,  $line['new_games'] < $line['game_count'] ? ' ' . te('cart.index.dot_ban_da_co') . ' ' . fmt_int($line['game_count'] - $line['new_games']) : '' ]) ?>
                             <?php else: ?>
                                 <?= e(label('pricing', $line['pricing'])) ?><?= $line['sale_percent'] > 0 ? ' ' . te('cart.index.dot_dang_giam') . ' ' . e(rtrim(rtrim(number_format($line['sale_percent'], 2), '0'), '.')) . '%' : '' ?>
                             <?php endif; ?>
@@ -50,7 +50,7 @@
                             <?php if ($line['sale'] > 0 || $line['coupon'] > 0): ?><span class="was"><?= e(money($line['list'])) ?></span><?php endif; ?>
                             <span><?= e(money($line['net'])) ?></span>
                         </div>
-                        <?php if ($line['coupon'] > 0): ?><span class="small faint">Mã giảm −<?= e(money($line['coupon'])) ?></span><?php endif; ?>
+                        <?php if ($line['coupon'] > 0): ?><span class="small faint"><?= te('cart.index.ma-giam', [ e(money($line['coupon'])) ]) ?></span><?php endif; ?>
                         <form method="post" action="<?= e(app_url('/cart/items/' . (int)$line['item_id'] . '/remove')) ?>">
                             <?= csrf_field() ?>
                             <button class="link-btn" type="submit"><?= te('cart.index.bo_khoi_gio') ?></button>
@@ -67,7 +67,7 @@
             <dl class="summary">
                 <dt><?= te('bundle.original_price') ?></dt><dd><?= e(money($totals['list'])) ?></dd>
                 <?php if ($totals['sale'] > 0): ?><dt><?= te('cart.index.giam_gia_chien_dich') ?></dt><dd>−<?= e(money($totals['sale'])) ?></dd><?php endif; ?>
-                <?php if ($totals['coupon'] > 0): ?><dt>Mã <?= e($coupon['ma_uu_dai']) ?></dt><dd>−<?= e(money($totals['coupon'])) ?></dd><?php endif; ?>
+                <?php if ($totals['coupon'] > 0): ?><dt><?= te('cart.index.ma', [ e($coupon['ma_uu_dai']) ]) ?></dt><dd>−<?= e(money($totals['coupon'])) ?></dd><?php endif; ?>
                 <dt><?= te('cart.index.thue') ?></dt><dd><?= e(money(0)) ?></dd>
                 <dt class="total"><?= te('admin.orders.tong_thanh_toan') ?></dt><dd class="total"><?= e(money($totals['total'])) ?></dd>
             </dl>
@@ -88,7 +88,7 @@
             <?php endif; ?>
 
             <?php if ($totals['blocked']): ?>
-                <p class="notice small">Có <?= fmt_int($totals['blocked']) ?> sản phẩm không thể thanh toán. Hãy bỏ chúng khỏi giỏ để tiếp tục.</p>
+                <p class="notice small"><?= te('cart.index.co-san-pham-khong-the-thanh-toan-hay-bo-chung-khoi-gio-de-tiep-tuc', [ fmt_int($totals['blocked']) ]) ?></p>
             <?php else: ?>
                 <form method="post" action="<?= e(app_url('/cart/checkout')) ?>" class="form checkout-form">
                     <?= csrf_field() ?>
@@ -96,11 +96,11 @@
                         <input type="checkbox" name="confirm_sandbox" value="1" required>
                         <span><?= te('cart.index.toi_hieu_day_la') ?> <strong><?= te('cart.index.thanh_toan_thu_nghiem_sandbox') ?></strong><span class="sub"><?= te('cart.index.khong_co_tien_that_duoc') ?></span></span>
                     </label>
-                    <button class="btn primary block" type="submit">Thanh toán thử <?= e(money($totals['total'])) ?></button>
+                    <button class="btn primary block" type="submit"><?= te('cart.index.thanh-toan-thu', [ e(money($totals['total'])) ]) ?></button>
                 </form>
             <?php endif; ?>
         </section>
-        <p class="small faint">Bạn có thể yêu cầu hoàn tiền trong <?= (int)REFUND_WINDOW_DAYS ?> ngày kể từ khi thanh toán, tại trang chi tiết đơn hàng.</p>
+        <p class="small faint"><?= te('cart.index.ban-co-the-yeu-cau-hoan-tien-trong-ngay-ke-tu-khi-thanh-toan-tai-trang-chi-tiet-don-hang', [ (int)REFUND_WINDOW_DAYS ]) ?></p>
     </aside>
 </div>
 <?php endif; ?>

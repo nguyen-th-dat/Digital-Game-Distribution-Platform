@@ -13,7 +13,7 @@ $publicUrl = !$isNew && $post['trang_thai'] === 'published' && in_array($game['t
 <div class="title-row">
     <div>
         <h2><?= $isNew ? te('dev.devlog-form.viet_bai_nhat_ky') : te('dev.devlog-form.sua_bai_nhat_ky') ?></h2>
-        <?php if (!$isNew): ?><p class="sub"><?= status_pill('content_status', $post['trang_thai']) ?><?= $post['ngay_cong_bo'] ? ' ' . te('dev.devlog-form.dang') . ' ' . e(fmt_datetime($post['ngay_cong_bo'])) : '' ?> · đường dẫn /<?= e($post['duong_dan_rut_gon']) ?></p><?php endif; ?>
+        <?php if (!$isNew): ?><p class="sub"><?= te('dev.devlog-form.duong-dan', [ status_pill('content_status', $post['trang_thai']) ,  $post['ngay_cong_bo'] ? ' ' . te('dev.devlog-form.dang') . ' ' . e(fmt_datetime($post['ngay_cong_bo'])) : '' ,  e($post['duong_dan_rut_gon']) ]) ?></p><?php endif; ?>
     </div>
     <div class="cluster">
         <a class="btn ghost" href="<?= e(app_url('/dev/games/' . $gid . '/devlogs')) ?>"><?= te('dev.devlog-form.tat_ca_bai_viet') ?></a>

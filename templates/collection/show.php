@@ -10,7 +10,7 @@ $asList = $collection['bo_cuc'] === 'list';
     <img class="avatar lg" src="<?= e(avatar_url(['ma' => $collection['nguoi_dung_so_huu_id'], 'url_anh_dai_dien' => $collection['url_anh_dai_dien']])) ?>" alt="">
     <div class="grow">
         <h1><?= e($collection['tieu_de']) ?></h1>
-        <p class="meta"><?= te('collection.show.tuyen_chon_boi') ?> <a class="link" href="<?= e(profile_url($collection)) ?>"><?= e($collection['ten_hien_thi']) ?></a> · cập nhật <?= e(fmt_date($collection['ngay_cap_nhat'])) ?>
+        <p class="meta"><?= te('collection.show.tuyen_chon_boi') ?> <a class="link" href="<?= e(profile_url($collection)) ?>"><?= e($collection['ten_hien_thi']) ?></a> <?= te('collection.show.cap-nhat', [ e(fmt_date($collection['ngay_cap_nhat'])) ]) ?>
             <?php if ($collection['pham_vi_hien_thi'] !== 'public'): ?> · <?= e(label('visibility', $collection['pham_vi_hien_thi'])) ?><?php endif; ?></p>
         <div class="stat-line"><span><strong><?= fmt_int(count($games)) ?></strong> <?= te('bundle.show.tro_choi') ?></span></div>
     </div>
@@ -39,7 +39,7 @@ $asList = $collection['bo_cuc'] === 'list';
                                 <form class="form note-form" method="post" action="<?= e(app_url($self . '/items')) ?>">
                                     <?= csrf_field() ?><?= return_field($self) ?>
                                     <input type="hidden" name="game_id" value="<?= (int)$g['ma'] ?>">
-                                    <label class="sr-only" for="note-<?= (int)$g['ma'] ?>">Ghi chú cho <?= e($g['tieu_de']) ?></label>
+                                    <label class="sr-only" for="note-<?= (int)$g['ma'] ?>"><?= te('collection.show.ghi-chu-cho', [ e($g['tieu_de']) ]) ?></label>
                                     <input class="input sm" id="note-<?= (int)$g['ma'] ?>" name="ghi_chu" maxlength="500" value="<?= e((string)$g['ghi_chu']) ?>" placeholder="<?= te('collection.show.ghi_chu_vi_sao_ban') ?>">
                                     <button class="btn sm" type="submit"><?= te('collection.show.luu_ghi_chu') ?></button>
                                 </form>
@@ -48,7 +48,7 @@ $asList = $collection['bo_cuc'] === 'list';
                         <div class="cluster">
                             <?= price_html($g, in_array((int)$g['ma'], $owned, true)) ?>
                             <?php if ($isOwner): ?>
-                                <form method="post" action="<?= e(app_url($self . '/items/' . (int)$g['ma'] . '/remove')) ?>" data-confirm="Bỏ <?= e($g['tieu_de']) ?> khỏi bộ sưu tập?">
+                                <form method="post" action="<?= e(app_url($self . '/items/' . (int)$g['ma'] . '/remove')) ?>" data-confirm="<?= te('collection.show.bo-e-g-tieu-de-khoi-bo-suu-tap') ?>">
                                     <?= csrf_field() ?><?= return_field($self) ?>
                                     <button class="link-btn neg" type="submit"><?= te('collection.show.bo') ?></button>
                                 </form>

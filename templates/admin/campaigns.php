@@ -17,7 +17,7 @@ $pct = static fn($p): string => rtrim(rtrim(number_format((float)$p, 2, ',', '')
                 <tr>
                     <td class="lead"><a class="link" href="<?= e(app_url('/admin/campaigns/' . (int)$c['ma'])) ?>"><?= e($c['tieu_de']) ?></a><span class="sub">#<?= (int)$c['ma'] ?> · <?= e($c['nguoi_tao']) ?></span></td>
                     <td class="num"><?= e($pct($c['phan_tram_giam_gia'])) ?></td>
-                    <td class="when"><?= e(fmt_datetime($c['ngay_bat_dau'])) ?><span class="sub">đến <?= e(fmt_datetime($c['ngay_ket_thuc'])) ?></span></td>
+                    <td class="when"><?= e(fmt_datetime($c['ngay_bat_dau'])) ?><span class="sub"><?= te('admin.campaigns.den', [ e(fmt_datetime($c['ngay_ket_thuc'])) ]) ?></span></td>
                     <td><?= status_pill('campaign_status', DiscountCampaignModel::phase($c)) ?></td>
                     <td class="num"><?= fmt_int((int)$c['so_tro_choi']) ?></td>
                 </tr>

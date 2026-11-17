@@ -25,7 +25,7 @@ $filtered = $filters['type'] !== '' || $filters['status'] !== '' || $filters['q'
         <?php foreach (['published', 'hidden', 'removed'] as $k): ?><option value="<?= e($k) ?>"<?= $filters['status'] === $k ? ' selected' : '' ?>><?= e(label('content_status', $k)) ?></option><?php endforeach; ?>
     </select>
     <span class="spacer"></span>
-    <span class="count"><?= fmt_int($total) ?> mục<?= $filters['id'] > 0 && $filters['type'] !== '' ? ' · mã #' . (int)$filters['id'] : '' ?></span>
+    <span class="count"><?= te('admin.content.muc', [ fmt_int($total) ,  $filters['id'] > 0 && $filters['type'] !== '' ? ' · mã #' . (int)$filters['id'] : '' ]) ?></span>
 </form>
 
 <?php if ($items): ?>

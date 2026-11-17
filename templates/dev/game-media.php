@@ -18,8 +18,8 @@ $taken = array_column($media, 'loai_media');
                     <div class="cell-game grow">
                         <?php if ($image): ?><img src="<?= e(app_media_url($m['url_media'])) ?>" alt="<?= e($m['van_ban_thay_the'] ?: '') ?>" loading="lazy" data-fallback=""><?php else: ?><span class="thumb"></span><?php endif; ?>
                         <div>
-                            <strong><?= e(label('media_type', $m['loai_media'])) ?></strong> <span class="muted">· thứ tự <?= (int)$m['thu_tu_sap_xep'] ?></span>
-                            <span class="sub"><?= $m['chu_thich'] !== null && $m['chu_thich'] !== '' ? media_credit_html($m['chu_thich']) : 'Chưa có chú thích' ?></span>
+                            <strong><?= e(label('media_type', $m['loai_media'])) ?></strong> <span class="muted"><?= te('dev.game-media.thu-tu', [ (int)$m['thu_tu_sap_xep'] ]) ?></span>
+                            <span class="sub"><?= $m['chu_thich'] !== null && $m['chu_thich'] !== '' ? media_credit_html($m['chu_thich']) : te('dev.game-media.chua.co.chu.thich') ?></span>
                             <?php if (!$image): ?><span class="sub"><a class="link" href="<?= e($m['url_media']) ?>" target="_blank" rel="noopener noreferrer"><?= e(excerpt($m['url_media'], 60)) ?></a></span><?php endif; ?>
                         </div>
                     </div>
@@ -37,7 +37,7 @@ $taken = array_column($media, 'loai_media');
                                 <button class="btn sm primary" type="submit"><?= te('common.save') ?></button>
                             </form>
                         </details>
-                        <form method="post" action="<?= e(app_url($base . '/' . $mid . '/delete')) ?>" data-confirm="Xóa <?= e(mb_strtolower(label('media_type', $m['loai_media']))) ?> này?<?= $image ? ' ' . te('dev.game-media.tep_anh_da_tai_len') : "" ?>"><?= csrf_field() ?><button class="link-btn neg" type="submit"><?= te('admin.delete') ?></button></form>
+                        <form method="post" action="<?= e(app_url($base . '/' . $mid . '/delete')) ?>" data-confirm="<?= te('dev.game-media.xoa-e-mb-strtolower-label-media-type-m-loai-media-nay-image-te-dev-game-media-tep-anh-da-tai-len') ?> "" ?>"><?= csrf_field() ?><button class="link-btn neg" type="submit"><?= te('admin.delete') ?></button></form>
                     </div>
                 </div>
             <?php endforeach; ?>

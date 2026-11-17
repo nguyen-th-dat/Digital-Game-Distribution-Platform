@@ -4,7 +4,7 @@ $id = (int)$board['ma'];
 ?>
 <nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>"><a href="<?= e(app_url('/forums')) ?>"><?= te('forum.forums') ?></a><a href="<?= e(app_url('/forums/' . $id)) ?>"><?= e($board['tieu_de']) ?></a><span><?= te('forum.new_topic') ?></span></nav>
 
-<div class="title-row"><div><h1><?= te('forum.new_topic') ?></h1><p class="sub">Đăng trong <?= e($board['tieu_de']) ?>. Tiêu đề rõ ràng giúp người khác tìm thấy và trả lời nhanh hơn.</p></div></div>
+<div class="title-row"><div><h1><?= te('forum.new_topic') ?></h1><p class="sub"><?= te('forum.new-topic.dang-trong-tieu-de-ro-rang-giup-nguoi-khac-tim-thay-va-tra-loi-nhanh-hon', [ e($board['tieu_de']) ]) ?></p></div></div>
 
 <section class="panel narrow-panel">
     <form class="form" method="post" action="<?= e(app_url('/forums/' . $id . '/topics')) ?>">

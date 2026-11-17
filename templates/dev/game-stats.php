@@ -27,18 +27,18 @@ $hasData = array_sum(array_map('floatval', $totals)) > 0;
 
 <nav class="chips chips-row" aria-label="<?= te('dev.game-stats.khoang_thoi_gian') ?>">
     <?php foreach ([7, 30, 90] as $d): ?>
-        <a class="chip"<?= $days === $d ? ' aria-current="true"' : '' ?> href="<?= e(app_url($base . qs(['days' => $d === 30 ? null : $d]))) ?>"><?= $d ?> ngày</a>
+        <a class="chip"<?= $days === $d ? ' aria-current="true"' : '' ?> href="<?= e(app_url($base . qs(['days' => $d === 30 ? null : $d]))) ?>"><?= te('dev.game-stats.ngay', [ $d ]) ?></a>
     <?php endforeach; ?>
 </nav>
 
-<section class="kpis section" aria-label="Tổng <?= $days ?> ngày">
+<section class="kpis section" aria-label="<?= te('dev.game-stats.tong-days-ngay') ?>">
     <?php foreach ($charts as $col => $name): ?>
-        <div class="kpi"><div class="kpi-label"><?= e($name) ?></div><div class="kpi-value"><?= e($fmt($col, $totals[$col])) ?></div><div class="delta"><?= $days ?> ngày qua</div></div>
+        <div class="kpi"><div class="kpi-label"><?= e($name) ?></div><div class="kpi-value"><?= e($fmt($col, $totals[$col])) ?></div><div class="delta"><?= te('dev.game-stats.ngay-qua', [ $days ]) ?></div></div>
     <?php endforeach; ?>
 </section>
 
 <?php if (!$hasData): ?>
-    <div class="empty section"><p>Chưa có số liệu trong <?= $days ?> ngày qua. Lượt xem chỉ được ghi khi dự án công khai hoặc không niêm yết, mỗi phiên trình duyệt một lần mỗi ngày.</p></div>
+    <div class="empty section"><p><?= te('dev.game-stats.chua-co-so-lieu-trong-ngay-qua-luot-xem-chi-duoc-ghi-khi-du-an-cong-khai-hoac-khong-niem-yet-moi-phien-trinh-duyet-mot-lan-moi-ngay', [ $days ]) ?></p></div>
 <?php else: ?>
 <div class="chart-grid section">
     <?php foreach ($charts as $col => $name):
@@ -47,11 +47,11 @@ $hasData = array_sum(array_map('floatval', $totals)) > 0;
         $peak = max($values);
     ?>
         <section class="panel" aria-labelledby="ch-<?= e($col) ?>">
-            <header><h2 id="ch-<?= e($col) ?>"><?= e($name) ?> theo ngày</h2><?php if ($peak > 0): ?><span class="meta">Cao nhất <?= e($fmt($col, $peak)) ?></span><?php endif; ?></header>
+            <header><h2 id="ch-<?= e($col) ?>"><?= te('dev.game-stats.theo-ngay', [ e($name) ]) ?></h2><?php if ($peak > 0): ?><span class="meta"><?= te('dev.game-stats.cao-nhat', [ e($fmt($col, $peak)) ]) ?></span><?php endif; ?></header>
             <?php if ($peak <= 0): ?>
-            <p class="muted">Chưa có số liệu trong <?= $days ?> ngày qua.</p>
+            <p class="muted"><?= te('dev.game-stats.chua-co-so-lieu-trong-ngay-qua', [ $days ]) ?></p>
             <?php else: ?>
-            <div class="chart" role="img" aria-label="<?= e($name) ?> theo ngày, <?= $days ?> ngày qua. Tổng <?= e($fmt($col, $totals[$col])) ?>, cao nhất <?= e($fmt($col, $peak)) ?> trong một ngày. Số liệu từng ngày có trong bảng bên dưới.">
+            <div class="chart" role="img" aria-label="<?= te('dev.game-stats.e-name-theo-ngay-days-ngay-qua-tong-e-fmt-col-totals-col-cao-nhat-e-fmt-col-peak-trong-mot-ngay-so-lieu-tung-ngay-co-trong-bang-ben-duoi') ?>">
                 <div class="chart-y" aria-hidden="true"><span><?= e($fmt($col, $top)) ?></span><span>0</span></div>
                 <div>
                     <div class="bars" style="--n: <?= $n ?>">
@@ -94,7 +94,7 @@ $hasData = array_sum(array_map('floatval', $totals)) > 0;
         <dt><?= te('dev.game-stats.trong_danh_sach_yeu_thich') ?></dt><dd><?= fmt_int((int)$lifetime['yeu_thich']) ?></dd>
         <dt><?= te('profile.followers') ?></dt><dd><?= fmt_int((int)$lifetime['theo_doi']) ?></dd>
         <dt><?= te('game.reviews') ?></dt><dd><?= fmt_int((int)$lifetime['so_danh_gia']) ?><?= $lifetime['diem_tb'] !== null ? ' ' . te('dev.game-stats.dot_trung_binh') . ' ' . e(number_format((float)$lifetime['diem_tb'], 1, ',', '')) . '/5' : '' ?></dd>
-        <dt>Thêm yêu thích (<?= $days ?> ngày)</dt><dd><?= fmt_int((int)$totals['luot_them_yeu_thich']) ?></dd>
-        <dt>Bình luận mới (<?= $days ?> ngày)</dt><dd><?= fmt_int((int)$totals['so_luong_binh_luan']) ?></dd>
+        <dt><?= te('dev.game-stats.them-yeu-thich-ngay', [ $days ]) ?></dt><dd><?= fmt_int((int)$totals['luot_them_yeu_thich']) ?></dd>
+        <dt><?= te('dev.game-stats.binh-luan-moi-ngay', [ $days ]) ?></dt><dd><?= fmt_int((int)$totals['so_luong_binh_luan']) ?></dd>
     </dl>
 </section>

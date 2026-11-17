@@ -21,7 +21,7 @@
         <?php foreach (labels('role') as $k => $t): ?><option value="<?= e($k) ?>"<?= $filters['role'] === $k ? ' selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?>
     </select>
     <span class="spacer"></span>
-    <span class="count"><?= fmt_int($total) ?> tài khoản</span>
+    <span class="count"><?= te('admin.users.tai-khoan', [ fmt_int($total) ]) ?></span>
 </form>
 
 <?php if ($users): ?>

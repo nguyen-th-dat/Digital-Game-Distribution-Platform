@@ -6,10 +6,10 @@ $tid = (int)$report['doi_tuong_id'];
 $isOpen = in_array($report['trang_thai'], ['open', 'investigating'], true);
 $openRelated = count(array_filter($related, static fn($r) => in_array($r['trang_thai'], ['open', 'investigating'], true)));
 ?>
-<nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>"><a href="<?= e(app_url('/admin/reports')) ?>"><?= te('admin.reports') ?></a><span>Báo cáo #<?= $rid ?></span></nav>
+<nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>"><a href="<?= e(app_url('/admin/reports')) ?>"><?= te('admin.reports') ?></a><span><?= te('admin.report.bao-cao', [ $rid ]) ?></span></nav>
 
 <div class="title-row">
-    <div><h1><?= e(label('report_target', $type)) ?> #<?= $tid ?></h1><p class="sub"><?= e(label('report_reason', $report['ma_ly_do'])) ?> · gửi <?= e(fmt_datetime($report['ngay_tao'])) ?> · <?= status_pill('report_status', $report['trang_thai']) ?></p></div>
+    <div><h1><?= e(label('report_target', $type)) ?> #<?= $tid ?></h1><p class="sub"><?= te('admin.report.gui', [ e(label('report_reason', $report['ma_ly_do'])) ,  e(fmt_datetime($report['ngay_tao'])) ,  status_pill('report_status', $report['trang_thai']) ]) ?></p></div>
     <?php if ($target): ?><a class="btn" href="<?= e(app_url(mod_target_url($type, $tid))) ?>"><?= te('admin.report.mo_trong_trang_quan_ly') ?></a><?php endif; ?>
 </div>
 
@@ -100,13 +100,13 @@ $openRelated = count(array_filter($related, static fn($r) => in_array($r['trang_
                     <?php endif; ?>
                     <div class="field"><label for="r-note"><?= te('common.note') ?></label><textarea class="input" id="r-note" name="ghi_chu" maxlength="1000"><?= e(old('ghi_chu')) ?></textarea><span class="hint"><?= te('admin.report.dung_lam_ly_do_cua') ?></span></div>
                     <?php if ($openRelated > 0): ?>
-                        <label class="check"><input type="checkbox" name="dong_cung_noi_dung" value="1" checked> <span>Đóng luôn <?= fmt_int($openRelated) ?> báo cáo khác cùng nội dung</span></label>
+                        <label class="check"><input type="checkbox" name="dong_cung_noi_dung" value="1" checked> <span><?= te('admin.report.dong-luon-bao-cao-khac-cung-noi-dung', [ fmt_int($openRelated) ]) ?></span></label>
                     <?php endif; ?>
                     <div class="form-actions"><button class="btn primary" type="submit"><?= te('admin.report.dong_bao_cao') ?></button></div>
                 </form>
             </section>
         <?php else: ?>
-            <section class="panel"><header><h2><?= te('admin.report.da_dong') ?></h2></header><p class="muted">Báo cáo này đã đóng với kết quả "<?= e(label('report_status', $report['trang_thai'])) ?>".</p></section>
+            <section class="panel"><header><h2><?= te('admin.report.da_dong') ?></h2></header><p class="muted"><?= te('admin.report.bao-cao-nay-da-dong-voi-ket-qua', [ e(label('report_status', $report['trang_thai'])) ]) ?></p></section>
         <?php endif; ?>
 
         <section class="panel" aria-labelledby="rel-h">

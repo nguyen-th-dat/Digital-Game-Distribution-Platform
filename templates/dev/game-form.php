@@ -36,7 +36,7 @@ $checks = static function (string $name, array $items, string $text, array $sele
             <div class="field">
                 <label for="g-slug"><?= te('admin.campaign-form.duong_dan') ?></label>
                 <input class="input" id="g-slug" name="duong_dan_rut_gon" maxlength="220" pattern="[a-z0-9]+(-[a-z0-9]+)*" value="<?= e($v('duong_dan_rut_gon')) ?>" placeholder="<?= te('admin.jam-form.tu_tao_tu_ten_neu') ?>">
-                <span class="hint">Chữ thường không dấu, số và dấu gạch ngang.<?= !$isNew && $game['ngay_cong_bo'] ? ' ' . te('dev.game-form.doi_duong_dan_sau_khi') : '' ?></span>
+                <span class="hint"><?= te('dev.game-form.chu-thuong-khong-dau-so-va-dau-gach-ngang', [ !$isNew && $game['ngay_cong_bo'] ? ' ' . te('dev.game-form.doi_duong_dan_sau_khi') : '' ]) ?></span>
             </div>
             <div class="form-grid">
                 <div class="field">
@@ -66,7 +66,7 @@ $checks = static function (string $name, array $items, string $text, array $sele
     </section>
 
     <section class="settings-block" aria-labelledby="price-h">
-        <div class="about"><h2 id="price-h"><?= te('common.price') ?></h2><p>Giá tính bằng <?= e(APP_CURRENCY) ?>. Nền tảng thu phí <?= rtrim(rtrim(number_format(PLATFORM_FEE_RATE * 100, 1), '0'), '.') ?>% mỗi lượt bán; phần còn lại chia cho các tác giả theo tỷ lệ.</p></div>
+        <div class="about"><h2 id="price-h"><?= te('common.price') ?></h2><p><?= te('dev.game-form.gia-tinh-bang-nen-tang-thu-phi-moi-luot-ban-phan-con-lai-chia-cho-cac-tac-gia-theo-ty-le', [ e(APP_CURRENCY) ,  rtrim(rtrim(number_format(PLATFORM_FEE_RATE * 100, 1), '0'), '.') ]) ?></p></div>
         <div class="panel form">
             <fieldset class="field">
                 <legend><?= te('dev.price_model') ?></legend>
@@ -130,7 +130,7 @@ $checks = static function (string $name, array $items, string $text, array $sele
             <?php if ($isNew): ?>
                 <p class="hint"><?= te('dev.game-form.du_an_duoc_tao_o') ?></p>
             <?php elseif ($statusLocked): ?>
-                <p>Trạng thái hiện tại: <?= status_pill('game_status', $game['trang_thai']) ?></p>
+                <p><?= te('dev.game-form.trang-thai-hien-tai', [ status_pill('game_status', $game['trang_thai']) ]) ?></p>
                 <p class="hint"><?= te('dev.game-form.trang_thai_nay_do_doi') ?></p>
             <?php else: ?>
                 <fieldset class="field">

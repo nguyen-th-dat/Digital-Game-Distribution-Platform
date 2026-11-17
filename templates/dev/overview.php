@@ -8,9 +8,9 @@
 
 <section class="kpis" aria-label="<?= te('dev.overview.so_du') ?>">
     <div class="kpi"><div class="kpi-label"><?= te('label.ledger_status.available') ?></div><div class="kpi-value"><?= e(money($balances['available'])) ?></div><div class="delta"><a class="link" href="<?= e(app_url('/dev/payouts')) ?>"><?= $hasAccount ? te('dev.request_payout') : te('dev.overview.them_tai_khoan_nhan_tien') ?></a></div></div>
-    <div class="kpi"><div class="kpi-label"><?= te('label.ledger_status.pending') ?></div><div class="kpi-value"><?= e(money($balances['pending'])) ?></div><div class="delta">Giữ <?= (int)PAYOUT_HOLD_DAYS ?> ngày để xử lý hoàn tiền</div></div>
+    <div class="kpi"><div class="kpi-label"><?= te('label.ledger_status.pending') ?></div><div class="kpi-value"><?= e(money($balances['pending'])) ?></div><div class="delta"><?= te('dev.overview.giu-ngay-de-xu-ly-hoan-tien', [ (int)PAYOUT_HOLD_DAYS ]) ?></div></div>
     <div class="kpi"><div class="kpi-label"><?= te('label.ledger_status.paid') ?></div><div class="kpi-value"><?= e(money($balances['paid'])) ?></div></div>
-    <div class="kpi"><div class="kpi-label"><?= te('dev.overview.doanh_thu_gop') ?></div><div class="kpi-value"><?= e(money($balances['gross'])) ?></div><div class="delta">Phí nền tảng <?= e(money($balances['fee'])) ?></div></div>
+    <div class="kpi"><div class="kpi-label"><?= te('dev.overview.doanh_thu_gop') ?></div><div class="kpi-value"><?= e(money($balances['gross'])) ?></div><div class="delta"><?= te('dev.overview.phi-nen-tang', [ e(money($balances['fee'])) ]) ?></div></div>
 </section>
 
 <div class="grid top section">
@@ -24,7 +24,7 @@
                     <div class="row">
                         <div class="cell-game grow">
                             <?php if ($g['anh_bia']): ?><img src="<?= e(app_media_url($g['anh_bia'])) ?>" alt="" loading="lazy"><?php else: ?><span class="thumb"></span><?php endif; ?>
-                            <div><a class="link" href="<?= e(app_url('/dev/games/' . (int)$g['ma'])) ?>"><?= e($g['tieu_de']) ?></a><span class="sub"><?= fmt_int((int)$g['so_huu']) ?> người sở hữu · <?= fmt_int((int)$g['luot_xem_30']) ?> lượt xem 30 ngày</span></div>
+                            <div><a class="link" href="<?= e(app_url('/dev/games/' . (int)$g['ma'])) ?>"><?= e($g['tieu_de']) ?></a><span class="sub"><?= te('dev.overview.nguoi-so-huu-luot-xem-30-ngay', [ fmt_int((int)$g['so_huu']) ,  fmt_int((int)$g['luot_xem_30']) ]) ?></span></div>
                         </div>
                         <?= status_pill('game_status', $g['trang_thai']) ?>
                     </div>

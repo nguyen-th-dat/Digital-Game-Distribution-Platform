@@ -18,9 +18,9 @@ $val = static fn(string $field, ?string $col) => old($field, $editing && $col ? 
 
 <div class="grid top">
     <section class="panel span-8" aria-labelledby="list-h">
-        <header><h2 id="list-h"><?= e($kind['label']) ?></h2><span class="meta"><?= fmt_int(count($items)) ?> mục</span></header>
+        <header><h2 id="list-h"><?= e($kind['label']) ?></h2><span class="meta"><?= te('admin.taxonomy.muc', [ fmt_int(count($items)) ]) ?></span></header>
         <?php if (!$items): ?>
-            <div class="empty"><p>Chưa có <?= e($kind['one']) ?> nào.</p></div>
+            <div class="empty"><p><?= te('admin.taxonomy.chua-co-nao', [ e($kind['one']) ]) ?></p></div>
         <?php else: ?>
         <div class="table-wrap">
             <table>
@@ -37,7 +37,7 @@ $val = static fn(string $field, ?string $col) => old($field, $editing && $col ? 
                         <td class="actions">
                             <a class="link" href="<?= e(app_url($base . '?kind=' . $kindKey . '&edit=' . $id . '#form')) ?>"><?= te('common.edit') ?><span class="sr-only"> <?= e($it['ten_muc']) ?></span></a>
                             <?php if (!$n): ?>
-                                <form method="post" action="<?= e(app_url($base . '/' . $kindKey . '/' . $id . '/delete')) ?>" data-confirm="Xóa <?= e($kind['one']) ?> &quot;<?= e($it['ten_muc']) ?>&quot;?">
+                                <form method="post" action="<?= e(app_url($base . '/' . $kindKey . '/' . $id . '/delete')) ?>" data-confirm="<?= te('admin.taxonomy.xoa-e-kind-one-quot-e-it-ten-muc-quot') ?>">
                                     <?= csrf_field() ?>
                                     <button class="link-btn neg" type="submit"><?= te('admin.delete') ?><span class="sr-only"> <?= e($it['ten_muc']) ?></span></button>
                                 </form>
@@ -62,7 +62,7 @@ $val = static fn(string $field, ?string $col) => old($field, $editing && $col ? 
             <div class="field">
                 <label for="tx-key"><?= e($keyLabel) ?></label>
                 <input class="input" id="tx-key" name="khoa" maxlength="<?= (int)$kind['slugMax'] ?>" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" spellcheck="false" value="<?= e($val('khoa', $kind['slug'])) ?>">
-                <span class="hint">Chữ thường không dấu, số, gạch ngang. Bỏ trống để tạo từ tên. Dùng trong địa chỉ trang lọc của cửa hàng<?= $editing ? '; ' . te('admin.taxonomy.doi_gia_tri_nay_lam') : '' ?>.</span>
+                <span class="hint"><?= te('admin.taxonomy.chu-thuong-khong-dau-so-gach-ngang-bo-trong-de-tao-tu-ten-dung-trong-dia-chi-trang-loc-cua-cua-hang', [ $editing ? '; ' . te('admin.taxonomy.doi_gia_tri_nay_lam') : '' ]) ?></span>
             </div>
             <?php if ($kind['desc']): ?>
             <div class="field">

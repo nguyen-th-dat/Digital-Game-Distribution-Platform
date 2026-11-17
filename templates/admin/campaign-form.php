@@ -11,9 +11,9 @@ $storedMode = match ($campaign['trang_thai'] ?? 'draft') { 'draft' => 'draft', '
 $mode = old('che_do', $storedMode);
 $checked = array_map('intval', $hasOld ? (array)old('tro_choi', []) : $picked);
 $modes = [
-    'draft'     => ['Bản nháp', 'Chưa giảm giá. Dùng để chuẩn bị trước.'],
-    'run'       => ['Chạy theo lịch', 'Giá giảm tự động trong khoảng thời gian đã đặt.'],
-    'cancelled' => ['Hủy', 'Dừng giảm giá ngay, giữ lại bản ghi.'],
+    'draft'     => [t('admin.campaign-form.che_do.draft'), t('admin.campaign-form.che_do.draft.mo.ta')],
+    'run'       => [t('admin.campaign-form.che_do.run'), t('admin.campaign-form.che_do.run.mo.ta')],
+    'cancelled' => [t('admin.campaign-form.che_do.cancelled'), t('admin.campaign-form.che_do.cancelled.mo.ta')],
 ];
 ?>
 <nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>"><a href="<?= e(app_url('/admin/campaigns')) ?>"><?= te('admin.campaigns') ?></a><span><?= $isNew ? te('dev.game-form.tao_moi') : e($campaign['tieu_de']) ?></span></nav>
@@ -21,7 +21,7 @@ $modes = [
 <div class="title-row">
     <div>
         <h1><?= $isNew ? te('admin.campaigns.tao_chien_dich') : e($campaign['tieu_de']) ?></h1>
-        <?php if (!$isNew): ?><p class="sub"><?= status_pill('campaign_status', DiscountCampaignModel::phase($campaign)) ?> Tạo <?= e(fmt_datetime($campaign['ngay_tao'])) ?></p><?php endif; ?>
+        <?php if (!$isNew): ?><p class="sub"><?= te('admin.campaign-form.tao', [ status_pill('campaign_status', DiscountCampaignModel::phase($campaign)) ,  e(fmt_datetime($campaign['ngay_tao'])) ]) ?></p><?php endif; ?>
     </div>
 </div>
 

@@ -47,7 +47,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                     </details>
                 <?php endif; ?>
                 <?php if ($mine || is_staff()): ?>
-                    <form method="post" action="<?= e(app_url('/comments/' . (int)$c['ma'] . '/delete')) ?>" data-confirm="Xóa bình luận này?">
+                    <form method="post" action="<?= e(app_url('/comments/' . (int)$c['ma'] . '/delete')) ?>" data-confirm="<?= te('game.show.xoa-binh-luan-nay') ?>">
                         <?= csrf_field() ?><?= return_field() ?>
                         <button class="link-btn neg" type="submit"><?= te('admin.delete') ?></button>
                     </form>
@@ -68,7 +68,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 </nav>
 
 <?php if (!$isPublic): ?>
-    <p class="notice game-notice">Trang này đang ở trạng thái “<?= e(label('game_status', $game['trang_thai'])) ?>” nên chỉ tác giả và quản trị viên nhìn thấy.</p>
+    <p class="notice game-notice"><?= te('game.show.trang-nay-dang-o-trang-thai-nen-chi-tac-gia-va-quan-tri-vien-nhin-thay', [ e(label('game_status', $game['trang_thai'])) ]) ?></p>
 <?php endif; ?>
 
 <div class="game-head">
@@ -83,7 +83,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
         <?php if (count($gallery) > 1): ?>
             <div class="gallery-strip" role="group" aria-label="<?= te('game.show.anh_cua_tro_choi') ?>">
                 <?php foreach ($gallery as $i => $m): ?>
-                    <button type="button" data-gallery-thumb data-src="<?= e(app_media_url($m['url_media'])) ?>" data-alt="<?= e($m['van_ban_thay_the'] ?: $game['tieu_de']) ?>" data-credit="<?= e(media_credit($m['chu_thich'])[0]) ?>" data-credit-url="<?= e(media_credit($m['chu_thich'])[1]) ?>" aria-pressed="<?= $i === 0 ? 'true' : 'false' ?>" aria-label="Xem ảnh <?= $i + 1 ?>">
+                    <button type="button" data-gallery-thumb data-src="<?= e(app_media_url($m['url_media'])) ?>" data-alt="<?= e($m['van_ban_thay_the'] ?: $game['tieu_de']) ?>" data-credit="<?= e(media_credit($m['chu_thich'])[0]) ?>" data-credit-url="<?= e(media_credit($m['chu_thich'])[1]) ?>" aria-pressed="<?= $i === 0 ? 'true' : 'false' ?>" aria-label="<?= te('game.show.xem-anh-i-1') ?>">
                         <img src="<?= e(app_media_url($m['url_media'])) ?>" alt="" loading="lazy" data-fallback="">
                     </button>
                 <?php endforeach; ?>
@@ -98,7 +98,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
             <?php if ($game['mo_ta_ngan']): ?><p class="lede"><?= e($game['mo_ta_ngan']) ?></p><?php endif; ?>
         </div>
         <?php if ($reviewTotal): ?>
-            <a class="rating" href="#reviews"><?= stars((float)$game['diem_tb']) ?> <strong><?= e(number_format((float)$game['diem_tb'], 1)) ?></strong> <span class="faint"><?= fmt_int($reviewTotal) ?> đánh giá</span></a>
+            <a class="rating" href="#reviews"><?= stars((float)$game['diem_tb']) ?> <strong><?= e(number_format((float)$game['diem_tb'], 1)) ?></strong> <span class="faint"><?= te('game.show.danh-gia', [ fmt_int($reviewTotal) ]) ?></span></a>
         <?php endif; ?>
 
         <div class="buy-actions">
@@ -108,7 +108,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                     <a class="btn primary block" href="<?= e($playUrl) ?>" target="_blank" rel="noopener noreferrer"><?= te('game.downloads.choi_tren_trinh_duyet') ?></a>
                 <?php endif; ?>
                 <?php if ($downloadCount > 0): ?>
-                    <a class="btn<?= $playUrl ? '' : ' primary' ?> block" href="<?= e(app_url($base . '/downloads')) ?>">Tải về<?= $downloadCount > 1 ? ' ' . te('common.dot') . ' ' . fmt_int($downloadCount) . ' ' . te('game.show.lien_ket') : '' ?></a>
+                    <a class="btn<?= $playUrl ? '' : ' primary' ?> block" href="<?= e(app_url($base . '/downloads')) ?>"><?= te('game.show.tai-ve', [ $downloadCount > 1 ? ' ' . te('common.dot') . ' ' . fmt_int($downloadCount) . ' ' . te('game.show.lien_ket') : '' ]) ?></a>
                 <?php endif; ?>
             <?php elseif (!$isPublic): ?>
                 <p class="muted small"><?= te('game.show.tro_choi_chua_mo_ban') ?></p>
@@ -136,7 +136,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                             <div class="field">
                                 <label for="pwyw"><?= te('game.show.so_tien_ban_muon_tra') ?></label>
                                 <input class="input" id="pwyw" name="amount" type="number" inputmode="decimal" step="0.01" min="<?= e(number_format((float)$game['gia_toi_thieu'], 2, '.', '')) ?>" max="1000" value="<?= e(number_format($suggested, 2, '.', '')) ?>" required>
-                                <span class="hint">Tối thiểu <?= e(money($game['gia_toi_thieu'])) ?><?= $game['gia_de_xuat'] ? ' ' . te('game.show.dot_de_xuat') . ' ' . e(money($game['gia_de_xuat'])) : '' ?></span>
+                                <span class="hint"><?= te('game.show.toi-thieu', [ e(money($game['gia_toi_thieu'])) ,  $game['gia_de_xuat'] ? ' ' . te('game.show.dot_de_xuat') . ' ' . e(money($game['gia_de_xuat'])) : '' ]) ?></span>
                             </div>
                         <?php endif; ?>
                         <button class="btn primary block" type="submit"><?= te('game.show.them_vao_gio_hang') ?></button>
@@ -235,7 +235,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
         <?php if ($devlogs): ?>
             <section class="section" aria-labelledby="devlogs">
-                <div class="section-head"><h2 id="devlogs"><?= te('devlog.title') ?></h2><a class="meta link" href="<?= e(app_url($base . '/devlogs')) ?>">Tất cả <?= fmt_int($devlogCount) ?> bài</a></div>
+                <div class="section-head"><h2 id="devlogs"><?= te('devlog.title') ?></h2><a class="meta link" href="<?= e(app_url($base . '/devlogs')) ?>"><?= te('game.show.tat-ca-bai', [ fmt_int($devlogCount) ]) ?></a></div>
                 <div class="rows">
                     <?php foreach ($devlogs as $d): ?>
                         <a class="row row-link" href="<?= e(app_url($base . '/devlogs/' . rawurlencode($d['duong_dan_rut_gon']))) ?>">
@@ -259,7 +259,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
             <?php if ($reviewTotal): ?>
                 <div class="review-summary">
-                    <div class="score"><strong><?= e(number_format((float)$game['diem_tb'], 1)) ?></strong><span class="faint small"><?= fmt_int($reviewTotal) ?> đánh giá</span></div>
+                    <div class="score"><strong><?= e(number_format((float)$game['diem_tb'], 1)) ?></strong><span class="faint small"><?= te('game.show.danh-gia', [ fmt_int($reviewTotal) ]) ?></span></div>
                     <div class="breakdown">
                         <?php for ($s = 5; $s >= 1; $s--): $n = $breakdown[$s]; $pct = $reviewTotal ? round($n / $reviewTotal * 100) : 0; ?>
                             <div class="bar-row"><span><?= $s ?> sao</span><span class="bar"><span class="fill w-<?= (int)(round($pct / 5) * 5) ?>"></span></span><span class="n"><?= fmt_int($n) ?></span></div>
@@ -296,14 +296,14 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                         </div>
                     </form>
                     <?php if ($myReview): ?>
-                        <form method="post" action="<?= e(app_url($base . '/reviews/delete')) ?>" data-confirm="Xóa đánh giá của bạn?" class="review-delete">
+                        <form method="post" action="<?= e(app_url($base . '/reviews/delete')) ?>" data-confirm="<?= te('game.show.xoa-danh-gia-cua-ban') ?>" class="review-delete">
                             <?= csrf_field() ?>
                             <button class="link-btn neg" type="submit"><?= te('game.show.xoa_danh_gia') ?></button>
                         </form>
                     <?php endif; ?>
                 </details>
                 <?php if ($myReview && $myReview['trang_thai'] !== 'published'): ?>
-                    <p class="notice">Đánh giá của bạn đang ở trạng thái “<?= e(label('content_status', $myReview['trang_thai'])) ?>” do điều hành viên xử lý.</p>
+                    <p class="notice"><?= te('game.show.danh-gia-cua-ban-dang-o-trang-thai-do-dieu-hanh-vien-xu-ly', [ e(label('content_status', $myReview['trang_thai'])) ]) ?></p>
                 <?php endif; ?>
             <?php elseif (!$user && (int)$game['cho_phep_danh_gia']): ?>
                 <p class="muted"><a class="link" href="<?= e(app_url('/auth/login?return_to=' . rawurlencode($base . '#reviews'))) ?>"><?= te('auth.login_button') ?></a> <?= te('game.show.de_viet_danh_gia') ?></p>
@@ -323,7 +323,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
                             <?php if ($r['tieu_de']): ?><h4><?= e($r['tieu_de']) ?></h4><?php endif; ?>
                             <?php if ($r['noi_dung_danh_gia']): ?><div class="prose"><?= e_multiline($r['noi_dung_danh_gia']) ?></div><?php endif; ?>
                             <div class="actions">
-                                <span><?= fmt_int($r['co_ich']) ?> người thấy hữu ích</span>
+                                <span><?= te('game.show.nguoi-thay-huu-ich', [ fmt_int($r['co_ich']) ]) ?></span>
                                 <?php if ($user && !$mine): $vote = $r['phieu_cua_toi']; ?>
                                     <form method="post" action="<?= e(app_url('/reviews/' . (int)$r['ma'] . '/vote')) ?>" class="cluster">
                                         <?= csrf_field() ?><?= return_field() ?>
@@ -343,7 +343,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
 
         <?php if ($commentsOn): ?>
             <section class="section" id="comments" aria-labelledby="comments-h">
-                <div class="section-head"><h2 id="comments-h"><?= te('devlog.comments') ?></h2><span class="meta"><?= fmt_int(count($comments) + array_sum(array_map('count', $replies))) ?> bình luận</span></div>
+                <div class="section-head"><h2 id="comments-h"><?= te('devlog.comments') ?></h2><span class="meta"><?= te('game.show.binh-luan', [ fmt_int(count($comments) + array_sum(array_map('count', $replies))) ]) ?></span></div>
                 <?php if ($user): ?>
                     <form method="post" action="<?= e(app_url($base . '/comments')) ?>" class="form comment-form">
                         <?= csrf_field() ?>
@@ -407,7 +407,7 @@ $comment = function (array $c, bool $reply) use ($user, $base, $commentsOn) {
         <?php if ($forum): ?>
             <section class="panel">
                 <header><h2><?= te('nav.community') ?></h2></header>
-                <a class="row row-link" href="<?= e(app_url('/forums/' . (int)$forum['ma'])) ?>"><span class="grow"><?= e($forum['tieu_de']) ?><span class="sub"><?= fmt_int($forum['so_chu_de']) ?> chủ đề thảo luận</span></span></a>
+                <a class="row row-link" href="<?= e(app_url('/forums/' . (int)$forum['ma'])) ?>"><span class="grow"><?= e($forum['tieu_de']) ?><span class="sub"><?= te('game.show.chu-de-thao-luan', [ fmt_int($forum['so_chu_de']) ]) ?></span></span></a>
             </section>
         <?php endif; ?>
 

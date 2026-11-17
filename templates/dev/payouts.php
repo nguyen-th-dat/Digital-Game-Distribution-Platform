@@ -5,7 +5,7 @@ $hasActive = (bool)array_filter($accounts, static fn($a) => $a['trang_thai'] ===
 $canRequest = $hasActive && !$openPayout && $balances['available'] > 0;
 ?>
 <div class="title-row">
-    <div><h1><?= te('admin.payouts') ?></h1><p class="sub">Doanh thu chuyển sang "Có thể rút" sau <?= (int)PAYOUT_HOLD_DAYS ?> ngày. Mỗi yêu cầu gom toàn bộ số dư có thể rút vào một đợt chi trả.</p></div>
+    <div><h1><?= te('admin.payouts') ?></h1><p class="sub"><?= te('dev.payouts.doanh-thu-chuyen-sang-co-the-rut-sau-ngay-moi-yeu-cau-gom-toan-bo-so-du-co-the-rut-vao-mot-dot-chi-tra', [ (int)PAYOUT_HOLD_DAYS ]) ?></p></div>
 </div>
 
 <div class="grid top">
@@ -13,9 +13,9 @@ $canRequest = $hasActive && !$openPayout && $balances['available'] > 0;
         <section class="panel" aria-labelledby="req-h">
             <header><h2 id="req-h"><?= te('dev.payouts.so_du_co_the_rut') ?></h2></header>
             <div class="row">
-                <div class="grow"><span class="kpi-value"><?= e(money($balances['available'])) ?></span><span class="sub">Đang giữ <?= e(money($balances['pending'])) ?> · đang chi trả <?= e(money($balances['held'])) ?> · đã chi trả <?= e(money($balances['paid'])) ?></span></div>
+                <div class="grow"><span class="kpi-value"><?= e(money($balances['available'])) ?></span><span class="sub"><?= te('dev.payouts.dang-giu-dang-chi-tra-da-chi-tra', [ e(money($balances['pending'])) ,  e(money($balances['held'])) ,  e(money($balances['paid'])) ]) ?></span></div>
                 <?php if ($canRequest): ?>
-                    <form method="post" action="<?= e(app_url('/dev/payouts/request')) ?>" data-confirm="Gửi yêu cầu rút <?= e(money($balances['available'])) ?>?"><?= csrf_field() ?><button class="btn primary" type="submit"><?= te('dev.request_payout') ?></button></form>
+                    <form method="post" action="<?= e(app_url('/dev/payouts/request')) ?>" data-confirm="<?= te('dev.payouts.gui-yeu-cau-rut-e-money-balances-available') ?>"><?= csrf_field() ?><button class="btn primary" type="submit"><?= te('dev.request_payout') ?></button></form>
                 <?php endif; ?>
             </div>
             <?php if (!$canRequest): ?>
@@ -29,7 +29,7 @@ $canRequest = $hasActive && !$openPayout && $balances['available'] > 0;
             <div class="rows">
                 <?php foreach ($payouts as $p): ?>
                     <div class="row">
-                        <div class="grow"><strong><?= e(money($p['so_tien'])) ?></strong> · <?= e(label('payout_provider', $p['nha_cung_cap'])) ?><span class="sub">#<?= (int)$p['ma'] ?> · yêu cầu <?= e(fmt_datetime($p['ngay_yeu_cau'])) ?> · <?= fmt_int((int)$p['so_dong']) ?> dòng sổ<?= $p['ngay_xu_ly'] ? ' ' . te('common.dot_xu_ly') . ' ' . e(fmt_datetime($p['ngay_xu_ly'])) : '' ?><?= $p['ma_chi_tra_nha_cung_cap'] ? ' ' . te('common.dot_ma') . ' ' . e($p['ma_chi_tra_nha_cung_cap']) : '' ?><?= $p['ly_do_that_bai'] ? ' ' . te('common.dot') . ' ' . e($p['ly_do_that_bai']) : '' ?></span></div>
+                        <div class="grow"><strong><?= e(money($p['so_tien'])) ?></strong> · <?= e(label('payout_provider', $p['nha_cung_cap'])) ?><span class="sub"><?= te('dev.payouts.yeu-cau-dong-so', [ (int)$p['ma'] ,  e(fmt_datetime($p['ngay_yeu_cau'])) ,  fmt_int((int)$p['so_dong']) ,  $p['ngay_xu_ly'] ? ' ' . te('common.dot_xu_ly') . ' ' . e(fmt_datetime($p['ngay_xu_ly'])) : '' ,  $p['ma_chi_tra_nha_cung_cap'] ? ' ' . te('common.dot_ma') . ' ' . e($p['ma_chi_tra_nha_cung_cap']) : '' ,  $p['ly_do_that_bai'] ? ' ' . te('common.dot') . ' ' . e($p['ly_do_that_bai']) : '' ]) ?></span></div>
                         <?= status_pill('payout_status', $p['trang_thai']) ?>
                     </div>
                 <?php endforeach; ?>
@@ -69,7 +69,7 @@ $canRequest = $hasActive && !$openPayout && $balances['available'] > 0;
                 </div>
                 <div class="field"><label for="pa-n"><?= te('dev.payouts.ten_chu_tai_khoan') ?></label><input class="input" id="pa-n" name="ten_tai_khoan" maxlength="120" required value="<?= e(old('ten_tai_khoan')) ?>"></div>
                 <div class="field"><label for="pa-a"><?= te('dev.payouts.so_tai_khoan_email_paypal') ?></label><input class="input" id="pa-a" name="ma_tai_khoan_ben_ngoai" maxlength="255" required autocomplete="off" value="<?= e(old('ma_tai_khoan_ben_ngoai')) ?>"><span class="hint"><?= te('dev.payouts.ngan_hang_6_34_chu') ?></span></div>
-                <p class="hint">Tiền tệ nhận: <?= e(APP_CURRENCY) ?>. Quản trị viên xác minh trước khi phương thức được dùng để chi trả.</p>
+                <p class="hint"><?= te('dev.payouts.tien-te-nhan-quan-tri-vien-xac-minh-truoc-khi-phuong-thuc-duoc-dung-de-chi-tra', [ e(APP_CURRENCY) ]) ?></p>
                 <div class="form-actions"><button class="btn primary" type="submit"><?= te('common.more') ?></button></div>
             </form>
         </section>

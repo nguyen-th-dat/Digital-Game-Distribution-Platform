@@ -20,7 +20,7 @@ $all = array_sum(array_map('intval', $counts));
         <input class="input" id="g-q" type="search" name="q" value="<?= e($filters['q']) ?>" placeholder="<?= te('admin.games.ten_duong_dan_nguoi_tao') ?>" maxlength="100">
     </div>
     <span class="spacer"></span>
-    <span class="count"><?= fmt_int($total) ?> trò chơi</span>
+    <span class="count"><?= te('admin.games.tro-choi', [ fmt_int($total) ]) ?></span>
 </form>
 
 <?php if ($games): ?>

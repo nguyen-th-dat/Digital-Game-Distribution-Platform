@@ -23,7 +23,7 @@ $openCount = (int)($counts['open'] ?? 0) + (int)($counts['investigating'] ?? 0);
     </select>
     <noscript><button class="btn sm" type="submit"><?= te('common.filter') ?></button></noscript>
     <span class="spacer"></span>
-    <span class="count"><?= fmt_int($total) ?> báo cáo</span>
+    <span class="count"><?= te('admin.reports.bao-cao', [ fmt_int($total) ]) ?></span>
 </form>
 
 <?php if ($reports): ?>
@@ -33,7 +33,7 @@ $openCount = (int)($counts['open'] ?? 0) + (int)($counts['investigating'] ?? 0);
         <tbody>
         <?php foreach ($reports as $r): $others = (int)$r['cung_noi_dung'] - 1; ?>
             <tr>
-                <td><a class="link" href="<?= e(app_url('/admin/reports/' . (int)$r['ma'])) ?>"><?= e(label('report_target', $r['loai_doi_tuong'])) ?> #<?= (int)$r['doi_tuong_id'] ?></a><span class="sub">Báo cáo #<?= (int)$r['ma'] ?><?= $others > 0 ? ' ' . te('admin.reports.dot_them') . ' ' . fmt_int($others) . ' ' . te('admin.reports.bao_cao_cung_noi_dung') : '' ?></span></td>
+                <td><a class="link" href="<?= e(app_url('/admin/reports/' . (int)$r['ma'])) ?>"><?= e(label('report_target', $r['loai_doi_tuong'])) ?> #<?= (int)$r['doi_tuong_id'] ?></a><span class="sub"><?= te('admin.reports.bao-cao.2', [ (int)$r['ma'] ,  $others > 0 ? ' ' . te('admin.reports.dot_them') . ' ' . fmt_int($others) . ' ' . te('admin.reports.bao_cao_cung_noi_dung') : '' ]) ?></span></td>
                 <td><?= e(label('report_reason', $r['ma_ly_do'])) ?><?php if ((string)$r['chi_tiet'] !== ''): ?><span class="sub"><?= e(excerpt((string)$r['chi_tiet'], 80)) ?></span><?php endif; ?></td>
                 <td><?= e($r['nguoi_bao_cao'] ?? te('admin.dashboard.tai_khoan_da_xoa')) ?></td>
                 <td><?= status_pill('report_status', $r['trang_thai']) ?><?php if ($r['nguoi_xu_ly']): ?><span class="sub"><?= e($r['nguoi_xu_ly']) ?></span><?php endif; ?></td>

@@ -25,8 +25,8 @@ class ReleaseModel extends Model {
                 $gameId,
                 $creatorId,
                 'game_release',
-                'Có phiên bản game mới',
-                $game['tieu_de'] . ' vừa phát hành phiên bản ' . $version . '.',
+                t('release.co.phien.ban.game.moi'),
+                $game['tieu_de'] . ' ' . t('release.vua.phat.hanh.phien.ban', [$version]) . '.',
                 '/games/' . rawurlencode($game['duong_dan_rut_gon'])
             );
         }

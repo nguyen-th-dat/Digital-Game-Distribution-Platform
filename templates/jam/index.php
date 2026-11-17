@@ -30,7 +30,7 @@ $emptyText = [
             <a class="jam-card" href="<?= e($url) ?>">
                 <div class="grow">
                     <h2><?= e($j['tieu_de']) ?></h2>
-                    <p class="sub">Tổ chức bởi <?= e($j['ten_hien_thi']) ?></p>
+                    <p class="sub"><?= te('jam.index.to-chuc-boi', [ e($j['ten_hien_thi']) ]) ?></p>
                     <?php if ($j['mo_ta']): ?><p class="blurb"><?= e(excerpt($j['mo_ta'], 180)) ?></p><?php endif; ?>
                 </div>
                 <dl class="jam-dates">

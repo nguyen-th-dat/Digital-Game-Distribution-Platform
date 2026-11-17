@@ -10,7 +10,7 @@ $card = function (array $c, bool $showOwner) {
         </div>
         <h3><?= e($c['tieu_de']) ?></h3>
         <div class="meta-line">
-            <span class="by"><?= fmt_int((int)$c['so_game']) ?> trò chơi<?= $showOwner ? ' ' . te('common.dot') . ' ' . e($c['ten_hien_thi']) : '' ?></span>
+            <span class="by"><?= te('collection.index.tro-choi', [ fmt_int((int)$c['so_game']) ,  $showOwner ? ' ' . te('common.dot') . ' ' . e($c['ten_hien_thi']) : '' ]) ?></span>
             <?php if (!$showOwner && $c['pham_vi_hien_thi'] !== 'public'): ?><span class="small faint"><?= e(label('visibility', $c['pham_vi_hien_thi'])) ?></span><?php endif; ?>
         </div>
         <?php if ($c['mo_ta']): ?><p class="blurb"><?= e(excerpt($c['mo_ta'], 120)) ?></p><?php endif; ?>
@@ -28,7 +28,7 @@ $card = function (array $c, bool $showOwner) {
 <?php if ($user): ?>
 <div class="grid section">
     <section class="span-8" aria-labelledby="mine-h">
-        <div class="section-head"><h2 id="mine-h"><?= te('collection.index.cua_ban') ?></h2><span class="meta"><?= fmt_int(count($mine)) ?> bộ sưu tập</span></div>
+        <div class="section-head"><h2 id="mine-h"><?= te('collection.index.cua_ban') ?></h2><span class="meta"><?= te('collection.index.bo-suu-tap', [ fmt_int(count($mine)) ]) ?></span></div>
         <?php if ($mine): ?>
             <div class="games-grid">
                 <?php foreach ($mine as $c) $card($c, false); ?>
@@ -66,7 +66,7 @@ $card = function (array $c, bool $showOwner) {
 <?php endif; ?>
 
 <section class="section" aria-labelledby="community-h">
-    <div class="section-head"><h2 id="community-h"><?= te('collection.index.tu_cong_dong') ?></h2><span class="meta"><?= fmt_int($total) ?> bộ sưu tập công khai</span></div>
+    <div class="section-head"><h2 id="community-h"><?= te('collection.index.tu_cong_dong') ?></h2><span class="meta"><?= te('collection.index.bo-suu-tap-cong-khai', [ fmt_int($total) ]) ?></span></div>
     <?php if ($community): ?>
         <div class="games-grid">
             <?php foreach ($community as $c) $card($c, true); ?>

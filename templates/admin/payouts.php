@@ -6,7 +6,7 @@ $net = static fn(string $s): float => (float)($ledgerBy[$s]['net'] ?? 0);
 $openCount = (int)($counts['requested'] ?? 0) + (int)($counts['processing'] ?? 0);
 ?>
 <div class="title-row">
-    <div><h1><?= te('admin.payouts.chi_tra_cho_nha_phat') ?></h1><p class="sub">Doanh thu được giữ <?= (int)PAYOUT_HOLD_DAYS ?> ngày rồi mới có thể rút. Nền tảng thu phí <?= rtrim(rtrim(number_format(PLATFORM_FEE_RATE * 100, 1), '0'), '.') ?>%.</p></div>
+    <div><h1><?= te('admin.payouts.chi_tra_cho_nha_phat') ?></h1><p class="sub"><?= te('admin.payouts.doanh-thu-duoc-giu-ngay-roi-moi-co-the-rut-nen-tang-thu-phi', [ (int)PAYOUT_HOLD_DAYS ,  rtrim(rtrim(number_format(PLATFORM_FEE_RATE * 100, 1), '0'), '.') ]) ?></p></div>
 </div>
 
 <section class="kpis" aria-label="<?= te('admin.payouts.so_ke_toan') ?>">
@@ -25,13 +25,13 @@ $openCount = (int)($counts['requested'] ?? 0) + (int)($counts['processing'] ?? 0
 
 <section class="panel" aria-labelledby="po-h">
     <header><h2 id="po-h"><?= te('admin.payouts.dot_chi_tra') ?></h2></header>
-    <?php if (!$payouts): ?><p class="muted"><?= $status === '' ? 'Không có yêu cầu chi trả nào cần xử lý.' : 'Không có đợt chi trả nào ở trạng thái này.' ?></p><?php endif; ?>
+    <?php if (!$payouts): ?><p class="muted"><?= $status === '' ? te('admin.payouts.khong.co.yeu.cau.chi.tra.nao.can.xu.ly') : te('admin.payouts.khong.co.dot.chi.tra.nao.o.trang.thai.nay') ?></p><?php endif; ?>
     <div class="rows">
         <?php foreach ($payouts as $p): $pid = (int)$p['ma']; ?>
             <div class="row">
                 <div class="grow">
                     <div>#<?= $pid ?> · <strong><?= e(money($p['so_tien'])) ?></strong> <?= te('admin.payouts.text') ?> <a class="link" href="<?= e(app_url('/admin/users/' . (int)$p['nguoi_dung_id'])) ?>"><?= e($p['ten_hien_thi']) ?></a></div>
-                    <span class="sub"><?= e(label('payout_provider', $p['nha_cung_cap'])) ?> · <?= e($p['ten_tai_khoan'] ?: '') ?> <?= e($mask((string)$p['ma_tai_khoan_ben_ngoai'])) ?> · <?= fmt_int((int)$p['so_dong']) ?> dòng sổ · yêu cầu <?= e(fmt_datetime($p['ngay_yeu_cau'])) ?><?= $p['ma_chi_tra_nha_cung_cap'] ? ' ' . te('common.dot_ma') . ' ' . e($p['ma_chi_tra_nha_cung_cap']) : '' ?><?= $p['ly_do_that_bai'] ? ' ' . te('common.dot') . ' ' . e($p['ly_do_that_bai']) : '' ?></span>
+                    <span class="sub"><?= te('admin.payouts.dong-so-yeu-cau', [ e(label('payout_provider', $p['nha_cung_cap'])) ,  e($p['ten_tai_khoan'] ?: '') ,  e($mask((string)$p['ma_tai_khoan_ben_ngoai'])) ,  fmt_int((int)$p['so_dong']) ,  e(fmt_datetime($p['ngay_yeu_cau'])) ,  $p['ma_chi_tra_nha_cung_cap'] ? ' ' . te('common.dot_ma') . ' ' . e($p['ma_chi_tra_nha_cung_cap']) : '' ,  $p['ly_do_that_bai'] ? ' ' . te('common.dot') . ' ' . e($p['ly_do_that_bai']) : '' ]) ?></span>
                 </div>
                 <div class="stack">
                     <?= status_pill('payout_status', $p['trang_thai']) ?>
@@ -59,18 +59,18 @@ $openCount = (int)($counts['requested'] ?? 0) + (int)($counts['processing'] ?? 0
 </section>
 
 <section class="panel section" id="accounts" aria-labelledby="acc-h">
-    <header><h2 id="acc-h"><?= te('admin.payouts.tai_khoan_nhan_tien') ?></h2><span class="meta"><?= fmt_int(count($accounts)) ?> tài khoản</span></header>
+    <header><h2 id="acc-h"><?= te('admin.payouts.tai_khoan_nhan_tien') ?></h2><span class="meta"><?= te('admin.payouts.tai-khoan', [ fmt_int(count($accounts)) ]) ?></span></header>
     <?php if (!$accounts): ?><p class="muted"><?= te('admin.payouts.chua_co_nha_phat_trien') ?></p><?php endif; ?>
     <div class="rows">
         <?php foreach ($accounts as $a): $aid = (int)$a['ma']; ?>
             <div class="row">
-                <div class="grow"><?= e(label('payout_provider', $a['nha_cung_cap'])) ?> · <?= e($a['ten_tai_khoan'] ?: te('admin.payouts.khong_ten')) ?> <?= e($mask((string)$a['ma_tai_khoan_ben_ngoai'])) ?><span class="sub"><a class="link" href="<?= e(app_url('/admin/users/' . (int)$a['nguoi_dung_id'])) ?>"><?= e($a['ten_hien_thi']) ?></a> · <?= e($a['ma_tien_te']) ?><?= $a['mac_dinh'] ? ' ' . te('common.dot_mac_dinh') : '' ?> · thêm <?= e(fmt_date($a['ngay_tao'])) ?></span></div>
+                <div class="grow"><?= e(label('payout_provider', $a['nha_cung_cap'])) ?> · <?= e($a['ten_tai_khoan'] ?: te('admin.payouts.khong_ten')) ?> <?= e($mask((string)$a['ma_tai_khoan_ben_ngoai'])) ?><span class="sub"><a class="link" href="<?= e(app_url('/admin/users/' . (int)$a['nguoi_dung_id'])) ?>"><?= e($a['ten_hien_thi']) ?></a> <?= te('admin.payouts.them', [ e($a['ma_tien_te']) ,  $a['mac_dinh'] ? ' ' . te('common.dot_mac_dinh') : '' ,  e(fmt_date($a['ngay_tao'])) ]) ?></span></div>
                 <?= status_pill('payout_account_status', $a['trang_thai']) ?>
                 <?php if ($a['trang_thai'] !== 'active'): ?>
                     <form method="post" action="<?= e(app_url('/admin/payout-accounts/' . $aid)) ?>"><?= csrf_field() ?><input type="hidden" name="trang_thai" value="active"><button class="btn sm" type="submit"><?= te('admin.payouts.xac_minh') ?></button></form>
                 <?php endif; ?>
                 <?php if ($a['trang_thai'] !== 'disabled'): ?>
-                    <form method="post" action="<?= e(app_url('/admin/payout-accounts/' . $aid)) ?>" data-confirm="Vô hiệu hóa tài khoản nhận tiền này?"><?= csrf_field() ?><input type="hidden" name="trang_thai" value="disabled"><button class="btn sm danger" type="submit"><?= te('label.payout_account_status.disabled') ?></button></form>
+                    <form method="post" action="<?= e(app_url('/admin/payout-accounts/' . $aid)) ?>" data-confirm="<?= te('admin.payouts.vo-hieu-hoa-tai-khoan-nhan-tien-nay') ?>"><?= csrf_field() ?><input type="hidden" name="trang_thai" value="disabled"><button class="btn sm danger" type="submit"><?= te('label.payout_account_status.disabled') ?></button></form>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>

@@ -23,7 +23,7 @@
         <div class="rows">
             <?php foreach ($reviewQueue as $g): ?>
                 <div class="row">
-                    <div class="grow"><a class="link" href="<?= e(app_url('/admin/games?q=' . rawurlencode($g['duong_dan_rut_gon']))) ?>"><?= e($g['tieu_de']) ?></a><span class="sub"><?= e($g['ten_hien_thi']) ?> · cập nhật <?= e(fmt_datetime($g['ngay_cap_nhat'])) ?></span></div>
+                    <div class="grow"><a class="link" href="<?= e(app_url('/admin/games?q=' . rawurlencode($g['duong_dan_rut_gon']))) ?>"><?= e($g['tieu_de']) ?></a><span class="sub"><?= te('admin.dashboard.cap-nhat', [ e($g['ten_hien_thi']) ,  e(fmt_datetime($g['ngay_cap_nhat'])) ]) ?></span></div>
                 </div>
             <?php endforeach; ?>
         </div>

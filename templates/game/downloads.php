@@ -15,7 +15,7 @@ $playUrl = game_play_url($game);
 
 <div class="title-row">
     <div>
-        <h1>Tải <?= e($game['tieu_de']) ?></h1>
+        <h1><?= te('game.downloads.tai', [ e($game['tieu_de']) ]) ?></h1>
         <p class="sub"><?= te('game.downloads.chon_mot_lien_ket_de') ?></p>
     </div>
     <div class="cluster">
@@ -51,7 +51,7 @@ $playUrl = game_play_url($game);
     </section>
 <?php else: ?>
     <section class="panel" aria-labelledby="dl-list-h">
-        <header><h2 id="dl-list-h"><?= te('dev.game-downloads.lien_ket_tai_ve') ?></h2><span class="meta"><?= count($links) ?> liên kết</span></header>
+        <header><h2 id="dl-list-h"><?= te('dev.game-downloads.lien_ket_tai_ve') ?></h2><span class="meta"><?= te('game.downloads.lien-ket', [ count($links) ]) ?></span></header>
         <div class="rows">
             <?php foreach ($links as $l): $lid = (int)$l['ma']; ?>
                 <div class="row">

@@ -16,7 +16,7 @@
         <?php foreach ($actions as $a): ?><option value="<?= e($a) ?>"<?= $filters['action'] === $a ? ' selected' : '' ?>><?= e($a) ?></option><?php endforeach; ?>
     </select>
     <span class="spacer"></span>
-    <span class="count"><?= fmt_int($total) ?> bản ghi</span>
+    <span class="count"><?= te('admin.audit.ban-ghi', [ fmt_int($total) ]) ?></span>
 </form>
 
 <?php if ($rows): ?>

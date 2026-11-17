@@ -27,7 +27,7 @@ $render = function (array $c, bool $reply) use ($user, $self, $commentsOn, $isAu
                     </details>
                 <?php endif; ?>
                 <?php if ($mine || $isAuthor || is_staff()): ?>
-                    <form method="post" action="<?= e(app_url('/devlog-comments/' . (int)$c['ma'] . '/delete')) ?>" data-confirm="Xóa bình luận này?">
+                    <form method="post" action="<?= e(app_url('/devlog-comments/' . (int)$c['ma'] . '/delete')) ?>" data-confirm="<?= te('devlog.show.xoa-binh-luan-nay') ?>">
                         <?= csrf_field() ?><?= return_field() ?>
                         <button class="link-btn neg" type="submit"><?= te('admin.delete') ?></button>
                     </form>
@@ -61,7 +61,7 @@ $render = function (array $c, bool $reply) use ($user, $self, $commentsOn, $isAu
 <?php endif; ?>
 
 <section class="section devlog-comments" id="comments" aria-labelledby="dc-h">
-    <div class="section-head"><h2 id="dc-h"><?= te('devlog.comments') ?></h2><span class="meta"><?= fmt_int($commentCount) ?> bình luận</span></div>
+    <div class="section-head"><h2 id="dc-h"><?= te('devlog.comments') ?></h2><span class="meta"><?= te('devlog.show.binh-luan', [ fmt_int($commentCount) ]) ?></span></div>
     <?php if (!$commentsOn): ?>
         <p class="muted"><?= te('devlog.show.binh_luan_da_bi_tat') ?></p>
     <?php elseif ($user): ?>

@@ -13,7 +13,7 @@
 
 <nav class="tabs" aria-label="<?= te('notification.index.loc_thong_bao') ?>">
     <a href="<?= e(app_url('/notifications')) ?>" aria-selected="<?= $filter === 'all' ? 'true' : 'false' ?>"><?= te('common.all') ?></a>
-    <a href="<?= e(app_url('/notifications?filter=unread')) ?>" aria-selected="<?= $filter === 'unread' ? 'true' : 'false' ?>">Chưa đọc<?php if ($unread): ?><span class="count"><?= fmt_int($unread) ?></span><?php endif; ?></a>
+    <a href="<?= e(app_url('/notifications?filter=unread')) ?>" aria-selected="<?= $filter === 'unread' ? 'true' : 'false' ?>"><?= te('notification.index.chua-doc') ?><?php if ($unread): ?><span class="count"><?= fmt_int($unread) ?></span><?php endif; ?></a>
 </nav>
 
 <?php if (!$notifications): ?>

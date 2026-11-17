@@ -1,12 +1,18 @@
 <?php
 /** Catalogue with filters. */
-$priceOptions = ['' => 'Mọi mức giá', 'free' => 'Miễn phí', 'paid' => 'Trả phí', 'under5' => 'Dưới $5', 'under15' => 'Dưới $15'];
+$priceOptions = [
+    '' => t('game.index.moi.muc.gia'),
+    'free' => t('label.pricing.free'),
+    'paid' => t('label.pricing.paid'),
+    'under5' => t('game.index.duoi.5'),
+    'under15' => t('game.index.duoi.15'),
+];
 $hasFilters = $filters['q'] !== '' || $filters['category'] !== '' || $filters['tag'] !== '' || $filters['platform'] !== '' || $filters['price'] !== '' || $filters['status'] !== '' || $filters['type'] !== '' || $filters['sale'];
 ?>
 <div class="title-row">
     <div>
         <h1><?= e($heading) ?></h1>
-        <p class="sub"><?= fmt_int($total) ?> kết quả<?= $filters['q'] !== '' ? ' cho “' . e($filters['q']) . '”' : '' ?></p>
+        <p class="sub"><?= te('game.index.ket-qua', [ fmt_int($total) ,  $filters['q'] !== '' ? ' cho “' . e($filters['q']) . '”' : '' ]) ?></p>
     </div>
 </div>
 

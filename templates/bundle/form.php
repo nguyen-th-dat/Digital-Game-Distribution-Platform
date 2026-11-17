@@ -11,10 +11,10 @@ $price = $hasOld ? old('gia') : ($bundle ? number_format((float)$bundle['gia'], 
 $status = old('trang_thai', $bundle['trang_thai'] ?? 'draft');
 $checked = array_map('intval', $hasOld ? (array)old('games', []) : $picked);
 $statuses = [
-    'draft'     => 'Chỉ người tạo gói và quản trị viên xem được.',
-    'published' => 'Bán trên cửa hàng trong thời gian bán.',
-    'hidden'    => 'Ngừng bán và ẩn trang gói khỏi người mua.',
-    'ended'     => 'Ngừng bán, trang gói vẫn xem được.',
+    'draft'     => t('bundle.form.trang.thai.draft.mo.ta'),
+    'published' => t('bundle.form.trang.thai.published.mo.ta'),
+    'hidden'    => t('bundle.form.trang.thai.hidden.mo.ta'),
+    'ended'     => t('bundle.form.trang.thai.ended.mo.ta'),
 ];
 ?>
 <nav class="crumbs" aria-label="<?= te('admin.campaign-form.duong_dan') ?>"><a href="<?= e(app_url($base)) ?>"><?= $isAdmin ? te('nav.bundles') : te('nav.my_bundles') ?></a><span><?= $isNew ? te('dev.game-form.tao_moi') : e($bundle['tieu_de']) ?></span></nav>
@@ -22,7 +22,7 @@ $statuses = [
 <div class="title-row">
     <div>
         <h1><?= $isNew ? te('bundle.new') : e($bundle['tieu_de']) ?></h1>
-        <?php if (!$isNew): ?><p class="sub"><?= status_pill('bundle_status', $bundle['trang_thai']) ?> <?= e(label('bundle_type', $bundle['loai_goi_game'])) ?> · đã bán <?= fmt_int($sales) ?> lần · cập nhật <?= e(fmt_datetime($bundle['ngay_cap_nhat'])) ?></p><?php endif; ?>
+        <?php if (!$isNew): ?><p class="sub"><?= te('bundle.form.da-ban-lan-cap-nhat', [ status_pill('bundle_status', $bundle['trang_thai']) ,  e(label('bundle_type', $bundle['loai_goi_game'])) ,  fmt_int($sales) ,  e(fmt_datetime($bundle['ngay_cap_nhat'])) ]) ?></p><?php endif; ?>
     </div>
     <?php if (!$isNew): ?><a class="btn" href="<?= e(app_url('/bundles/' . rawurlencode($bundle['duong_dan_rut_gon']))) ?>"><?= te('bundle.form.xem_trang_goi') ?></a><?php endif; ?>
 </div>
@@ -32,7 +32,7 @@ $statuses = [
     <section class="settings-block" aria-labelledby="info-h">
         <div class="about">
             <h2 id="info-h"><?= te('game.details') ?></h2>
-            <p>Giá gói tính bằng <?= e(APP_CURRENCY) ?>. Người mua đã có một số trò chơi trong gói vẫn trả đủ giá gói; trang gói cho họ biết trước điều này.</p>
+            <p><?= te('bundle.form.gia-goi-tinh-bang-nguoi-mua-da-co-mot-so-tro-choi-trong-goi-van-tra-du-gia-goi-trang-goi-cho-ho-biet-truoc-dieu-nay', [ e(APP_CURRENCY) ]) ?></p>
         </div>
         <div class="panel form-grid">
             <div class="field full">
@@ -42,10 +42,10 @@ $statuses = [
             <div class="field">
                 <label for="bd-slug"><?= te('dev.game_slug') ?></label>
                 <input class="input" id="bd-slug" name="duong_dan_rut_gon" maxlength="220" autocomplete="off" spellcheck="false" value="<?= e($v('duong_dan_rut_gon')) ?>">
-                <span class="hint">Bỏ trống để tạo từ tên.<?= $isNew ? '' : ' Đổi giá trị này làm hỏng liên kết cũ.' ?></span>
+                <span class="hint"><?= te('bundle.form.bo-trong-de-tao-tu-ten', [ $isNew ? '' : ' Đổi giá trị này làm hỏng liên kết cũ.' ]) ?></span>
             </div>
             <div class="field">
-                <label for="bd-price">Giá gói (<?= e(APP_CURRENCY) ?>)</label>
+                <label for="bd-price"><?= te('bundle.form.gia-goi', [ e(APP_CURRENCY) ]) ?></label>
                 <input class="input" id="bd-price" name="gia" required inputmode="decimal" pattern="\d{1,9}([.,]\d{1,2})?" value="<?= e($price) ?>">
                 <span class="hint"><?= te('bundle.form.chi_dat_khi_moi_tro') ?></span>
             </div>
@@ -76,12 +76,12 @@ $statuses = [
     <section class="settings-block" aria-labelledby="games-h">
         <div class="about">
             <h2 id="games-h"><?= te('admin.games') ?></h2>
-            <p><?= $isAdmin ? te('bundle.form.moi_tro_choi_da_cong') : te('bundle.form.tro_choi_da_cong_bo') ?> Cần ít nhất 2. Doanh thu gói chia cho từng trò chơi theo giá lẻ, rồi cho các tác giả theo tỷ lệ đã đặt.</p>
+            <p><?= te('bundle.form.can-it-nhat-2-doanh-thu-goi-chia-cho-tung-tro-choi-theo-gia-le-roi-cho-cac-tac-gia-theo-ty-le-da-dat', [ $isAdmin ? te('bundle.form.moi_tro_choi_da_cong') : te('bundle.form.tro_choi_da_cong_bo') ]) ?></p>
             <?php if ($sales): ?><p><?= te('bundle.form.doi_tro_choi_khong_anh') ?></p><?php endif; ?>
         </div>
         <div class="panel">
             <?php if ($dropped): ?>
-                <p class="hint">Sẽ bị gỡ khỏi gói khi lưu vì không còn chọn được: <?= e(implode(', ', $dropped)) ?>.</p>
+                <p class="hint"><?= te('bundle.form.se-bi-go-khoi-goi-khi-luu-vi-khong-con-chon-duoc', [ e(implode(', ', $dropped)) ]) ?></p>
             <?php endif; ?>
             <?php if (!$games): ?>
                 <p class="muted"><?= te('bundle.form.chua_co_tro_choi_da') ?></p>

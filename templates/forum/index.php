@@ -16,7 +16,7 @@ $canCreate = $staff || $myGames;
 
 <?php foreach ($groups as $kind => $boards): ?>
 <section class="section" aria-labelledby="g-<?= e($kind) ?>">
-    <div class="section-head"><h2 id="g-<?= e($kind) ?>"><?= e($titles[$kind]) ?></h2><span class="meta"><?= fmt_int(count($boards)) ?> diễn đàn</span></div>
+    <div class="section-head"><h2 id="g-<?= e($kind) ?>"><?= e($titles[$kind]) ?></h2><span class="meta"><?= te('forum.index.dien-dan', [ fmt_int(count($boards)) ]) ?></span></div>
     <?php if ($boards): ?>
         <div class="panel">
             <div class="rows">
@@ -27,7 +27,7 @@ $canCreate = $staff || $myGames;
                             <?php if (!(int)$b['cong_khai']): ?> <span class="pill"><?= te('collection.private') ?></span><?php endif; ?>
                             <?php if ($kind === 'game' && $b['game_status'] !== 'published'): ?> <span class="pill warn"><?= e(label('game_status', $b['game_status'])) ?></span><?php endif; ?>
                             <span class="sub">
-                                <?php if ($kind === 'game'): ?>Trò chơi: <?= e($b['game_title']) ?><?php elseif ($kind === 'jam'): ?>Cuộc thi: <?= e($b['jam_title']) ?><?php endif; ?>
+                                <?php if ($kind === 'game'): ?><?= te('forum.index.tro-choi', [ e($b['game_title']) ]) ?><?php elseif ($kind === 'jam'): ?><?= te('forum.index.cuoc-thi', [ e($b['jam_title']) ]) ?><?php endif; ?>
                                 <?= $kind !== 'platform' && $b['mo_ta'] ? ' ' . te('common.dot') . ' ' : '' ?><?= $b['mo_ta'] ? e(excerpt($b['mo_ta'], 140)) : '' ?>
                             </span>
                         </div>

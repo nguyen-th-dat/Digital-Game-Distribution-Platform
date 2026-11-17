@@ -12,7 +12,7 @@ $hosts = count(array_filter($members, static fn($m) => $m['vai_tro_thanh_vien'] 
 <div class="title-row">
     <div>
         <h1><?= $isNew ? te('admin.jams.tao_cuoc_thi') : e($jam['tieu_de']) ?></h1>
-        <?php if (!$isNew): ?><p class="sub"><?= te('admin.jam-form.giai_doan_hien_tai', [e(JamModel::phaseName(JamModel::phase($jam)))]) ?></p><?php endif; ?>
+        <?php if (!$isNew): ?><p class="sub"><?= te('admin.jam-form.giai.doan.hien.tai', [e(JamModel::phaseName(JamModel::phase($jam)))]) ?></p><?php endif; ?>
     </div>
     <?php if (!$isNew): ?><a class="btn" href="<?= e(app_url('/jams/' . rawurlencode($jam['duong_dan_rut_gon']))) ?>"><?= te('admin.jam-form.xem_trang_cong_khai') ?></a><?php endif; ?>
 </div>
@@ -43,7 +43,7 @@ $hosts = count(array_filter($members, static fn($m) => $m['vai_tro_thanh_vien'] 
             <label for="j-deadline"><?= te('admin.jam-form.han_nop_bai') ?></label>
             <input class="input" id="j-deadline" type="datetime-local" name="han_nop_bai" required value="<?= e($dt('han_nop_bai')) ?>">
         </div>
-        <label class="check full"><input type="checkbox" name="bat_binh_chon" value="1"<?= (int)$v('bat_binh_chon', 1) ? ' checked' : '' ?>> <span><?= te('admin.jam-form.mo_binh_chon_cong_khai') ?><span class="sub"><?= te('admin.jam-form.nguoi_dung_dang_nhap_cham_1_den_5_cho_tung_tieu_chi', [e(implode(', ', JamModel::criteria()))]) ?>.</span></span></label>
+        <label class="check full"><input type="checkbox" name="bat_binh_chon" value="1"<?= (int)$v('bat_binh_chon', 1) ? ' checked' : '' ?>> <span><?= te('admin.jam-form.mo_binh_chon_cong_khai') ?><span class="sub"><?= te('admin.jam-form.nguoi.dung.dang.nhap.cham.1.den.5.cho.tung.tieu.chi', [e(implode(', ', JamModel::criteria()))]) ?>.</span></span></label>
         <div class="field">
             <label for="j-vstart"><?= te('admin.jam-form.mo_binh_chon_khong_bat') ?></label>
             <input class="input" id="j-vstart" type="datetime-local" name="ngay_bat_dau_binh_chon" value="<?= e($dt('ngay_bat_dau_binh_chon')) ?>">
@@ -70,14 +70,14 @@ $hosts = count(array_filter($members, static fn($m) => $m['vai_tro_thanh_vien'] 
 <?php if (!$isNew): ?>
 <div class="grid section">
     <section class="panel span-6" id="members" aria-labelledby="members-h">
-        <header><h2 id="members-h"><?= te('admin.jam-form.ban_to_chuc') ?></h2><span class="meta"><?= fmt_int(count($members)) ?> người</span></header>
+        <header><h2 id="members-h"><?= te('admin.jam-form.ban_to_chuc') ?></h2><span class="meta"><?= te('admin.jam-form.nguoi', [ fmt_int(count($members)) ]) ?></span></header>
         <div class="rows">
             <?php foreach ($members as $m): ?>
                 <div class="row">
                     <img class="avatar" src="<?= e(avatar_url($m)) ?>" alt="" loading="lazy">
                     <div class="grow"><a class="link" href="<?= e(profile_url($m)) ?>"><?= e($m['ten_hien_thi']) ?></a><span class="sub">@<?= e($m['ten_dang_nhap']) ?> · <?= e(label('jam_role', $m['vai_tro_thanh_vien'])) ?></span></div>
                     <?php if ($m['vai_tro_thanh_vien'] !== 'host' || $hosts > 1): ?>
-                        <form method="post" action="<?= e(app_url('/admin/jams/' . $id . '/members/' . (int)$m['ma'] . '/remove')) ?>" data-confirm="Gỡ <?= e($m['ten_hien_thi']) ?> khỏi ban tổ chức?">
+                        <form method="post" action="<?= e(app_url('/admin/jams/' . $id . '/members/' . (int)$m['ma'] . '/remove')) ?>" data-confirm="<?= te('admin.jam-form.go-e-m-ten-hien-thi-khoi-ban-to-chuc') ?>">
                             <?= csrf_field() ?><button class="link-btn neg" type="submit"><?= te('admin.jam-form.go') ?></button>
                         </form>
                     <?php endif; ?>
@@ -95,14 +95,14 @@ $hosts = count(array_filter($members, static fn($m) => $m['vai_tro_thanh_vien'] 
     </section>
 
     <section class="panel span-6" id="entries" aria-labelledby="entries-h">
-        <header><h2 id="entries-h"><?= te('jam.entries') ?></h2><span class="meta"><?= fmt_int(count($entries)) ?> bài</span></header>
+        <header><h2 id="entries-h"><?= te('jam.entries') ?></h2><span class="meta"><?= te('admin.jam-form.bai', [ fmt_int(count($entries)) ]) ?></span></header>
         <?php if (!$entries): ?><p class="muted"><?= te('admin.jam-form.chua_co_bai_nao') ?></p><?php endif; ?>
         <div class="rows">
             <?php foreach ($entries as $en): $eid = (int)$en['entry_id']; ?>
                 <div class="row entry-admin">
                     <div class="grow">
                         <a class="link" href="<?= e(game_url($en)) ?>"><?= e($en['tieu_de']) ?></a>
-                        <span class="sub"><?= e($en['nop_ten']) ?> · <?= e(fmt_date($en['ngay_nop'])) ?> · <?= fmt_int((int)$en['so_phieu']) ?> lượt chấm<?= $en['diem_tb'] !== null ? ' ' . te('admin.jam-form.dot_tb') . ' ' . number_format((float)$en['diem_tb'], 2, ',', '.') : '' ?></span>
+                        <span class="sub"><?= te('admin.jam-form.luot-cham', [ e($en['nop_ten']) ,  e(fmt_date($en['ngay_nop'])) ,  fmt_int((int)$en['so_phieu']) ,  $en['diem_tb'] !== null ? ' ' . te('admin.jam-form.dot_tb') . ' ' . number_format((float)$en['diem_tb'], 2, ',', '.') : '' ]) ?></span>
                     </div>
                     <span class="pill<?= $en['entry_status'] === 'disqualified' ? ' neg' : ($en['entry_status'] === 'withdrawn' ? '' : ' pos') ?>"><?= e(['submitted' => te('admin.jam-form.dang_du_thi'), 'withdrawn' => te('label.entry_status.withdrawn'), 'disqualified' => te('label.entry_status.disqualified')][$en['entry_status']]) ?></span>
                     <?php if ($en['entry_status'] === 'submitted'): ?>

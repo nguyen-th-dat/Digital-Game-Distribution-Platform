@@ -2,7 +2,7 @@
 /** Refund queue. @var string $status @var array $counts @var array $refunds @var int $total @var int $page @var int $pages */
 ?>
 <div class="title-row">
-    <div><h1><?= te('admin.refunds') ?></h1><p class="sub">Duyệt yêu cầu hoàn tiền trong <?= (int)REFUND_WINDOW_DAYS ?> ngày sau thanh toán. Duyệt sẽ hoàn tiền, đảo doanh thu của nhà phát triển và thu hồi quyền sở hữu.</p></div>
+    <div><h1><?= te('admin.refunds') ?></h1><p class="sub"><?= te('admin.refunds.duyet-yeu-cau-hoan-tien-trong-ngay-sau-thanh-toan-duyet-se-hoan-tien-dao-doanh-thu-cua-nha-phat-trien-va-thu-hoi-quyen-so-huu', [ (int)REFUND_WINDOW_DAYS ]) ?></p></div>
 </div>
 
 <nav class="chips chips-row" aria-label="<?= te('admin.games.loc_theo_trang_thai') ?>">
@@ -19,7 +19,7 @@
             <div class="row" id="refund-<?= $rid ?>">
                 <div class="grow">
                     <div><?= e($r['tieu_de_luc_mua'] ?? te('admin.refunds.toan_bo_don')) ?> · <strong><?= e(money($r['so_tien'])) ?></strong></div>
-                    <span class="sub">Đơn <?= e($r['ma_don_hang']) ?> · <?php if ($r['nguoi_yeu_cau_id']): ?><a class="link" href="<?= e(app_url('/admin/users/' . (int)$r['nguoi_yeu_cau_id'])) ?>"><?= e($r['buyer_name']) ?></a><?php else: ?>Tài khoản đã xóa<?php endif; ?> · gửi <?= e(fmt_datetime($r['ngay_tao'])) ?><?= $r['ngay_xu_ly'] ? ' ' . te('common.dot_xu_ly') . ' ' . e(fmt_datetime($r['ngay_xu_ly'])) : '' ?></span>
+                    <span class="sub"><?= te('admin.refunds.don', [ e($r['ma_don_hang']) ]) ?> <?php if ($r['nguoi_yeu_cau_id']): ?><a class="link" href="<?= e(app_url('/admin/users/' . (int)$r['nguoi_yeu_cau_id'])) ?>"><?= e($r['buyer_name']) ?></a><?php else: ?><?= te('admin.refunds.tai-khoan-da-xoa') ?><?php endif; ?> <?= te('admin.refunds.gui', [ e(fmt_datetime($r['ngay_tao'])) ,  $r['ngay_xu_ly'] ? ' ' . te('common.dot_xu_ly') . ' ' . e(fmt_datetime($r['ngay_xu_ly'])) : '' ]) ?></span>
                     <?php if ((string)$r['ly_do'] !== ''): ?><p class="well"><?= nl2br(e($r['ly_do'])) ?></p><?php endif; ?>
                 </div>
                 <div class="stack">
@@ -27,7 +27,7 @@
                     <?php if ($r['trang_thai'] === 'requested'): ?>
                         <details class="edit">
                             <summary class="link-btn"><?= te('admin.refunds.xu_ly') ?></summary>
-                            <form class="form well" method="post" action="<?= e(app_url('/admin/refunds/' . $rid)) ?>" data-confirm="Xác nhận quyết định hoàn tiền <?= e(money($r['so_tien'])) ?>?">
+                            <form class="form well" method="post" action="<?= e(app_url('/admin/refunds/' . $rid)) ?>" data-confirm="<?= te('admin.refunds.xac-nhan-quyet-dinh-hoan-tien-e-money-r-so-tien') ?>">
                                 <?= csrf_field() ?><?= return_field() ?>
                                 <fieldset class="field">
                                     <legend><?= te('admin.refunds.quyet_dinh') ?></legend>

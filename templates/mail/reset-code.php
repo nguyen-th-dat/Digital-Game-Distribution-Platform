@@ -14,7 +14,7 @@
         </tr>
         <tr>
             <td style="padding:0 32px;font-size:14px;line-height:1.6;">
-                <p>Xin chào <?= e($user['ten_hien_thi']) ?>,</p>
+                <p><?= te('mail.reset-code.xin-chao', [ e($user['ten_hien_thi']) ]) ?></p>
                 <p><?= te('mail.reset-code.ban_hoac_ai_do_da') ?> <strong><?= e($user['email']) ?></strong>.</p>
                 <p><?= te('mail.reset-code.nhap_ma_xac_nhan_duoi') ?></p>
             </td>
@@ -26,7 +26,7 @@
         </tr>
         <tr>
             <td style="padding:0 32px 24px 32px;font-size:14px;line-height:1.6;">
-                <p><?= te('mail.reset-code.ma_co_hieu_luc_trong') ?> <strong><?= (int)$minutes ?> phút</strong> (đến <?= e(fmt_datetime($expiresAt)) ?>) và chỉ dùng được một lần.</p>
+                <p><?= te('mail.reset-code.ma_co_hieu_luc_trong') ?> <strong><?= te('mail.reset-code.phut', [ (int)$minutes ]) ?></strong> <?= te('mail.reset-code.den-va-chi-dung-duoc-mot-lan', [ e(fmt_datetime($expiresAt)) ]) ?></p>
                 <p><a href="<?= e($resetUrl) ?>" style="display:inline-block;background:#2f6fed;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;"><?= te('mail.reset-code.mo_trang_dat_lai_mat') ?></a></p>
                 <p style="color:#6b7280;font-size:13px;"><?= te('mail.reset-code.neu_ban_khong_yeu_cau') ?></p>
             </td>

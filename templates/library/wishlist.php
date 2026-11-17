@@ -4,7 +4,7 @@
 <div class="title-row">
     <div>
         <h1><?= te('library.wishlist.danh_sach_mong_muon') ?></h1>
-        <p class="sub"><?= fmt_int($total) ?> trò chơi. Giá giảm theo chiến dịch được cập nhật tự động.</p>
+        <p class="sub"><?= te('library.wishlist.tro-choi-gia-giam-theo-chien-dich-duoc-cap-nhat-tu-dong', [ fmt_int($total) ]) ?></p>
     </div>
 </div>
 
@@ -28,7 +28,7 @@
                 </a>
                 <div class="grow">
                     <a class="link" href="<?= e(game_url($g)) ?>"><?= e($g['tieu_de']) ?></a>
-                    <span class="sub"><?= e($g['nha_phat_trien'] ?: label('release_status', $g['trang_thai_phat_hanh'])) ?> · thêm <?= e(time_ago($g['ngay_them'])) ?></span>
+                    <span class="sub"><?= te('library.wishlist.them', [ e($g['nha_phat_trien'] ?: label('release_status', $g['trang_thai_phat_hanh'])) ,  e(time_ago($g['ngay_them'])) ]) ?></span>
                 </div>
                 <?= price_html($g, $isOwned) ?>
                 <div class="cluster">

@@ -136,12 +136,12 @@ $voted = count(array_filter($myVotes, static fn($v) => isset($v['scores']['overa
                 ?>
                 <article class="entry" id="entry-<?= $eid ?>">
                     <?php partial('game-card', ['game' => $en]); ?>
-                    <p class="small faint">Nộp bởi <?= e($en['nop_ten']) ?> · <?= e(fmt_date($en['ngay_nop'])) ?>
+                    <p class="small faint"><?= te('jam.show.nop-boi', [ e($en['nop_ten']) ,  e(fmt_date($en['ngay_nop'])) ]) ?>
                         <?php if ($en['entry_status'] !== 'submitted'): ?> · <span class="pill warn"><?= e(['withdrawn' => te('label.entry_status.withdrawn'), 'disqualified' => te('label.entry_status.disqualified')][$en['entry_status']] ?? $en['entry_status']) ?></span><?php endif; ?>
-                        <?php if ($manager && isset($scores[$eid]['overall'])): ?> · TB <?= number_format($scores[$eid]['overall'], 2, ',', '.') ?> (<?= fmt_int((int)$en['so_phieu']) ?> lượt)<?php endif; ?>
+                        <?php if ($manager && isset($scores[$eid]['overall'])): ?> <?= te('jam.show.tb-luot', [ number_format($scores[$eid]['overall'], 2, ',', '.') ,  fmt_int((int)$en['so_phieu']) ]) ?><?php endif; ?>
                     </p>
                     <?php if ($mineEntry && $phase === 'submissions' && $en['entry_status'] === 'submitted'): ?>
-                        <form method="post" action="<?= e(app_url($self . '/entries/' . $eid . '/withdraw')) ?>" data-confirm="Rút <?= e($en['tieu_de']) ?> khỏi cuộc thi?">
+                        <form method="post" action="<?= e(app_url($self . '/entries/' . $eid . '/withdraw')) ?>" data-confirm="<?= te('jam.show.rut-e-en-tieu-de-khoi-cuoc-thi') ?>">
                             <?= csrf_field() ?><button class="link-btn neg" type="submit"><?= te('jam.withdraw') ?></button>
                         </form>
                     <?php endif; ?>

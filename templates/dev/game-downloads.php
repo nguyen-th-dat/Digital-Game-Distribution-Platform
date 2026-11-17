@@ -8,18 +8,18 @@ $gid = (int)$game['ma'];
 $base = '/dev/games/' . $gid . '/downloads';
 $providerSelect = static function (string $id, string $selected): void {
     echo '<select class="input sm" id="' . e($id) . '" name="nha_cung_cap">';
-    echo '<option value=""' . ($selected === '' ? ' selected' : '') . '>Tự nhận diện từ đường dẫn</option>';
+    echo '<option value=""' . ($selected === '' ? ' selected' : '') . '>' . e(t('dev.game-downloads.tu.nhan.dien.tu.duong.dan')) . '</option>';
     foreach (labels('download_provider') as $k => $t) {
         echo '<option value="' . e($k) . '"' . ($selected === $k ? ' selected' : '') . '>' . e($t) . '</option>';
     }
     echo '</select>';
 };
 $statusTabs = [
-    '' => 'Tất cả',
-    'pending' => 'Chờ duyệt',
-    'active' => 'Đang hoạt động',
-    'hidden' => 'Đã ẩn',
-    'rejected' => 'Bị từ chối',
+    '' => t('common.all'),
+    'pending' => t('dev.game-downloads.cho.duyet'),
+    'active' => t('dev.game-downloads.dang.hoat.dong'),
+    'hidden' => t('dev.game-downloads.da.an'),
+    'rejected' => t('dev.game-downloads.bi.tu.choi'),
 ];
 ?>
 <?php partial('dev-game-tabs', ['game' => $game, 'tab' => $tab]); ?>
@@ -28,7 +28,7 @@ $statusTabs = [
     <section class="panel span-8" aria-labelledby="dl-h">
         <header>
             <h2 id="dl-h"><?= te('dev.game-downloads.lien_ket_tai_ve') ?></h2>
-            <span class="meta"><?= fmt_int((int)($counts['active'] ?? 0)) ?> đang hoạt động<?= ($counts['pending'] ?? 0) > 0 ? ' ' . te('common.dot') . ' ' . fmt_int((int)$counts['pending']) . ' ' . te('dev.game-downloads.cho_duyet') : '' ?></span>
+            <span class="meta"><?= te('dev.game-downloads.dang-hoat-dong', [ fmt_int((int)($counts['active'] ?? 0)) ,  ($counts['pending'] ?? 0) > 0 ? ' ' . te('common.dot') . ' ' . fmt_int((int)$counts['pending']) . ' ' . te('dev.game-downloads.cho_duyet') : '' ]) ?></span>
         </header>
         <p class="hint"><?= te('dev.game-downloads.nguoi_choi_da_so_huu') ?></p>
         <p class="hint"><?= te('dev.game-downloads.du_an_cua_ban_cung') ?> <a class="link" href="<?= e(app_url('/dev/games/' . $gid)) ?>"><?= te('dev.game-downloads.lien_ket_choi_tren_web') ?></a> <?= te('dev.game-downloads.de_nguoi_choi_thay_nut') ?></p>
@@ -40,7 +40,7 @@ $statusTabs = [
         </nav>
 
         <?php if (!$links): ?>
-            <div class="empty"><p><?= $status !== '' ? 'Không có liên kết nào ở trạng thái này.' : 'Chưa có liên kết tải về nào. Thêm Google Drive, OneDrive, Dropbox hoặc bất kỳ đường dẫn nào để người chơi tải dự án.' ?></p></div>
+            <div class="empty"><p><?= $status !== '' ? te('dev.game-downloads.khong.co.lien.ket.nao.o.trang.thai.nay') : te('dev.game-downloads.chua.co.lien.ket.tai.ve.nao') ?></p></div>
         <?php endif; ?>
         <div class="rows">
             <?php foreach ($links as $l): $lid = (int)$l['ma']; ?>
@@ -51,14 +51,10 @@ $statusTabs = [
                         <?= status_pill('download_platform', $l['he_dieu_ke']) ?>
                         <?= status_pill('download_link_status', $l['trang_thai']) ?>
                         <span class="sub">
-                            <?= $l['ten_phien_ban'] ? te('game.version') . ' ' . e($l['ten_phien_ban']) . ' (' . e(label('channel', $l['kenh_phat_hanh'])) . ')' : te('dev.game-downloads.khong_gan_phien_ban') ?>
-                            <?= $l['dung_luong'] ? ' ' . te('common.dot') . ' ' . e($l['dung_luong']) : '' ?>
-                            · <?= fmt_int((int)$l['so_lan_tai']) ?> lượt tải
-                            · thứ tự <?= (int)$l['thu_tu_sap_xep'] ?>
-                            <?= $l['nguoi_dong_gop'] ? ' ' . te('dev.game-downloads.dot_gui_boi') . ' ' . e($l['nguoi_dong_gop']) : '' ?>
+                            <?= te('dev.game-downloads.luot-tai-thu-tu', [ $l['ten_phien_ban'] ? te('game.version') . ' ' . e($l['ten_phien_ban']) . ' (' . e(label('channel', $l['kenh_phat_hanh'])) . ')' : te('dev.game-downloads.khong_gan_phien_ban') ,  $l['dung_luong'] ? ' ' . te('common.dot') . ' ' . e($l['dung_luong']) : '' ,  fmt_int((int)$l['so_lan_tai']) ,  (int)$l['thu_tu_sap_xep'] ,  $l['nguoi_dong_gop'] ? ' ' . te('dev.game-downloads.dot_gui_boi') . ' ' . e($l['nguoi_dong_gop']) : '' ]) ?>
                         </span>
                         <?php if ($l['ghi_chu']): ?><span class="sub"><?= e($l['ghi_chu']) ?></span><?php endif; ?>
-                        <?php if ($l['ly_do_tu_choi']): ?><span class="sub neg-text">Lý do từ chối: <?= e($l['ly_do_tu_choi']) ?></span><?php endif; ?>
+                        <?php if ($l['ly_do_tu_choi']): ?><span class="sub neg-text"><?= te('dev.game-downloads.ly-do-tu-choi', [ e($l['ly_do_tu_choi']) ]) ?></span><?php endif; ?>
                         <span class="sub"><a class="link" href="<?= e($l['url_tai']) ?>" target="_blank" rel="noopener noreferrer"><?= e(excerpt($l['url_tai'], 80)) ?></a></span>
                     </div>
                     <div class="cluster">
@@ -104,7 +100,7 @@ $statusTabs = [
                                 <button class="btn sm primary" type="submit"><?= te('common.save') ?></button>
                             </form>
                         </details>
-                        <form method="post" action="<?= e(app_url($base . '/' . $lid . '/delete')) ?>" data-confirm="Xóa liên kết tải về này?">
+                        <form method="post" action="<?= e(app_url($base . '/' . $lid . '/delete')) ?>" data-confirm="<?= te('dev.game-downloads.xoa-lien-ket-tai-ve-nay') ?>">
                             <?= csrf_field() ?><button class="link-btn neg" type="submit"><?= te('admin.delete') ?></button>
                         </form>
                     </div>

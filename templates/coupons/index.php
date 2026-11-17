@@ -18,7 +18,7 @@ $type = old('loai_giam_gia', 'percent');
 
 <div class="grid top">
     <section class="panel span-8" aria-labelledby="list-h">
-        <header><h2 id="list-h"><?= $isAdmin ? te('coupons.index.tat_ca_ma') : te('coupons.index.ma_cua_ban') ?></h2><span class="meta"><?= fmt_int($total) ?> mã</span></header>
+        <header><h2 id="list-h"><?= $isAdmin ? te('coupons.index.tat_ca_ma') : te('coupons.index.ma_cua_ban') ?></h2><span class="meta"><?= te('coupons.index.ma', [ fmt_int($total) ]) ?></span></header>
         <?php if (!$coupons): ?>
             <div class="empty"><p><?= te('coupon.empty') ?></p></div>
         <?php else: ?>
@@ -72,7 +72,7 @@ $type = old('loai_giam_gia', 'percent');
                 <legend><?= te('coupons.index.loai_giam_gia') ?></legend>
                 <div class="choice-grid">
                     <label class="check"><input type="radio" name="loai_giam_gia" value="percent"<?= $type === 'percent' ? ' checked' : '' ?>> <span><?= te('coupon.percent') ?><span class="sub"><?= te('coupons.index.tu_01_den_100') ?></span></span></label>
-                    <label class="check"><input type="radio" name="loai_giam_gia" value="fixed_amount"<?= $type === 'fixed_amount' ? ' checked' : '' ?>> <span><?= te('coupons.index.so_tien') ?><span class="sub">Tính bằng <?= e(APP_CURRENCY) ?>, không vượt quá giá trị đơn.</span></span></label>
+                    <label class="check"><input type="radio" name="loai_giam_gia" value="fixed_amount"<?= $type === 'fixed_amount' ? ' checked' : '' ?>> <span><?= te('coupons.index.so_tien') ?><span class="sub"><?= te('coupons.index.tinh-bang-khong-vuot-qua-gia-tri-don', [ e(APP_CURRENCY) ]) ?></span></span></label>
                 </div>
             </fieldset>
             <div class="field">

@@ -17,7 +17,7 @@
         <?php foreach (labels('mod_action') as $k => $t): ?><option value="<?= e($k) ?>"<?= $filters['action'] === $k ? ' selected' : '' ?>><?= e($t) ?></option><?php endforeach; ?>
     </select>
     <span class="spacer"></span>
-    <span class="count"><?= fmt_int($total) ?> thao tác</span>
+    <span class="count"><?= te('admin.moderation.thao-tac', [ fmt_int($total) ]) ?></span>
 </form>
 
 <?php if ($rows): ?>

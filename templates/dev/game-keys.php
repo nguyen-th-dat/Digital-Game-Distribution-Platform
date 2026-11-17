@@ -9,7 +9,7 @@ $all = array_sum(array_map('intval', $counts));
 
 <?php if ($fresh): ?>
 <section class="panel section" id="fresh" aria-labelledby="fresh-h">
-    <header><h2 id="fresh-h"><?= te('dev.game-keys.ma_vua_tao') ?></h2><span class="meta"><?= fmt_int(count($fresh)) ?> mã</span></header>
+    <header><h2 id="fresh-h"><?= te('dev.game-keys.ma_vua_tao') ?></h2><span class="meta"><?= te('dev.game-keys.ma', [ fmt_int(count($fresh)) ]) ?></span></header>
     <p class="hint"><?= te('dev.game-keys.sao_chep_va_luu_lai') ?></p>
     <div class="codes" aria-label="<?= te('dev.game-keys.danh_sach_ma') ?>">
         <?php foreach ($fresh as $code): ?><code><?= e($code) ?></code><?php endforeach; ?>
@@ -21,8 +21,8 @@ $all = array_sum(array_map('intval', $counts));
 
 <div class="grid top">
     <section class="panel span-8" aria-labelledby="keys-h">
-        <header><h2 id="keys-h"><?= te('label.ownership.access_key') ?></h2><span class="meta"><?= fmt_int($all) ?> mã</span></header>
-        <p class="hint">Mỗi mã cấp quyền sở hữu trò chơi cho một tài khoản, nhập tại trang Thư viện. Mã chỉ dùng được khi dự án đang công khai hoặc không niêm yết<?= $isPublic ? '.' : '; ' . te('dev.game-keys.du_an_hien_la_ban_nhap') ?></p>
+        <header><h2 id="keys-h"><?= te('label.ownership.access_key') ?></h2><span class="meta"><?= te('dev.game-keys.ma', [ fmt_int($all) ]) ?></span></header>
+        <p class="hint"><?= te('dev.game-keys.moi-ma-cap-quyen-so-huu-tro-choi-cho-mot-tai-khoan-nhap-tai-trang-thu-vien-ma-chi-dung-duoc-khi-du-an-dang-cong-khai-hoac-khong-niem-yet', [ $isPublic ? '.' : '; ' . te('dev.game-keys.du_an_hien_la_ban_nhap') ]) ?></p>
         <nav class="chips chips-row" aria-label="<?= te('admin.games.loc_theo_trang_thai') ?>">
             <a class="chip"<?= $status === '' ? ' aria-current="true"' : '' ?> href="<?= e(app_url($base . qs(['status' => null, 'page' => null]))) ?>"><?= te('common.all') ?> <span class="muted"><?= fmt_int($all) ?></span></a>
             <?php foreach (labels('key_status') as $k => $t): ?>
@@ -30,7 +30,7 @@ $all = array_sum(array_map('intval', $counts));
             <?php endforeach; ?>
         </nav>
         <?php if (!$keys): ?>
-            <div class="empty"><p><?= $status === '' ? 'Chưa có mã nào. Tạo mã để tặng báo chí, người thử nghiệm hoặc người ủng hộ.' : 'Không có mã nào ở trạng thái này.' ?></p></div>
+            <div class="empty"><p><?= $status === '' ? te('dev.game-keys.chua.co.ma.nao') : te('dev.game-keys.khong.co.ma.nao.o.trang.thai.nay') ?></p></div>
         <?php else: ?>
         <div class="table-wrap">
             <table>
@@ -45,7 +45,7 @@ $all = array_sum(array_map('intval', $counts));
                         <td><?php if ($k['nguoi_nhan']): ?><?= e($k['nguoi_nhan']) ?><span class="sub">@<?= e($k['nguoi_nhan_dn']) ?> · <?= e(fmt_datetime($k['ngay_nhan_ma'])) ?></span><?php else: ?><span class="muted"><?= te('dev.game-keys.chua_co') ?></span><?php endif; ?></td>
                         <td>
                             <?php if ($state === 'available'): ?>
-                                <form method="post" action="<?= e(app_url($base . '/' . (int)$k['ma'] . '/revoke')) ?>" data-confirm="Thu hồi mã #<?= (int)$k['ma'] ?>? Mã sẽ không dùng được nữa.">
+                                <form method="post" action="<?= e(app_url($base . '/' . (int)$k['ma'] . '/revoke')) ?>" data-confirm="<?= te('dev.game-keys.thu-hoi-ma-int-k-ma-ma-se-khong-dung-duoc-nua') ?>">
                                     <?= csrf_field() ?><?= return_field() ?>
                                     <button class="link-btn neg" type="submit"><?= te('dev.game-keys.thu_hoi') ?></button>
                                 </form>
@@ -67,7 +67,7 @@ $all = array_sum(array_map('intval', $counts));
             <div class="field">
                 <label for="k-count"><?= te('dev.game-keys.so_luong') ?></label>
                 <input class="input" id="k-count" type="number" name="so_luong" min="1" max="<?= (int)$batch ?>" required value="<?= e(old('so_luong', '10')) ?>">
-                <span class="hint">Tối đa <?= (int)$batch ?> mã mỗi lần.</span>
+                <span class="hint"><?= te('dev.game-keys.toi-da-ma-moi-lan', [ (int)$batch ]) ?></span>
             </div>
             <div class="field">
                 <label for="k-exp"><?= te('dev.game-keys.het_han_sau_ngay') ?></label>
