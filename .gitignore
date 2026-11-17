@@ -1,15 +1,16 @@
+# Dependencies
 /vendor/
-node_modules/
+/node_modules/
 
-.vscode/
-.playwright-mcp/
-.claude/
+# IDE and editor
+/.vscode/
 
-# Local database backups (contain password hashes)
-/database/backup_*.sql
+# AI tools
+/.claude/
+/.cursor/
 
-# Tài liệu hướng dẫn chỉ giữ ở máy
-/HUONG_DAN_SU_DUNG.docx
+# Project directories
+/tools/
+/test/
+/temp/
 
-/.cusor
-/tools
