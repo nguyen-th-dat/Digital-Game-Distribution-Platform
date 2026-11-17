@@ -165,6 +165,17 @@ hr.rule { border: 0; border-top: 1px solid var(--border); margin: var(--gap) 0; 
 .theme-toggle .icon-moon { display: block; }
 :root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
 :root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+/* Language switcher: a globe button that opens the list of languages. */
+.locale-switcher { position: relative; }
+.locale-switcher > summary { list-style: none; display: flex; align-items: center; gap: 6px; height: var(--control-height); padding: 0 8px; border-radius: var(--radius-control); color: var(--nav); cursor: pointer; transition: color var(--t-hover) ease, background-color var(--t-hover) ease; }
+.locale-switcher > summary::-webkit-details-marker { display: none; }
+.locale-switcher > summary:hover { color: var(--text); background: var(--surface); }
+.locale-switcher .locale-code { font-size: var(--fs-small); font-weight: 600; letter-spacing: 0.04em; }
+.locale-switcher .menu { position: absolute; right: 0; top: calc(100% + 8px); width: 180px; padding: 8px; border-radius: 16px; background: var(--raised); display: grid; gap: 2px; z-index: 30; }
+.locale-switcher .menu form { margin: 0; }
+.locale-switcher .menu button { display: flex; align-items: center; width: 100%; height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: none; color: var(--text); text-align: left; cursor: pointer; }
+.locale-switcher .menu button:hover { background: var(--raised-hover); }
+.locale-switcher .menu button.is-active { font-weight: 600; color: var(--accent); }
 .account { position: relative; }
 .account > summary { list-style: none; display: flex; align-items: center; gap: 8px; height: var(--control-height); padding: 0 6px 0 4px; border-radius: var(--radius-control); cursor: pointer; }
 .account > summary::-webkit-details-marker { display: none; }

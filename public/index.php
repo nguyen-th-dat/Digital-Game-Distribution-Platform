@@ -117,6 +117,7 @@ $router->post('/settings/password', 'SettingsController@password');
 $router->post('/settings/privacy', 'SettingsController@privacy');
 $router->post('/settings/developer', 'SettingsController@developer');
 $router->post('/theme/toggle', 'ThemeController@toggle');
+$router->post('/locale/switch', 'LocaleController@switch');
 $router->get('/account', 'SettingsController@legacy');
 $router->get('/account/profile', 'SettingsController@legacy');
 
