@@ -11,6 +11,9 @@ Developed as part of the **Open Source Software Development** course.
 - Nguyễn Võ Hoàng Anh Thư
 - Hồ Xuân Phúc
 
+## Download
+[https://github.com/nguyen-th-dat/Digital-Game-Distribution-Platform/releases/latest](https://github.com/nguyen-th-dat/Digital-Game-Distribution-Platform/releases/latest)
+
 ## Requirements
 
 - PHP 8.2 or newer
